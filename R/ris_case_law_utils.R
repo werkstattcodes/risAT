@@ -221,8 +221,12 @@ ris_build_case_law_params <- function(
     SortierungSortedByColumn = sort_by,
     # The API expects "true" (lowercase string) for these boolean flags, or
     # the parameter should be absent entirely (not "false").
-    SucheInEntscheidungstexten = ris_bool_to_true_or_null(search_decision_text),
-    SucheInRechtssaetzen = ris_bool_to_true_or_null(search_legal_principles),
+    # These are compound parameters under "Dokumenttyp" — the API requires
+    # the parent prefix (e.g. DokumenttypSucheInRechtssaetzen, not just
+    # SucheInRechtssaetzen).  Without the prefix, the API silently ignores
+    # the flags.
+    DokumenttypSucheInEntscheidungstexten = ris_bool_to_true_or_null(search_decision_text),
+    DokumenttypSucheInRechtssaetzen = ris_bool_to_true_or_null(search_legal_principles),
     Seitennummer = as.integer(page),
     # The API uses English word names for page sizes: "Ten", "Twenty", etc.
     DokumenteProSeite = ris_per_page_to_api_value(as.integer(per_page))
@@ -362,7 +366,28 @@ ris_normalize_case_law_decision_type <- function(application_code, decision_type
     return(ris_normalize_vwgh_decision_type(decision_type))
   }
 
-  # For all other applications, pass through as-is.
+  if (identical(application_code, "Bvwg")) {
+    return(ris_normalize_bvwg_decision_type(decision_type))
+  }
+
+  if (identical(application_code, "Lvwg")) {
+    return(ris_normalize_lvwg_decision_type(decision_type))
+  }
+
+  if (identical(application_code, "Justiz")) {
+    return(ris_normalize_justiz_decision_type(decision_type))
+  }
+
+  if (identical(application_code, "Dsk")) {
+    return(ris_normalize_dsk_decision_type(decision_type))
+  }
+
+  if (identical(application_code, "Gbk")) {
+    return(ris_normalize_gbk_decision_type(decision_type))
+  }
+
+  # For applications without a defined decision type enum (Dok, Pvak, etc.),
+  # pass through as-is — the API validates server-side.
   decision_type
 }
 
@@ -423,6 +448,113 @@ ris_normalize_vfgh_decision_type <- function(x) {
     judgment = "Erkenntnis",
     settlement = "Vergleich",
     notspecified = "KeineAngabe"
+  )
+
+  key <- ris_normalize_key(x)
+  checkmate::assert_choice(
+    key,
+    choices = names(lookup),
+    .var.name = "decision_type"
+  )
+
+  unname(lookup[[key]])
+}
+
+# BVwG decision types: Undefined, Beschluss, Erkenntnis.
+ris_normalize_bvwg_decision_type <- function(x) {
+  lookup <- c(
+    undefined = "Undefined",
+    beschluss = "Beschluss",
+    erkenntnis = "Erkenntnis"
+  )
+
+  key <- ris_normalize_key(x)
+  checkmate::assert_choice(
+    key,
+    choices = names(lookup),
+    .var.name = "decision_type"
+  )
+
+  unname(lookup[[key]])
+}
+
+# LVwG decision types: Undefined, Beschluss, Erkenntnis, Bescheid.
+ris_normalize_lvwg_decision_type <- function(x) {
+  lookup <- c(
+    undefined = "Undefined",
+    beschluss = "Beschluss",
+    erkenntnis = "Erkenntnis",
+    bescheid = "Bescheid"
+  )
+
+  key <- ris_normalize_key(x)
+  checkmate::assert_choice(
+    key,
+    choices = names(lookup),
+    .var.name = "decision_type"
+  )
+
+  unname(lookup[[key]])
+}
+
+# Justiz decision types are German phrases.  Because ris_normalize_key()
+# collapses all spaces, we need to build lookup keys by applying the same
+# transform to the canonical values.
+ris_normalize_justiz_decision_type <- function(x) {
+  canonical <- c(
+    "Ordentliche Erledigung (Sachentscheidung)",
+    "Zur\u00fcckweisung mangels erheblicher Rechtsfrage",
+    "Zur\u00fcckweisung aus anderen Gr\u00fcnden",
+    "Verst\u00e4rkter Senat"
+  )
+  lookup <- stats::setNames(canonical, vapply(canonical, ris_normalize_key, character(1)))
+
+  key <- ris_normalize_key(x)
+  checkmate::assert_choice(
+    key,
+    choices = names(lookup),
+    .var.name = "decision_type"
+  )
+
+  unname(lookup[[key]])
+}
+
+# Dsk decision types (14 values).
+ris_normalize_dsk_decision_type <- function(x) {
+  canonical <- c(
+    "Undefined",
+    "BescheidBeschwerde",
+    "BescheidAmtswegigesPruefverfahren",
+    "VerwaltungsstraferkenntnisVerwarnungErmahnung",
+    "BescheidWissenschaftStatistikArchiv",
+    "BescheidInternatDatenverkehr",
+    "BescheidAkkreditierungZertifizierung",
+    "BescheidVerhaltensregeln",
+    "BescheidWarnung",
+    "BescheidRegistrierung",
+    "BescheidSonstiger",
+    "Empfehlung",
+    "BescheidIFG",
+    "Verfahrensschriftsaetze"
+  )
+  lookup <- stats::setNames(canonical, vapply(canonical, ris_normalize_key, character(1)))
+
+  key <- ris_normalize_key(x)
+  checkmate::assert_choice(
+    key,
+    choices = names(lookup),
+    .var.name = "decision_type"
+  )
+
+  unname(lookup[[key]])
+}
+
+# Gbk decision types: Undefined, Einzelfallpruefungsergebnis, Gutachten.
+ris_normalize_gbk_decision_type <- function(x) {
+  lookup <- c(
+    undefined = "Undefined",
+    einzelfallpruefungsergebnis = "Einzelfallpruefungsergebnis",
+    gutachten = "Gutachten"
   )
 
   key <- ris_normalize_key(x)

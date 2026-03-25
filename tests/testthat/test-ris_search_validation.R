@@ -80,8 +80,8 @@ test_that("english args are mapped to documented German RIS parameters", {
   expect_equal(params$Entscheidungsart, "Erkenntnis")
   expect_equal(params$Index, "81/01")
   expect_equal(params$Sammlungsnummer, "12345")
-  expect_equal(params$SucheInEntscheidungstexten, "true")
-  expect_false("SucheInRechtssaetzen" %in% names(params))
+  expect_equal(params$DokumenttypSucheInEntscheidungstexten, "true")
+  expect_false("DokumenttypSucheInRechtssaetzen" %in% names(params))
   expect_equal(params$Seitennummer, 2)
   expect_equal(params$DokumenteProSeite, "OneHundred")
 })
@@ -198,8 +198,8 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
     per_page = 100
   )
 
-  expect_false("SucheInEntscheidungstexten" %in% names(params))
-  expect_false("SucheInRechtssaetzen" %in% names(params))
+  expect_false("DokumenttypSucheInEntscheidungstexten" %in% names(params))
+  expect_false("DokumenttypSucheInRechtssaetzen" %in% names(params))
   expect_equal(params$Applikation, "Normenliste")
   expect_equal(params$Titel, "Example")
   expect_equal(params$Typ, "Norm")
@@ -462,5 +462,214 @@ test_that("ris_search_gbk rejects invalid echo argument", {
   expect_error(
     ris_search_gbk(echo = "yes"),
     "Assertion on 'echo' failed"
+  )
+})
+
+# ── Input type validation (checkmate assertions) ────────────────────────────
+
+test_that("common string params reject non-string input", {
+  expect_error(
+    ris_req_case_law(application = "Vwgh", query = 123),
+    "Assertion on 'query' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", business_number = TRUE),
+    "Assertion on 'business_number' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", norm = 42),
+    "Assertion on 'norm' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", index_term = list("a")),
+    "Assertion on 'index_term' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", collection_number = 123),
+    "Assertion on 'collection_number' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", base_url = NULL),
+    "Assertion on 'base_url' failed"
+  )
+})
+
+test_that("date params reject malformed strings", {
+  expect_error(
+    ris_req_case_law(application = "Vwgh", decision_date_from = "01-2024-01"),
+    "Assertion on 'decision_date_from' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", decision_date_to = "2024/01/01"),
+    "Assertion on 'decision_date_to' failed"
+  )
+  expect_error(
+    ris_req_case_law(application = "Vwgh", decision_date_from = 20240101),
+    "Assertion on 'decision_date_from' failed"
+  )
+})
+
+test_that("date params accept valid ISO dates", {
+  req <- ris_req_case_law(
+    application = "Vwgh",
+    decision_date_from = "2024-01-01",
+    decision_date_to = "2024-12-31"
+  )
+  expect_s3_class(req, "httr2_request")
+})
+
+test_that("common string params accept NULL", {
+  req <- ris_req_case_law(
+    application = "Vwgh",
+    query = NULL,
+    business_number = NULL,
+    norm = NULL,
+    decision_date_from = NULL,
+    decision_date_to = NULL
+  )
+  expect_s3_class(req, "httr2_request")
+})
+
+# ── Decision type validation for newly covered courts ───────────────────────
+
+test_that("BVwG decision_type is validated against documented values", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Bvwg", "Erkenntnis"),
+    "Erkenntnis"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Bvwg", "beschluss"),
+    "Beschluss"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Bvwg", "BeschlussVS"),
+    "Assertion on 'decision_type' failed"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Bvwg", "Vergleich"),
+    "Assertion on 'decision_type' failed"
+  )
+})
+
+test_that("LVwG decision_type is validated against documented values", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Lvwg", "Bescheid"),
+    "Bescheid"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Lvwg", "erkenntnis"),
+    "Erkenntnis"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Lvwg", "BeschlussVS"),
+    "Assertion on 'decision_type' failed"
+  )
+})
+
+test_that("Justiz decision_type is validated against documented values", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type(
+      "Justiz", "Ordentliche Erledigung (Sachentscheidung)"
+    ),
+    "Ordentliche Erledigung (Sachentscheidung)"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type(
+      "Justiz", "Verst\u00e4rkter Senat"
+    ),
+    "Verst\u00e4rkter Senat"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Justiz", "Erkenntnis"),
+    "Assertion on 'decision_type' failed"
+  )
+})
+
+test_that("Dsk decision_type is validated against documented values", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Dsk", "BescheidBeschwerde"),
+    "BescheidBeschwerde"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Dsk", "Empfehlung"),
+    "Empfehlung"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Dsk", "Erkenntnis"),
+    "Assertion on 'decision_type' failed"
+  )
+})
+
+test_that("Gbk decision_type is validated against documented values", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Gbk", "Gutachten"),
+    "Gutachten"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type(
+      "Gbk", "Einzelfallpruefungsergebnis"
+    ),
+    "Einzelfallpruefungsergebnis"
+  )
+  expect_error(
+    risAT:::ris_normalize_case_law_decision_type("Gbk", "Beschluss"),
+    "Assertion on 'decision_type' failed"
+  )
+})
+
+test_that("Dok and Pvak pass decision_type through (free-text)", {
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Dok", "SomeType"),
+    "SomeType"
+  )
+  expect_equal(
+    risAT:::ris_normalize_case_law_decision_type("Pvak", "AnotherType"),
+    "AnotherType"
+  )
+})
+
+# ── Wrapper-specific param validation ───────────────────────────────────────
+
+test_that("ris_search_justiz rejects non-string wrapper params", {
+  expect_error(
+    ris_search_justiz(court = 123),
+    "Assertion on 'court' failed"
+  )
+  expect_error(
+    ris_search_justiz(legal_area = TRUE),
+    "Assertion on 'legal_area' failed"
+  )
+  expect_error(
+    ris_search_justiz(citation = list("x")),
+    "Assertion on 'citation' failed"
+  )
+})
+
+test_that("ris_search_lvwg rejects non-string federal_state", {
+  expect_error(
+    ris_search_lvwg(federal_state = 42),
+    "Assertion on 'federal_state' failed"
+  )
+})
+
+test_that("ris_search_dsk rejects non-string deciding_authority", {
+  expect_error(
+    ris_search_dsk(deciding_authority = TRUE),
+    "Assertion on 'deciding_authority' failed"
+  )
+})
+
+test_that("ris_search_gbk rejects non-string commission and senate", {
+  expect_error(
+    ris_search_gbk(commission = 123),
+    "Assertion on 'commission' failed"
+  )
+  expect_error(
+    ris_search_gbk(senate = TRUE),
+    "Assertion on 'senate' failed"
+  )
+  expect_error(
+    ris_search_gbk(discrimination_ground = list("x")),
+    "Assertion on 'discrimination_ground' failed"
   )
 })
