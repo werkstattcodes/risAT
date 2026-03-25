@@ -1,15 +1,3 @@
-test_that("pagination arguments are validated before API calls", {
-  expect_error(
-    ris_search_vfgh(per_page = 0),
-    "`per_page` must be one of: 10, 20, 50, 100."
-  )
-
-  expect_error(
-    ris_search_vfgh(per_page = 15),
-    "`per_page` must be one of: 10, 20, 50, 100."
-  )
-})
-
 test_that("echo must be a logical flag", {
   expect_error(
     ris_search_case_law(application = "Vwgh", echo = "yes"),
@@ -80,7 +68,7 @@ test_that("english args are mapped to documented German RIS parameters", {
     search_decision_text = TRUE,
     search_legal_principles = FALSE,
     page = 2,
-    per_page = 50
+    per_page = 100
   )
 
   expect_equal(params$Applikation, "Vwgh")
@@ -95,7 +83,7 @@ test_that("english args are mapped to documented German RIS parameters", {
   expect_equal(params$SucheInEntscheidungstexten, "true")
   expect_false("SucheInRechtssaetzen" %in% names(params))
   expect_equal(params$Seitennummer, 2)
-  expect_equal(params$DokumenteProSeite, "Fifty")
+  expect_equal(params$DokumenteProSeite, "OneHundred")
 })
 
 test_that("all Judikatur applications can be mapped from english or RIS codes", {
@@ -207,7 +195,7 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
     search_decision_text = flags$search_decision_text,
     search_legal_principles = flags$search_legal_principles,
     page = 1,
-    per_page = 20
+    per_page = 100
   )
 
   expect_false("SucheInEntscheidungstexten" %in% names(params))
@@ -220,16 +208,12 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
 
 test_that("case law page binding harmonizes mixed list/scalar columns", {
   page_1 <- tibble::tibble(
-    page = 1L,
-    per_page = 10L,
     judikatur_vfgh_indizes_item = "41/02",
     content_urls = list(c("https://example.org/1")),
     app_metadata = list(list(request = list(application = "Vfgh")))
   )
 
   page_2 <- tibble::tibble(
-    page = 2L,
-    per_page = 10L,
     judikatur_vfgh_indizes_item = list(c("41/02", "41/03")),
     content_urls = list(c("https://example.org/2")),
     app_metadata = list(list(request = list(application = "Vfgh")))
@@ -283,8 +267,7 @@ test_that("next page calculation for iterative pagination is correct", {
 test_that("ris_req_case_law returns an httr2_request with ris_meta", {
   req <- ris_req_case_law(
     application = "Vfgh",
-    query = "Grundrecht",
-    per_page = 50
+    query = "Grundrecht"
   )
 
   expect_s3_class(req, "httr2_request")
@@ -292,32 +275,24 @@ test_that("ris_req_case_law returns an httr2_request with ris_meta", {
   meta <- attr(req, "ris_meta")
   expect_type(meta, "list")
   expect_equal(meta$application_code, "Vfgh")
-  expect_equal(meta$per_page, 50L)
+  expect_equal(meta$per_page, 100L)
   expect_type(meta$website_urls, "list")
   expect_match(meta$website_urls$app_url, "Vfgh")
   expect_match(meta$website_urls$search_url, "Ergebnis\\.wxe")
-})
-
-test_that("ris_req_case_law validates per_page", {
-  expect_error(
-    ris_req_case_law(application = "Vfgh", per_page = 15),
-    "`per_page` must be one of: 10, 20, 50, 100."
-  )
 })
 
 test_that("ris_req_case_law encodes query params in the URL", {
   req <- ris_req_case_law(
     application = "Vwgh",
     query = "Baurecht",
-    decision_type = "Erkenntnis",
-    per_page = 20
+    decision_type = "Erkenntnis"
   )
 
   url <- req$url
   expect_match(url, "Applikation=Vwgh")
   expect_match(url, "Suchworte=Baurecht")
   expect_match(url, "Entscheidungsart=Erkenntnis")
-  expect_match(url, "DokumenteProSeite=Twenty")
+  expect_match(url, "DokumenteProSeite=OneHundred")
 })
 
 test_that("ris_perform_case_law rejects requests without ris_meta", {

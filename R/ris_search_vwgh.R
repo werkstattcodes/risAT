@@ -30,9 +30,8 @@
 #'
 #' @inheritParams ris_search_case_law
 #'
-#' @return A tidy tibble with parsed search results from all pages in scope.
-#'   Includes `page`, `per_page`, and list-columns `content_urls`,
-#'   `app_metadata`.
+#' @return A tidy tibble with parsed search results.
+#'   Includes list-columns `content_urls` and `app_metadata`.
 #'
 #' @examples
 #' \dontrun{
@@ -57,15 +56,14 @@
 #' # Multiple norms: wrap each in single quotes and join with "oder"
 #' ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
 #'
-#' # Filter by decision type and date range, 50 results per page.
+#' # Filter by decision type and date range.
 #' # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
 #' # "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).
 #' ris_search_vwgh(
 #'   query = "Ermessen",
 #'   decision_type = "Erkenntnis",
 #'   decision_date_from = "2022-01-01",
-#'   decision_date_to = "2023-12-31",
-#'   per_page = 50
+#'   decision_date_to = "2023-12-31"
 #' )
 #'
 #' # Reinforced senate judgments (ErkenntnisVS) added to RIS in the last month
@@ -101,7 +99,6 @@ ris_search_vwgh <- function(
     in_ris_since = NULL,
     search_decision_text = TRUE,
     search_legal_principles = TRUE,
-    per_page = 20L,
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
@@ -121,7 +118,6 @@ ris_search_vwgh <- function(
     sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
-    per_page = per_page,
     echo = echo,
     base_url = base_url
   )
