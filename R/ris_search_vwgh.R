@@ -74,10 +74,15 @@
 #'   in_ris_since = "one_month"
 #' )
 #'
+#' # Search by Index (numeric classification of Austrian law).
+#' # Federal law index values start with a number (e.g. "40/01" for Steuerrecht),
+#' # state law index values start with "L" (e.g. "L37152" for Tiroler Baurecht).
+#' ris_search_vwgh(index_term = "40/01")
+#'
 #' # Look up a specific case by business number and echo the equivalent
 #' # browser URL on www.ris.bka.gv.at.
 #' # VwGH business number formats: "Ra YYYY/XX/NNNN", "Ro YYYY/XX/NNNN",
-#' # or older format "YYYY/XX/NNNN".
+#' # or older format "YYYY/XX/NNNN". VwGH decisions are available from 1990.
 #' ris_search_vwgh(
 #'   business_number = "Ra 2021/01/0001",
 #'   echo = TRUE

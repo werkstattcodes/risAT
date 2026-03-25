@@ -89,13 +89,22 @@
 #'   per_page = 50
 #' )
 #'
+#' # Search by Index (numeric classification of Austrian law).
+#' # Federal law index values start with a number (e.g. "32/02" for Steuerrecht,
+#' # "07/01" for Verfassungsrecht), state law index values start with "L"
+#' # (e.g. "L6500"). The full index list is linked from the VfGH search page.
+#' ris_search_vfgh(index_term = "07/01")
+#'
 #' # Look up a specific case by business number and echo the equivalent
 #' # browser URL on www.ris.bka.gv.at.
-#' # VfGH business number formats (four-digit year since 08.04.2013):
-#' #   G NNNN/YYYY  (constitutional review of laws)
-#' #   V NNN/YYYY   (review of ordinances)
-#' #   U NNN/YYYY   (individual complaint Art144 B-VG)
-#' #   E NNN/YYYY   (complaint under EU Charter)
+#' # VfGH decisions are available from 1980 in full text; selected decisions
+#' # from 1919-1933 and 1946-1979 are available as PDF scans.
+#' # Business number formats (four-digit year since 08.04.2013):
+#' #   G NNNN/YYYY  (constitutional review of laws, Gesetzesprüfung)
+#' #   V NNN/YYYY   (review of ordinances, Verordnungsprüfung)
+#' #   U NNN/YYYY   (individual complaint, Art144 B-VG)
+#' #   E NNN/YYYY   (complaint under EU Charter of Fundamental Rights)
+#' #   B NNN/YY     (old-style individual complaint, pre-2013)
 #' ris_search_vfgh(
 #'   business_number = "G 97/2021",
 #'   echo = TRUE
