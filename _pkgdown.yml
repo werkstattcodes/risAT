@@ -15,6 +15,7 @@ navbar:
 
 reference:
   - title: "Search Functions — Generic"
+    desc: "Search across all Judikatur applications with a single function."
     contents:
       - ris_search_case_law
 
