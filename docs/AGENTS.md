@@ -76,8 +76,6 @@ User-facing arguments (English):
 - decision_date_to
 - decision_type
 - search_in
-- page
-- per_page
 
 Internal mapping:
 
@@ -89,8 +87,6 @@ Internal mapping:
 | decision_date_from | EntscheidungsdatumVon |
 | decision_date_to   | EntscheidungsdatumBis |
 | decision_type      | Entscheidungsart      |
-| page               | Seitennummer          |
-| per_page           | DokumenteProSeite     |
 
 Search location mapping:
 

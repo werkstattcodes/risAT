@@ -1,12 +1,15 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://werkstattcodes.github.io/risAT/404.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/AGENTS.html</loc></url>
+<url><loc>https://werkstattcodes.github.io/risAT/CLAUDE.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/LICENSE-text.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/authors.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/index.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/news/index.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/reference/index.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/reference/ris_parse_search.html</loc></url>
+<url><loc>https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.html</loc></url>
+<url><loc>https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.html</loc></url>
 <url><loc>https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.html</loc></url>

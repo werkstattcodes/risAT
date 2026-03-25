@@ -29,9 +29,11 @@ reference:
     contents:
       - ris_parse_search
 
-exclude:
-  - AGENTS.md
-
 build:
   exclude:
     - AGENTS.md
+    - CLAUDE.md
+
+authors:
+  Roland Schmidt:
+    href: https://werk.statt.codes

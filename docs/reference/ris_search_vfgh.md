@@ -1,8 +1,8 @@
 # Search VfGH Decisions in RIS
 
-Defaults are aligned with the VfGH RIS handbook:
-`search_legal_principles = TRUE` and `search_decision_text = FALSE`
-(default search in Rechtssaetze).
+Convenience wrapper around
+[`ris_search_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.md)
+with `application = "Vfgh"`.
 
 ## Usage
 
@@ -17,12 +17,9 @@ ris_search_vfgh(
   index_term = NULL,
   collection_number = NULL,
   in_ris_since = NULL,
-  sort_by = NULL,
-  sort_direction = NULL,
   search_decision_text = FALSE,
   search_legal_principles = TRUE,
-  page = 1L,
-  per_page = 20L,
+  echo = FALSE,
   base_url = "https://data.bka.gv.at/ris/api/v2.6"
 )
 ```
@@ -51,10 +48,45 @@ ris_search_vfgh(
 
 - decision_type:
 
-  Optional decision type (`Entscheidungsart`). For VfGH, accepted values
-  are `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"Vergleich"`,
-  `"KeineAngabe"` and aliases `"order"`, `"judgment"`, `"settlement"`,
-  `"not_specified"`.
+  Optional decision type (`Entscheidungsart`). Allowed values depend on
+  `application`:
+
+  - **VfGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+    `"Vergleich"`, `"KeineAngabe"` (English aliases: `"order"`,
+    `"judgment"`, `"settlement"`, `"not_specified"`).
+
+  - **VwGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+    `"BeschlussVS"`, `"ErkenntnisVS"`.
+
+  - **BVwG**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
+
+  - **LVwG / UVS**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+    `"Bescheid"`.
+
+  - **Justiz**: `"Ordentliche Erledigung (Sachentscheidung)"`,
+    `"Zurückweisung mangels erheblicher Rechtsfrage"`,
+    `"Zurückweisung aus anderen Gründen"`, `"Verstärkter Senat"`.
+
+  - **AsylGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+    `"ErkenntnisGrundsatzentscheidung"`,
+    `"ErkenntnisVerstaerkterSenat"`, `"Bescheid"`.
+
+  - **Ubas**: `"Undefined"`, `"Bescheid"`, `"Ersatzbescheid"`.
+
+  - **Gbk**: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
+    `"Gutachten"`.
+
+  - **Dsk**: `"Undefined"`, `"BescheidBeschwerde"`,
+    `"BescheidAmtswegigesPruefverfahren"`,
+    `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
+    `"BescheidWissenschaftStatistikArchiv"`,
+    `"BescheidInternatDatenverkehr"`,
+    `"BescheidAkkreditierungZertifizierung"`,
+    `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
+    `"BescheidRegistrierung"`, `"BescheidSonstiger"`, `"Empfehlung"`,
+    `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
+
+  Other applications accept free-text or have no decision type filter.
 
 - index_term:
 
@@ -72,18 +104,6 @@ ris_search_vfgh(
   (`"one_week"`, `"two_weeks"`, `"one_month"`, `"three_months"`,
   `"six_months"`, `"one_year"`).
 
-- sort_by:
-
-  Optional sort column (`SortierungSortedByColumn`). For VfGH, accepted
-  values are `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"` and aliases
-  `"business_number"`, `"decision_date"`, `"decision_type"`,
-  `"document_type"`.
-
-- sort_direction:
-
-  Optional sort direction (`SortierungSortDirection`), one of
-  `"Ascending"` or `"Descending"` (case-insensitive).
-
 - search_decision_text:
 
   Optional flag for decision text search (`SucheInEntscheidungstexten`).
@@ -92,15 +112,12 @@ ris_search_vfgh(
 
   Optional flag for legal principles search (`SucheInRechtssaetzen`).
 
-- page:
+- echo:
 
-  Legacy argument kept for backward compatibility. Search functions now
-  always iterate all pages from page `1`.
-
-- per_page:
-
-  Results per page. Allowed values: `10`, `20`, `50`, `100` (mapped to
-  `DokumenteProSeite` values `Ten`, `Twenty`, `Fifty`, `OneHundred`).
+  Logical. If `TRUE`, prints the equivalent RIS website URLs
+  (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
+  `Ergebnis.wxe` query URL) and the number of returned rows, so users
+  can double-check the result set in the browser.
 
 - base_url:
 
@@ -108,16 +125,75 @@ ris_search_vfgh(
 
 ## Value
 
-A tidy tibble with parsed search results from all pages in scope.
-Includes `page`, `per_page`, and list-columns `content_urls`,
-`app_metadata`.
+A tidy tibble with parsed search results. Includes list-columns
+`content_urls` and `app_metadata`.
 
 ## Details
+
+Defaults are aligned with the VfGH RIS handbook:
+`search_legal_principles = TRUE` and `search_decision_text = FALSE`
+(default search in Rechtssaetze).
 
 `decision_type` for VfGH accepts: `"Undefined"`, `"Beschluss"`,
 `"Erkenntnis"`, `"Vergleich"`, `"KeineAngabe"`, and English aliases
 `"order"`, `"judgment"`, `"settlement"`, `"not_specified"`.
 
-`sort_by` for VfGH accepts: `"Geschaeftszahl"`, `"Datum"`, `"Art"`,
-`"Typ"`, and English aliases `"business_number"`, `"decision_date"`,
-`"decision_type"`, `"document_type"`.
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
+# The query field supports full-text operators: space/"und" = AND,
+# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+ris_search_vfgh(query = "Meinungsfreiheit")
+
+# Wildcard and phrase search examples
+ris_search_vfgh(query = "Grundrecht*")
+ris_search_vfgh(query = "'wahlwerbenden Parteien'")
+
+# Also search full decision texts (overrides the VfGH default of RS only)
+ris_search_vfgh(
+  query = "Eigentumsrecht",
+  search_decision_text = TRUE,
+  search_legal_principles = TRUE
+)
+
+# Judgments on a specific norm. Results are always sorted by decision date
+# descending (most recent first).
+# Norm notation: include the year where it is part of the official
+# abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
+# For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+ris_search_vfgh(
+  norm = "B-VG Art7",
+  decision_type = "judgment"
+)
+
+# Search by Sammlungsnummer (collection number from the official VfGH
+# series VfSlg). Enter digits only, without dot, space, or slash.
+ris_search_vfgh(collection_number = "18743")
+
+# Decisions added to RIS within the last six months
+ris_search_vfgh(in_ris_since = "six_months")
+
+# Search by Index (numeric classification of Austrian law).
+# Federal law index values start with a number (e.g. "32/02" for Steuerrecht,
+# "07/01" for Verfassungsrecht), state law index values start with "L"
+# (e.g. "L6500"). The full index list is linked from the VfGH search page.
+ris_search_vfgh(index_term = "07/01")
+
+# Look up a specific case by business number and echo the equivalent
+# browser URL on www.ris.bka.gv.at.
+# VfGH decisions are available from 1980 in full text; selected decisions
+# from 1919-1933 and 1946-1979 are available as PDF scans.
+# Business number formats (four-digit year since 08.04.2013):
+#   G NNNN/YYYY  (constitutional review of laws, Gesetzesprüfung)
+#   V NNN/YYYY   (review of ordinances, Verordnungsprüfung)
+#   U NNN/YYYY   (individual complaint, Art144 B-VG)
+#   E NNN/YYYY   (complaint under EU Charter of Fundamental Rights)
+#   B NNN/YY     (old-style individual complaint, pre-2013)
+ris_search_vfgh(
+  business_number = "G 97/2021",
+  echo = TRUE
+)
+} # }
+```

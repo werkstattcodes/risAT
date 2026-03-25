@@ -1,15 +1,16 @@
-# Search Austrian Case Law in RIS
+# Build a RIS Case Law API Request
 
-Query the Austrian RIS OGD REST API v2.6 endpoint `/Judikatur`. This is
-a convenience wrapper around
-[`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md)
-and
-[`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md).
+Construct an `httr2_request` object for the Austrian RIS OGD REST API
+v2.6 `/Judikatur` endpoint. The request is **not executed**; call
+[`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md)
+to send it and parse the results, or use
+[`httr2::req_dry_run()`](https://httr2.r-lib.org/reference/req_dry_run.html)
+to inspect the URL.
 
 ## Usage
 
 ``` r
-ris_search_case_law(
+ris_req_case_law(
   application,
   query = NULL,
   business_number = NULL,
@@ -41,7 +42,6 @@ ris_search_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  echo = FALSE,
   base_url = "https://data.bka.gv.at/ris/api/v2.6"
 )
 ```
@@ -240,34 +240,29 @@ ris_search_case_law(
 
   Optional flag for legal principles search (`SucheInRechtssaetzen`).
 
-- echo:
-
-  Logical. If `TRUE`, prints the equivalent RIS website URLs
-  (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
-  `Ergebnis.wxe` query URL) and the number of returned rows, so users
-  can double-check the result set in the browser.
-
 - base_url:
 
   API base URL.
 
 ## Value
 
-A tidy tibble with parsed search results. Includes list-columns
-`content_urls` and `app_metadata`.
-
-## Details
-
-Results are fetched iteratively across all pages in scope using
-[`httr2::req_perform_iterative()`](https://httr2.r-lib.org/reference/req_perform_iterative.html).
+An `httr2_request` object with an additional `"ris_meta"` attribute
+containing the application code and website URLs. Pass this to
+[`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md)
+to execute the search.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-ris_search_case_law(
-  application = "federal_administrative_court",
-  query = "Asyl"
+# Build request, then inspect the URL without hitting the network
+req <- ris_req_case_law(
+  application = "constitutional_court",
+  query = "Grundrecht"
 )
+httr2::req_dry_run(req)
+
+# Execute
+results <- ris_perform_case_law(req)
 } # }
 ```

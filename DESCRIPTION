@@ -12,7 +12,8 @@ Authors@R:
 Description: Search helpers for Austrian legal information from the
     Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.
 License: MIT + file LICENSE
-URL: https://werkstattcodes.github.io/risAT
+URL: https://github.com/werkstattcodes/risAT,
+    https://werkstattcodes.github.io/risAT
 BugReports: https://github.com/werkstattcodes/risAT/issues
 Encoding: UTF-8
 LazyData: true

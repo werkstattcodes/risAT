@@ -55,3 +55,28 @@ a:not(nav a) {
   color: #ffffff !important;
   background-color: #404752 !important;
 }
+
+[data-bs-theme="dark"] .navbar-brand {
+  color: #b8bcc8 !important;
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+  color: #9ca3af !important;
+}
+
+[data-bs-theme="dark"] .form-control {
+  color: #b8bcc8 !important;
+  background-color: #404752 !important;
+  border-color: #555 !important;
+}
+
+/* Logo sizing (ready for when logo is added) */
+img.logo {
+  width: 200px !important;
+}
+
+/* Reduce spacing for paragraphs inside list items within the "Details" section */
+.section.level2:has(h2#details) ul li p {
+  margin-bottom: 0.25em;
+  line-height: 1.4;
+}
