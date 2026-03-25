@@ -33,6 +33,61 @@
 #' @return A tidy tibble with parsed search results from all pages in scope.
 #'   Includes `page`, `per_page`, and list-columns `content_urls`,
 #'   `app_metadata`.
+#'
+#' @examples
+#' \dontrun{
+#' # Keyword search across both decision texts and Rechtssaetze (default).
+#' # The query field supports full-text operators: space/"und" = AND,
+#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' ris_search_vwgh(query = "Asylrecht")
+#'
+#' # Wildcard and phrase search examples
+#' ris_search_vwgh(query = "Verwaltungsstrafe*")
+#' ris_search_vwgh(query = "'unverhältnismäßiger Eingriff'")
+#'
+#' # Search only in Rechtssaetze for a specific legal norm.
+#' # Norm notation: include the year where it is part of the official
+#' # abbreviation (e.g. "AsylG 2005", "StVO 1960", "EStG 1988").
+#' ris_search_vwgh(
+#'   norm = "AsylG 2005 §3",
+#'   search_decision_text = FALSE,
+#'   search_legal_principles = TRUE
+#' )
+#'
+#' # Multiple norms: wrap each in single quotes and join with "oder"
+#' ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+#'
+#' # Filter by decision type and date range, 50 results per page.
+#' # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
+#' # "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).
+#' ris_search_vwgh(
+#'   query = "Ermessen",
+#'   decision_type = "Erkenntnis",
+#'   decision_date_from = "2022-01-01",
+#'   decision_date_to = "2023-12-31",
+#'   per_page = 50
+#' )
+#'
+#' # Reinforced senate judgments (ErkenntnisVS) added to RIS in the last month
+#' ris_search_vwgh(
+#'   decision_type = "ErkenntnisVS",
+#'   in_ris_since = "one_month"
+#' )
+#'
+#' # Search by Index (numeric classification of Austrian law).
+#' # Federal law index values start with a number (e.g. "40/01" for Steuerrecht),
+#' # state law index values start with "L" (e.g. "L37152" for Tiroler Baurecht).
+#' ris_search_vwgh(index_term = "40/01")
+#'
+#' # Look up a specific case by business number and echo the equivalent
+#' # browser URL on www.ris.bka.gv.at.
+#' # VwGH business number formats: "Ra YYYY/XX/NNNN", "Ro YYYY/XX/NNNN",
+#' # or older format "YYYY/XX/NNNN". VwGH decisions are available from 1990.
+#' ris_search_vwgh(
+#'   business_number = "Ra 2021/01/0001",
+#'   echo = TRUE
+#' )
+#' }
 #' @export
 ris_search_vwgh <- function(
     query = NULL,
@@ -44,8 +99,6 @@ ris_search_vwgh <- function(
     index_term = NULL,
     collection_number = NULL,
     in_ris_since = NULL,
-    sort_by = NULL,
-    sort_direction = NULL,
     search_decision_text = TRUE,
     search_legal_principles = TRUE,
     per_page = 20L,
@@ -64,8 +117,8 @@ ris_search_vwgh <- function(
     index_term = index_term,
     collection_number = collection_number,
     in_ris_since = in_ris_since,
-    sort_by = sort_by,
-    sort_direction = sort_direction,
+    sort_by = "Datum",
+    sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     per_page = per_page,

@@ -19,9 +19,7 @@
 #   "Undefined", "Beschluss", "Erkenntnis", "Vergleich", "KeineAngabe"
 # with English aliases: "order", "judgment", "settlement", "not_specified".
 #
-# sort_by for VfGH/VwGH supports:
-#   German: "Geschaeftszahl", "Datum", "Art", "Typ"
-#   English: "business_number", "decision_date", "decision_type", "document_type"
+# Results are always sorted by decision date descending (most recent first).
 # ============================================================================
 
 #' Search VfGH Decisions in RIS
@@ -38,17 +36,71 @@
 #' `"KeineAngabe"`, and English aliases
 #' `"order"`, `"judgment"`, `"settlement"`, `"not_specified"`.
 #'
-#' `sort_by` for VfGH accepts:
-#' `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"`,
-#' and English aliases
-#' `"business_number"`, `"decision_date"`, `"decision_type"`,
-#' `"document_type"`.
-#'
 #' @inheritParams ris_search_case_law
 #'
 #' @return A tidy tibble with parsed search results from all pages in scope.
 #'   Includes `page`, `per_page`, and list-columns `content_urls`,
 #'   `app_metadata`.
+#'
+#' @examples
+#' \dontrun{
+#' # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
+#' # The query field supports full-text operators: space/"und" = AND,
+#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' ris_search_vfgh(query = "Meinungsfreiheit")
+#'
+#' # Wildcard and phrase search examples
+#' ris_search_vfgh(query = "Grundrecht*")
+#' ris_search_vfgh(query = "'wahlwerbenden Parteien'")
+#'
+#' # Also search full decision texts (overrides the VfGH default of RS only)
+#' ris_search_vfgh(
+#'   query = "Eigentumsrecht",
+#'   search_decision_text = TRUE,
+#'   search_legal_principles = TRUE
+#' )
+#'
+#' # Judgments on a specific norm. Results are always sorted by decision date
+#' # descending (most recent first).
+#' # Norm notation: include the year where it is part of the official
+#' # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
+#' # For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+#' ris_search_vfgh(
+#'   norm = "B-VG Art7",
+#'   decision_type = "judgment"
+#' )
+#'
+#' # Search by Sammlungsnummer (collection number from the official VfGH
+#' # series VfSlg). Enter digits only, without dot, space, or slash.
+#' ris_search_vfgh(collection_number = "18743")
+#'
+#' # Decisions added to RIS within the last six months, 50 per page
+#' ris_search_vfgh(
+#'   in_ris_since = "six_months",
+#'   per_page = 50
+#' )
+#'
+#' # Search by Index (numeric classification of Austrian law).
+#' # Federal law index values start with a number (e.g. "32/02" for Steuerrecht,
+#' # "07/01" for Verfassungsrecht), state law index values start with "L"
+#' # (e.g. "L6500"). The full index list is linked from the VfGH search page.
+#' ris_search_vfgh(index_term = "07/01")
+#'
+#' # Look up a specific case by business number and echo the equivalent
+#' # browser URL on www.ris.bka.gv.at.
+#' # VfGH decisions are available from 1980 in full text; selected decisions
+#' # from 1919-1933 and 1946-1979 are available as PDF scans.
+#' # Business number formats (four-digit year since 08.04.2013):
+#' #   G NNNN/YYYY  (constitutional review of laws, Gesetzesprüfung)
+#' #   V NNN/YYYY   (review of ordinances, Verordnungsprüfung)
+#' #   U NNN/YYYY   (individual complaint, Art144 B-VG)
+#' #   E NNN/YYYY   (complaint under EU Charter of Fundamental Rights)
+#' #   B NNN/YY     (old-style individual complaint, pre-2013)
+#' ris_search_vfgh(
+#'   business_number = "G 97/2021",
+#'   echo = TRUE
+#' )
+#' }
 #' @export
 ris_search_vfgh <- function(
     query = NULL,
@@ -60,8 +112,6 @@ ris_search_vfgh <- function(
     index_term = NULL,
     collection_number = NULL,
     in_ris_since = NULL,
-    sort_by = NULL,
-    sort_direction = NULL,
     search_decision_text = FALSE,
     search_legal_principles = TRUE,
     per_page = 20L,
@@ -80,8 +130,8 @@ ris_search_vfgh <- function(
     index_term = index_term,
     collection_number = collection_number,
     in_ris_since = in_ris_since,
-    sort_by = sort_by,
-    sort_direction = sort_direction,
+    sort_by = "Datum",
+    sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     per_page = per_page,
