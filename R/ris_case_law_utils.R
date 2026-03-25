@@ -518,20 +518,6 @@ ris_normalize_document_type_flags <- function(
   )
 }
 
-# -- Per-page validation -------------------------------------------------------
-# The API only accepts four page sizes: 10, 20, 50, 100.  These correspond to
-# the DokumenteProSeite enum values "Ten", "Twenty", "Fifty", "OneHundred".
-# We validate early to give a clear error rather than a cryptic API response.
-ris_validate_per_page <- function(per_page) {
-  if (!is.numeric(per_page) || length(per_page) != 1L || is.na(per_page) || per_page %% 1 != 0) {
-    stop("`per_page` must be one of: 10, 20, 50, 100.", call. = FALSE)
-  }
-  if (!as.integer(per_page) %in% c(10L, 20L, 50L, 100L)) {
-    stop("`per_page` must be one of: 10, 20, 50, 100.", call. = FALSE)
-  }
-  invisible(TRUE)
-}
-
 # -- Date normalization --------------------------------------------------------
 # Coerce dates to ISO 8601 (YYYY-MM-DD) strings for the API.  Accepts any
 # input that as.Date() can parse (Date objects, "YYYY-MM-DD" strings, etc.).

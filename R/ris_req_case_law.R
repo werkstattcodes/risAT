@@ -85,9 +85,6 @@
 #'   (`SucheInEntscheidungstexten`).
 #' @param search_legal_principles Optional flag for legal principles search
 #'   (`SucheInRechtssaetzen`).
-#' @param per_page Results per page. Allowed values: `10`, `20`, `50`, `100`
-#'   (mapped to `DokumenteProSeite` values `Ten`, `Twenty`, `Fifty`,
-#'   `OneHundred`).
 #' @param base_url API base URL.
 #'
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
@@ -139,15 +136,13 @@ ris_req_case_law <- function(
     in_ris_since = NULL,
     search_decision_text = NULL,
     search_legal_principles = NULL,
-    per_page = 20L,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
   # -- Step 1: Validate & normalize inputs ------------------------------------
   # Translate the user-facing application name (which may be an English alias
   # like "constitutional_court") into the canonical RIS code (e.g. "Vfgh").
-  # Also validate per_page early so we fail fast on bad input.
   application_code <- ris_case_law_application_to_code(application)
-  ris_validate_per_page(per_page)
+  per_page <- 100L
 
   # Normalize decision_type based on which court application was selected.
   # VwGH and VfGH have specific allowed enums; other applications pass through.

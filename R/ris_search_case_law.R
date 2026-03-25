@@ -30,17 +30,15 @@
 #'   `Ergebnis.wxe` query URL) and the number of returned rows, so users can
 #'   double-check the result set in the browser.
 #'
-#' @return A tidy tibble with parsed search results from all pages in scope.
-#'   Includes `page`, `per_page`, and list-columns `content_urls`,
-#'   `app_metadata`.
+#' @return A tidy tibble with parsed search results.
+#'   Includes list-columns `content_urls` and `app_metadata`.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' ris_search_case_law(
 #'   application = "federal_administrative_court",
-#'   query = "Asyl",
-#'   per_page = 20
+#'   query = "Asyl"
 #' )
 #' }
 ris_search_case_law <- function(
@@ -75,7 +73,6 @@ ris_search_case_law <- function(
     in_ris_since = NULL,
     search_decision_text = NULL,
     search_legal_principles = NULL,
-    per_page = 20L,
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
@@ -113,7 +110,6 @@ ris_search_case_law <- function(
     in_ris_since = in_ris_since,
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
-    per_page = per_page,
     base_url = base_url
   )
 

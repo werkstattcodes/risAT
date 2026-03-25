@@ -38,9 +38,8 @@
 #'
 #' @inheritParams ris_search_case_law
 #'
-#' @return A tidy tibble with parsed search results from all pages in scope.
-#'   Includes `page`, `per_page`, and list-columns `content_urls`,
-#'   `app_metadata`.
+#' @return A tidy tibble with parsed search results.
+#'   Includes list-columns `content_urls` and `app_metadata`.
 #'
 #' @examples
 #' \dontrun{
@@ -74,11 +73,8 @@
 #' # series VfSlg). Enter digits only, without dot, space, or slash.
 #' ris_search_vfgh(collection_number = "18743")
 #'
-#' # Decisions added to RIS within the last six months, 50 per page
-#' ris_search_vfgh(
-#'   in_ris_since = "six_months",
-#'   per_page = 50
-#' )
+#' # Decisions added to RIS within the last six months
+#' ris_search_vfgh(in_ris_since = "six_months")
 #'
 #' # Search by Index (numeric classification of Austrian law).
 #' # Federal law index values start with a number (e.g. "32/02" for Steuerrecht,
@@ -114,7 +110,6 @@ ris_search_vfgh <- function(
     in_ris_since = NULL,
     search_decision_text = FALSE,
     search_legal_principles = TRUE,
-    per_page = 20L,
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
@@ -134,7 +129,6 @@ ris_search_vfgh <- function(
     sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
-    per_page = per_page,
     echo = echo,
     base_url = base_url
   )

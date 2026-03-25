@@ -29,17 +29,15 @@
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   and the number of returned rows.
 #'
-#' @return A tidy tibble with parsed search results from all pages in scope.
-#'   Includes `page`, `per_page`, and list-columns `content_urls`,
-#'   `app_metadata`.
+#' @return A tidy tibble with parsed search results.
+#'   Includes list-columns `content_urls` and `app_metadata`.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' req <- ris_req_case_law(
 #'   application = "federal_administrative_court",
-#'   query = "Asyl",
-#'   per_page = 20
+#'   query = "Asyl"
 #' )
 #' results <- ris_perform_case_law(req)
 #' }
@@ -90,12 +88,8 @@ ris_perform_case_law <- function(req, echo = FALSE) {
       if (nrow(page_tbl) == 0L) {
         return(NULL)
       }
-      dplyr::mutate(
-        page_tbl,
-        page = as.integer(idx),
-        per_page = per_page,
-        .before = 1L
-      )
+      page_tbl$.page_idx <- as.integer(idx)
+      page_tbl
     }
   )
 
@@ -108,11 +102,9 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   # -- Step 5: Handle empty results -------------------------------------------
   # Return a zero-row tibble with the expected column structure rather than
   # an unstructured empty tibble.  This ensures downstream code that expects
-  # specific columns (page, per_page, content_urls, app_metadata) won't break.
+  # specific columns (content_urls, app_metadata) won't break.
   if (nrow(out) == 0L) {
     empty_out <- tibble::tibble(
-      page = integer(),
-      per_page = integer(),
       content_urls = list(),
       app_metadata = list()
     )
@@ -131,7 +123,7 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   # row.  This is invaluable for debugging and reproducibility.
   out$app_metadata <- purrr::map2(
     out$app_metadata,
-    out$page,
+    out$.page_idx,
     ~ c(
       .x,
       list(
@@ -146,6 +138,9 @@ ris_perform_case_law <- function(req, echo = FALSE) {
       )
     )
   )
+
+  # Drop the temporary page index column used for app_metadata enrichment.
+  out$.page_idx <- NULL
 
   # Attach RIS URLs as top-level attributes on the output tibble for easy
   # programmatic access (e.g. attr(result, "ris_search_url")).

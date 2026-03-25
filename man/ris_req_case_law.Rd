@@ -38,7 +38,6 @@ ris_req_case_law(
   sort_direction = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  per_page = 20L,
   base_url = "https://data.bka.gv.at/ris/api/v2.6"
 )
 }
@@ -139,10 +138,6 @@ one of \code{"Ascending"} or \code{"Descending"} (case-insensitive).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
 (\code{SucheInRechtssaetzen}).}
-
-\item{per_page}{Results per page. Allowed values: \code{10}, \code{20}, \code{50}, \code{100}
-(mapped to \code{DokumenteProSeite} values \code{Ten}, \code{Twenty}, \code{Fifty},
-\code{OneHundred}).}
 
 \item{base_url}{API base URL.}
 }

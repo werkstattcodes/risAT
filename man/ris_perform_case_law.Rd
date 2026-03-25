@@ -14,9 +14,8 @@ ris_perform_case_law(req, echo = FALSE)
 and the number of returned rows.}
 }
 \value{
-A tidy tibble with parsed search results from all pages in scope.
-Includes \code{page}, \code{per_page}, and list-columns \code{content_urls},
-\code{app_metadata}.
+A tidy tibble with parsed search results.
+Includes list-columns \code{content_urls} and \code{app_metadata}.
 }
 \description{
 Execute a request built by \code{\link[=ris_req_case_law]{ris_req_case_law()}} and return parsed results.
@@ -27,8 +26,7 @@ All available pages are fetched iteratively using
 \dontrun{
 req <- ris_req_case_law(
   application = "federal_administrative_court",
-  query = "Asyl",
-  per_page = 20
+  query = "Asyl"
 )
 results <- ris_perform_case_law(req)
 }
