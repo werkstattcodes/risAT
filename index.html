@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Interface to the Austrian RIS OGD REST API • risAT</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -14,6 +19,7 @@
 <meta property="og:title" content="Interface to the Austrian RIS OGD REST API">
 <meta name="description" content="Search helpers for Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.">
 <meta property="og:description" content="Search helpers for Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.">
+<meta property="og:image" content="https://werkstattcodes.github.io/risAT/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -56,11 +62,13 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="risat">risAT<a class="anchor" aria-label="anchor" href="#risat"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="risat">risAT<a class="anchor" aria-label="anchor" href="#risat"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
-<p>The risAT package provides a tidyverse-friendly interface to the Austrian <a href="https://www.ris.bka.gv.at/" class="external-link">RIS</a> (Rechtsinformationssystem) Open Government Data REST API v2.6. It currently focuses on the <code>/Judikatur</code> endpoint (case law / jurisprudence) and is designed for reproducible legal research.</p>
+<p>The risAT package provides a tidyverse-friendly interface to the Austrian <a href="https://www.ris.bka.gv.at/" class="external-link">RIS</a> (Rechtsinformationssystem) Open Government Data REST API v2.6. It covers the <code>/Judikatur</code> endpoint (case law / jurisprudence) across all supported court applications and is designed for reproducible legal research.</p>
 <p>Please note that the package is <strong>in a development stage</strong>. Upcoming changes may break existing code. If you encounter any bug, you are welcome to file an issue at the package’s <a href="https://github.com/werkstattcodes/risAT/issues" class="external-link">GitHub repo</a>.</p>
 <p>Also note that neither the package nor its author is affiliated with the Austrian Federal Chancellery (BKA) or the RIS.</p>
 <div class="section level2">
@@ -74,24 +82,68 @@
 <div class="section level2">
 <h2 id="available-court-applications-and-functions">Available court applications and functions<a class="anchor" aria-label="anchor" href="#available-court-applications-and-functions"></a>
 </h2>
-<p>The RIS Judikatur endpoint covers multiple court applications. risAT currently provides convenience wrappers for the following, plus a generic search function that covers all applications:</p>
+<p>The RIS Judikatur endpoint covers multiple court applications. risAT provides convenience wrappers for all of them, plus a generic search function that accepts any application code:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Court / Application</th>
-<th>risAT Function</th>
+<th>Function</th>
+<th>Notes</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td>All Judikatur applications</td>
 <td><code><a href="reference/ris_search_case_law.html">ris_search_case_law()</a></code></td>
+<td>Generic; accepts any application code</td>
 </tr>
 <tr class="even">
-<td>VwGH (Administrative Court)</td>
-<td><code><a href="reference/ris_search_vwgh.html">ris_search_vwgh()</a></code></td>
-</tr>
-<tr class="odd">
 <td>VfGH (Constitutional Court)</td>
 <td><code><a href="reference/ris_search_vfgh.html">ris_search_vfgh()</a></code></td>
+<td>Defaults to Rechtssätze</td>
+</tr>
+<tr class="odd">
+<td>VwGH (Administrative Court)</td>
+<td><code><a href="reference/ris_search_vwgh.html">ris_search_vwgh()</a></code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Justiz (OGH, OLG, LG, BG)</td>
+<td><code><a href="reference/ris_search_justiz.html">ris_search_justiz()</a></code></td>
+<td>Richest parameter set</td>
+</tr>
+<tr class="odd">
+<td>BVwG (Federal Administrative Court)</td>
+<td><code><a href="reference/ris_search_bvwg.html">ris_search_bvwg()</a></code></td>
+<td>Since 2014</td>
+</tr>
+<tr class="even">
+<td>LVwG (9 state administrative courts)</td>
+<td><code><a href="reference/ris_search_lvwg.html">ris_search_lvwg()</a></code></td>
+<td>Use <code>federal_state</code> to narrow</td>
+</tr>
+<tr class="odd">
+<td>DSK / DSB / PDK (data protection)</td>
+<td><code><a href="reference/ris_search_dsk.html">ris_search_dsk()</a></code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>BDB / DK / DOK / BK (disciplinary)</td>
+<td><code><a href="reference/ris_search_dok.html">ris_search_dok()</a></code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>PVAK / PVAB (staff representation)</td>
+<td><code><a href="reference/ris_search_pvak.html">ris_search_pvak()</a></code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>GBK (equal treatment commissions)</td>
+<td><code><a href="reference/ris_search_gbk.html">ris_search_gbk()</a></code></td>
+<td>No doc-type flags</td>
 </tr>
 </tbody>
 </table>
@@ -123,25 +175,31 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/werkstattcodes/risAT" class="external-link">risAT</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Search all Judikatur applications via a single english API</span></span>
-<span><span class="va">results_bvwg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_case_law.html">ris_search_case_law</a></span><span class="op">(</span></span>
-<span>  application <span class="op">=</span> <span class="st">"federal_administrative_court"</span>,</span>
-<span>  query <span class="op">=</span> <span class="st">"Asyl"</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">20</span></span>
-<span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># Convenience wrapper: Administrative Court (VwGH)</span></span>
-<span><span class="va">results_vwgh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_vwgh.html">ris_search_vwgh</a></span><span class="op">(</span></span>
-<span>  query <span class="op">=</span> <span class="st">"Baurecht"</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">10</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">results_vwgh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_vwgh.html">ris_search_vwgh</a></span><span class="op">(</span>query <span class="op">=</span> <span class="st">"Baurecht"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Convenience wrapper: Constitutional Court (VfGH)</span></span>
 <span><span class="co"># Defaults to Rechtssätze (RS). Set `search_decision_text = TRUE`</span></span>
 <span><span class="co"># to include Entscheidungstexte (TE).</span></span>
-<span><span class="va">results_vfgh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_vfgh.html">ris_search_vfgh</a></span><span class="op">(</span></span>
-<span>  query <span class="op">=</span> <span class="st">"Grundrecht"</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="va">results_vfgh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_vfgh.html">ris_search_vfgh</a></span><span class="op">(</span>query <span class="op">=</span> <span class="st">"Grundrecht"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Convenience wrapper: Federal Administrative Court (BVwG)</span></span>
+<span><span class="va">results_bvwg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_bvwg.html">ris_search_bvwg</a></span><span class="op">(</span></span>
+<span>  query <span class="op">=</span> <span class="st">"Asyl"</span>,</span>
+<span>  decision_type <span class="op">=</span> <span class="st">"Erkenntnis"</span>,</span>
+<span>  decision_date_from <span class="op">=</span> <span class="st">"2023-01-01"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Ordinary courts: OGH and below</span></span>
+<span><span class="va">results_ogh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_justiz.html">ris_search_justiz</a></span><span class="op">(</span></span>
+<span>  query <span class="op">=</span> <span class="st">"Schadenersatz"</span>,</span>
+<span>  court <span class="op">=</span> <span class="st">"OGH"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generic search across all Judikatur applications</span></span>
+<span><span class="va">results_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_case_law.html">ris_search_case_law</a></span><span class="op">(</span></span>
+<span>  application <span class="op">=</span> <span class="st">"data_protection"</span>,</span>
+<span>  query <span class="op">=</span> <span class="st">"Videoüberwachung"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
