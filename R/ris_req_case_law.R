@@ -177,6 +177,36 @@ ris_req_case_law <- function(
     search_legal_principles = NULL,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  # -- Step 0: Assert input types -----------------------------------------------
+  checkmate::assert_string(query, null.ok = TRUE, .var.name = "query")
+  checkmate::assert_string(business_number, null.ok = TRUE, .var.name = "business_number")
+  checkmate::assert_string(norm, null.ok = TRUE, .var.name = "norm")
+  checkmate::assert_string(decision_date_from, null.ok = TRUE,
+    pattern = "^\\d{4}-\\d{2}-\\d{2}$", .var.name = "decision_date_from")
+  checkmate::assert_string(decision_date_to, null.ok = TRUE,
+    pattern = "^\\d{4}-\\d{2}-\\d{2}$", .var.name = "decision_date_to")
+  checkmate::assert_string(index_term, null.ok = TRUE, .var.name = "index_term")
+  checkmate::assert_string(collection_number, null.ok = TRUE, .var.name = "collection_number")
+  checkmate::assert_string(title, null.ok = TRUE, .var.name = "title")
+  checkmate::assert_string(document_kind, null.ok = TRUE, .var.name = "document_kind")
+  checkmate::assert_string(publication_organ, null.ok = TRUE, .var.name = "publication_organ")
+  checkmate::assert_string(legal_area, null.ok = TRUE, .var.name = "legal_area")
+  checkmate::assert_string(specialist_area, null.ok = TRUE, .var.name = "specialist_area")
+  checkmate::assert_string(court, null.ok = TRUE, .var.name = "court")
+  checkmate::assert_string(legal_principle_number, null.ok = TRUE, .var.name = "legal_principle_number")
+  checkmate::assert_string(legal_assessment, null.ok = TRUE, .var.name = "legal_assessment")
+  checkmate::assert_string(ruling, null.ok = TRUE, .var.name = "ruling")
+  checkmate::assert_string(citation, null.ok = TRUE, .var.name = "citation")
+  checkmate::assert_string(federal_state, null.ok = TRUE, .var.name = "federal_state")
+  checkmate::assert_string(deciding_authority, null.ok = TRUE, .var.name = "deciding_authority")
+  checkmate::assert_string(commission, null.ok = TRUE, .var.name = "commission")
+  checkmate::assert_string(senate, null.ok = TRUE, .var.name = "senate")
+  checkmate::assert_string(discrimination_ground, null.ok = TRUE, .var.name = "discrimination_ground")
+  checkmate::assert_string(author, null.ok = TRUE, .var.name = "author")
+  checkmate::assert_string(short_title, null.ok = TRUE, .var.name = "short_title")
+  checkmate::assert_string(domain, null.ok = TRUE, .var.name = "domain")
+  checkmate::assert_string(base_url, .var.name = "base_url")
+
   # -- Step 1: Validate & normalize inputs ------------------------------------
   # Translate the user-facing application name (which may be an English alias
   # like "constitutional_court") into the canonical RIS code (e.g. "Vfgh").
@@ -260,7 +290,15 @@ ris_req_case_law <- function(
     in_ris_since = in_ris_since,
     search_decision_text = document_type_flags$search_decision_text,
     search_legal_principles = document_type_flags$search_legal_principles,
-    per_page = as.integer(per_page)
+    per_page = as.integer(per_page),
+    federal_state = federal_state,
+    court = court,
+    legal_area = legal_area,
+    specialist_area = specialist_area,
+    deciding_authority = deciding_authority,
+    commission = commission,
+    senate = senate,
+    discrimination_ground = discrimination_ground
   )
 
   # -- Step 4: Construct the httr2 request object -----------------------------

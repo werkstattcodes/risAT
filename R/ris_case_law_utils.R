@@ -51,7 +51,16 @@ ris_build_case_law_website_urls <- function(
     in_ris_since = NULL,
     search_decision_text = NULL,
     search_legal_principles = NULL,
-    per_page = 20L
+    per_page = 20L,
+    # -- Application-specific parameters --
+    federal_state = NULL,
+    court = NULL,
+    legal_area = NULL,
+    specialist_area = NULL,
+    deciding_authority = NULL,
+    commission = NULL,
+    senate = NULL,
+    discrimination_ground = NULL
 ) {
   # The application landing page (e.g. https://www.ris.bka.gv.at/Vfgh/)
   app_url <- paste0("https://www.ris.bka.gv.at/", application_code, "/")
@@ -78,6 +87,22 @@ ris_build_case_law_website_urls <- function(
     Position = "1",
     SkipToDocumentPage = "true"
   )
+
+  # Append application-specific parameters when provided.  These are only
+  # meaningful for certain Judikatur applications (e.g. Bundesland for Lvwg,
+  # Gericht for Justiz) but are silently ignored by the website for others.
+  app_specific <- list(
+    Bundesland = federal_state,
+    Gericht = court,
+    Rechtsgebiet = legal_area,
+    Fachgebiet = specialist_area,
+    EntscheidendeBehoerde = deciding_authority,
+    Kommission = commission,
+    Senat = senate,
+    Diskriminierungsgrund = discrimination_ground
+  )
+  app_specific <- purrr::discard(app_specific, is.null)
+  q <- c(q, app_specific)
 
   search_url <- paste0(
     "https://www.ris.bka.gv.at/Ergebnis.wxe?",
