@@ -19,9 +19,7 @@
 #   "Undefined", "Beschluss", "Erkenntnis", "Vergleich", "KeineAngabe"
 # with English aliases: "order", "judgment", "settlement", "not_specified".
 #
-# sort_by for VfGH/VwGH supports:
-#   German: "Geschaeftszahl", "Datum", "Art", "Typ"
-#   English: "business_number", "decision_date", "decision_type", "document_type"
+# Results are always sorted by decision date descending (most recent first).
 # ============================================================================
 
 #' Search VfGH Decisions in RIS
@@ -37,12 +35,6 @@
 #' `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"Vergleich"`,
 #' `"KeineAngabe"`, and English aliases
 #' `"order"`, `"judgment"`, `"settlement"`, `"not_specified"`.
-#'
-#' `sort_by` for VfGH accepts:
-#' `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"`,
-#' and English aliases
-#' `"business_number"`, `"decision_date"`, `"decision_type"`,
-#' `"document_type"`.
 #'
 #' @inheritParams ris_search_case_law
 #'
@@ -68,15 +60,14 @@
 #'   search_legal_principles = TRUE
 #' )
 #'
-#' # Judgments on a specific norm, sorted by decision date descending.
+#' # Judgments on a specific norm. Results are always sorted by decision date
+#' # descending (most recent first).
 #' # Norm notation: include the year where it is part of the official
 #' # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
 #' # For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
 #' ris_search_vfgh(
 #'   norm = "B-VG Art7",
-#'   decision_type = "judgment",
-#'   sort_by = "decision_date",
-#'   sort_direction = "Descending"
+#'   decision_type = "judgment"
 #' )
 #'
 #' # Search by Sammlungsnummer (collection number from the official VfGH
@@ -121,8 +112,6 @@ ris_search_vfgh <- function(
     index_term = NULL,
     collection_number = NULL,
     in_ris_since = NULL,
-    sort_by = NULL,
-    sort_direction = NULL,
     search_decision_text = FALSE,
     search_legal_principles = TRUE,
     per_page = 20L,
@@ -141,8 +130,8 @@ ris_search_vfgh <- function(
     index_term = index_term,
     collection_number = collection_number,
     in_ris_since = in_ris_since,
-    sort_by = sort_by,
-    sort_direction = sort_direction,
+    sort_by = "Datum",
+    sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     per_page = per_page,
