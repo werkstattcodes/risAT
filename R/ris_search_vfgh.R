@@ -52,33 +52,52 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Search Rechtssaetze (default) for a constitutional keyword
+#' # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
+#' # The query field supports full-text operators: space/"und" = AND,
+#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_vfgh(query = "Meinungsfreiheit")
 #'
-#' # Also search full decision texts (override the VfGH default)
+#' # Wildcard and phrase search examples
+#' ris_search_vfgh(query = "Grundrecht*")
+#' ris_search_vfgh(query = "'wahlwerbenden Parteien'")
+#'
+#' # Also search full decision texts (overrides the VfGH default of RS only)
 #' ris_search_vfgh(
 #'   query = "Eigentumsrecht",
 #'   search_decision_text = TRUE,
 #'   search_legal_principles = TRUE
 #' )
 #'
-#' # Judgments (Erkenntnisse) on a specific norm, sorted by decision date
+#' # Judgments on a specific norm, sorted by decision date descending.
+#' # Norm notation: include the year where it is part of the official
+#' # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
+#' # For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
 #' ris_search_vfgh(
-#'   norm = "B-VG Art144",
+#'   norm = "B-VG Art7",
 #'   decision_type = "judgment",
 #'   sort_by = "decision_date",
 #'   sort_direction = "Descending"
 #' )
 #'
-#' # Decisions published in RIS within the last six months
+#' # Search by Sammlungsnummer (collection number from the official VfGH
+#' # series VfSlg). Enter digits only, without dot, space, or slash.
+#' ris_search_vfgh(collection_number = "18743")
+#'
+#' # Decisions added to RIS within the last six months, 50 per page
 #' ris_search_vfgh(
 #'   in_ris_since = "six_months",
 #'   per_page = 50
 #' )
 #'
-#' # Look up a specific case by business number and echo the browser URL
+#' # Look up a specific case by business number and echo the equivalent
+#' # browser URL on www.ris.bka.gv.at.
+#' # VfGH business number formats (four-digit year since 08.04.2013):
+#' #   G NNNN/YYYY  (constitutional review of laws)
+#' #   V NNN/YYYY   (review of ordinances)
+#' #   U NNN/YYYY   (individual complaint Art144 B-VG)
+#' #   E NNN/YYYY   (complaint under EU Charter)
 #' ris_search_vfgh(
-#'   business_number = "G 123/2023",
+#'   business_number = "G 97/2021",
 #'   echo = TRUE
 #' )
 #' }

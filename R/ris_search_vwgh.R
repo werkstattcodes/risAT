@@ -36,17 +36,30 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Simple keyword search across both decision texts and Rechtssaetze
+#' # Keyword search across both decision texts and Rechtssaetze (default).
+#' # The query field supports full-text operators: space/"und" = AND,
+#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_vwgh(query = "Asylrecht")
 #'
-#' # Search only in Rechtssaetze for a specific legal norm
+#' # Wildcard and phrase search examples
+#' ris_search_vwgh(query = "Verwaltungsstrafe*")
+#' ris_search_vwgh(query = "'unverhältnismäßiger Eingriff'")
+#'
+#' # Search only in Rechtssaetze for a specific legal norm.
+#' # Norm notation: include the year where it is part of the official
+#' # abbreviation (e.g. "AsylG 2005", "StVO 1960", "EStG 1988").
 #' ris_search_vwgh(
 #'   norm = "AsylG 2005 §3",
 #'   search_decision_text = FALSE,
 #'   search_legal_principles = TRUE
 #' )
 #'
-#' # Filter by decision type and date range, return up to 50 results per page
+#' # Multiple norms: wrap each in single quotes and join with "oder"
+#' ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+#'
+#' # Filter by decision type and date range, 50 results per page.
+#' # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
+#' # "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).
 #' ris_search_vwgh(
 #'   query = "Ermessen",
 #'   decision_type = "Erkenntnis",
@@ -55,13 +68,16 @@
 #'   per_page = 50
 #' )
 #'
-#' # Reinforced senate (Verstaerkter Senat) decisions added to RIS in the last month
+#' # Reinforced senate judgments (ErkenntnisVS) added to RIS in the last month
 #' ris_search_vwgh(
 #'   decision_type = "ErkenntnisVS",
 #'   in_ris_since = "one_month"
 #' )
 #'
-#' # Look up a specific case by business number and echo the browser URL
+#' # Look up a specific case by business number and echo the equivalent
+#' # browser URL on www.ris.bka.gv.at.
+#' # VwGH business number formats: "Ra YYYY/XX/NNNN", "Ro YYYY/XX/NNNN",
+#' # or older format "YYYY/XX/NNNN".
 #' ris_search_vwgh(
 #'   business_number = "Ra 2021/01/0001",
 #'   echo = TRUE
