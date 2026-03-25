@@ -31,12 +31,11 @@
 #' `search_legal_principles = TRUE` and `search_decision_text = FALSE`
 #' (default search in Rechtssaetze).
 #'
-#' `decision_type` for VfGH accepts:
-#' `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"Vergleich"`,
-#' `"KeineAngabe"`, and English aliases
-#' `"order"`, `"judgment"`, `"settlement"`, `"not_specified"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   VfGH accepts: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'   `"Vergleich"`, `"KeineAngabe"` (English aliases: `"order"`, `"judgment"`,
+#'   `"settlement"`, `"not_specified"`).
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.

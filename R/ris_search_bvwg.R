@@ -24,10 +24,9 @@
 #' covers federal administrative matters, including asylum, immigration,
 #' procurement, and telecommunications decisions.
 #'
-#' `decision_type` for BVwG accepts:
-#' `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   BVwG accepts: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.

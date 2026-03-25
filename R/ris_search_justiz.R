@@ -33,14 +33,13 @@
 #' (OLG), Landesgerichte (LG), Bezirksgerichte (BG), Oberster Patent- und
 #' Markensenat (OPMS, until 2013), and selected foreign decisions (AUSL).
 #'
-#' `decision_type` for Justiz accepts the following German-language phrases
-#' (pass the string exactly as shown):
-#' `"Ordentliche Erledigung (Sachentscheidung)"`,
-#' `"Zurückweisung mangels erheblicher Rechtsfrage"`,
-#' `"Zurückweisung aus anderen Gründen"`,
-#' `"Verstärkter Senat"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   Justiz accepts (pass the string exactly as shown):
+#'   `"Ordentliche Erledigung (Sachentscheidung)"`,
+#'   `"Zurückweisung mangels erheblicher Rechtsfrage"`,
+#'   `"Zurückweisung aus anderen Gründen"`,
+#'   `"Verstärkter Senat"`.
 #' @param legal_area Optional legal area filter (`Rechtsgebiet`), e.g.
 #'   `"Zivilrecht"` or `"Strafrecht"`.
 #' @param specialist_area Optional specialist area (`Fachgebiet`), e.g.
@@ -116,6 +115,14 @@ ris_search_justiz <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  checkmate::assert_string(legal_area, null.ok = TRUE, .var.name = "legal_area")
+  checkmate::assert_string(specialist_area, null.ok = TRUE, .var.name = "specialist_area")
+  checkmate::assert_string(court, null.ok = TRUE, .var.name = "court")
+  checkmate::assert_string(legal_principle_number, null.ok = TRUE, .var.name = "legal_principle_number")
+  checkmate::assert_string(legal_assessment, null.ok = TRUE, .var.name = "legal_assessment")
+  checkmate::assert_string(ruling, null.ok = TRUE, .var.name = "ruling")
+  checkmate::assert_string(citation, null.ok = TRUE, .var.name = "citation")
+
   ris_search_case_law(
     application = "Justiz",
     query = query,

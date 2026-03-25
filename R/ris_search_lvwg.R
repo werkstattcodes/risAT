@@ -26,10 +26,10 @@
 #' courts (one per Bundesland), established on 1 January 2014.  Use
 #' `federal_state` to restrict results to a specific state.
 #'
-#' `decision_type` for LVwG accepts:
-#' `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"Bescheid"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   LVwG accepts: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'   `"Bescheid"`.
 #' @param federal_state Optional federal state (`Bundesland`) to restrict
 #'   results to a single LVwG, e.g. `"Wien"`, `"Steiermark"`,
 #'   `"Niederösterreich"`.
@@ -74,6 +74,8 @@ ris_search_lvwg <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  checkmate::assert_string(federal_state, null.ok = TRUE, .var.name = "federal_state")
+
   ris_search_case_law(
     application = "Lvwg",
     query = query,

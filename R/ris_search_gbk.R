@@ -37,10 +37,10 @@
 #' `search_legal_principles` filtering.  Those parameters are not available
 #' for this wrapper.
 #'
-#' `decision_type` for Gbk accepts:
-#' `"Undefined"`, `"Einzelfallpruefungsergebnis"`, `"Gutachten"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   Gbk accepts: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
+#'   `"Gutachten"`.
 #' @param commission Optional commission filter (`Kommission`), e.g.
 #'   `"Bundes-Gleichbehandlungskommission"` or
 #'   `"Gleichbehandlungskommission"`.
@@ -91,6 +91,10 @@ ris_search_gbk <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  checkmate::assert_string(commission, null.ok = TRUE, .var.name = "commission")
+  checkmate::assert_string(senate, null.ok = TRUE, .var.name = "senate")
+  checkmate::assert_string(discrimination_ground, null.ok = TRUE, .var.name = "discrimination_ground")
+
   ris_search_case_law(
     application = "Gbk",
     query = query,

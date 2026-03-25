@@ -24,6 +24,8 @@
 #' Personalvertretungsaufsichtsbehörde (PVAB, since 2014).
 #'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   Free-text; the API validates server-side.
 #' @param deciding_authority Optional filter for the deciding body
 #'   (`EntscheidendeBehoerde`), e.g. `"Personalvertretungsaufsichtsbehörde"`.
 #'
@@ -59,6 +61,8 @@ ris_search_pvak <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  checkmate::assert_string(deciding_authority, null.ok = TRUE, .var.name = "deciding_authority")
+
   ris_search_case_law(
     application = "Pvak",
     query = query,

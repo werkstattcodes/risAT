@@ -34,38 +34,9 @@ ris_search_vfgh(
 \code{EntscheidungsdatumBis}).}
 
 \item{decision_type}{Optional decision type (\code{Entscheidungsart}).
-Allowed values depend on \code{application}:
-\itemize{
-\item \strong{VfGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+VfGH accepts: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
 \code{"Vergleich"}, \code{"KeineAngabe"} (English aliases: \code{"order"}, \code{"judgment"},
-\code{"settlement"}, \code{"not_specified"}).
-\item \strong{VwGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"BeschlussVS"}, \code{"ErkenntnisVS"}.
-\item \strong{BVwG}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}.
-\item \strong{LVwG / UVS}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"Bescheid"}.
-\item \strong{Justiz}: \code{"Ordentliche Erledigung (Sachentscheidung)"},
-\code{"Zurückweisung mangels erheblicher Rechtsfrage"},
-\code{"Zurückweisung aus anderen Gründen"}, \code{"Verstärkter Senat"}.
-\item \strong{AsylGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"ErkenntnisGrundsatzentscheidung"},
-\code{"ErkenntnisVerstaerkterSenat"}, \code{"Bescheid"}.
-\item \strong{Ubas}: \code{"Undefined"}, \code{"Bescheid"}, \code{"Ersatzbescheid"}.
-\item \strong{Gbk}: \code{"Undefined"}, \code{"Einzelfallpruefungsergebnis"},
-\code{"Gutachten"}.
-\item \strong{Dsk}: \code{"Undefined"}, \code{"BescheidBeschwerde"},
-\code{"BescheidAmtswegigesPruefverfahren"},
-\code{"VerwaltungsstraferkenntnisVerwarnungErmahnung"},
-\code{"BescheidWissenschaftStatistikArchiv"},
-\code{"BescheidInternatDatenverkehr"},
-\code{"BescheidAkkreditierungZertifizierung"},
-\code{"BescheidVerhaltensregeln"}, \code{"BescheidWarnung"},
-\code{"BescheidRegistrierung"}, \code{"BescheidSonstiger"},
-\code{"Empfehlung"}, \code{"BescheidIFG"},
-\code{"Verfahrensschriftsaetze"}.
-}
-
-Other applications accept free-text or have no decision type filter.}
+\code{"settlement"}, \code{"not_specified"}).}
 
 \item{index_term}{Optional index term (\code{Index}).}
 
@@ -102,11 +73,6 @@ Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law
 Defaults are aligned with the VfGH RIS handbook:
 \code{search_legal_principles = TRUE} and \code{search_decision_text = FALSE}
 (default search in Rechtssaetze).
-
-\code{decision_type} for VfGH accepts:
-\code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}, \code{"Vergleich"},
-\code{"KeineAngabe"}, and English aliases
-\code{"order"}, \code{"judgment"}, \code{"settlement"}, \code{"not_specified"}.
 }
 \examples{
 \dontrun{

@@ -36,18 +36,18 @@
 #' (DSB, since 2014), and the Parlamentarisches Datenschutzkomitee
 #' (PDK, since 2025).
 #'
-#' `decision_type` for Dsk accepts (pass the string exactly as shown):
-#' `"Undefined"`, `"BescheidBeschwerde"`,
-#' `"BescheidAmtswegigesPruefverfahren"`,
-#' `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
-#' `"BescheidWissenschaftStatistikArchiv"`,
-#' `"BescheidInternatDatenverkehr"`,
-#' `"BescheidAkkreditierungZertifizierung"`,
-#' `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
-#' `"BescheidRegistrierung"`, `"BescheidSonstiger"`,
-#' `"Empfehlung"`, `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   Dsk accepts (pass the string exactly as shown):
+#'   `"Undefined"`, `"BescheidBeschwerde"`,
+#'   `"BescheidAmtswegigesPruefverfahren"`,
+#'   `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
+#'   `"BescheidWissenschaftStatistikArchiv"`,
+#'   `"BescheidInternatDatenverkehr"`,
+#'   `"BescheidAkkreditierungZertifizierung"`,
+#'   `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
+#'   `"BescheidRegistrierung"`, `"BescheidSonstiger"`,
+#'   `"Empfehlung"`, `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
 #' @param deciding_authority Optional filter for the deciding body
 #'   (`EntscheidendeBehoerde`), e.g. `"Datenschutzbehörde"`.
 #'
@@ -92,6 +92,8 @@ ris_search_dsk <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
+  checkmate::assert_string(deciding_authority, null.ok = TRUE, .var.name = "deciding_authority")
+
   ris_search_case_law(
     application = "Dsk",
     query = query,

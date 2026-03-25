@@ -24,11 +24,11 @@
 #' Convenience wrapper around [ris_search_case_law()] with
 #' `application = "Vwgh"`.
 #'
-#' `decision_type` for VwGH accepts:
-#' `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"BeschlussVS"`,
-#' `"ErkenntnisVS"`.
-#'
 #' @inheritParams ris_search_case_law
+#' @param decision_type Optional decision type (`Entscheidungsart`).
+#'   VwGH accepts: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'   `"BeschlussVS"`, `"ErkenntnisVS"` (VS = Verstaerkter Senat / reinforced
+#'   senate).
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
