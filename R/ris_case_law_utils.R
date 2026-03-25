@@ -269,6 +269,14 @@ ris_case_law_application_to_code <- function(application) {
 
   # English aliases for international users who may not know the German
   # abbreviations.  Each alias maps to exactly one canonical code.
+  #
+  # Note on naming:
+  #   - Dsk covers three bodies: Datenschutzkommission (DSK, 1990-2013),
+  #     Datenschutzbehoerde (DSB, since 2014), and Parlamentarisches
+  #     Datenschutzkomitee (PDK, since 2025 on the RIS website).
+  #   - Dok covers Bundesdisziplinarbehoerde (since Oct 2020) and the
+  #     earlier Disziplinarkommissionen, Disziplinaroberkommission, and
+  #     Berufungskommission (until 2013).
   alias_to_code <- c(
     constitutional_court = "Vfgh",
     administrative_court = "Vwgh",

@@ -14,8 +14,6 @@ ris_search_vfgh(
   index_term = NULL,
   collection_number = NULL,
   in_ris_since = NULL,
-  sort_by = NULL,
-  sort_direction = NULL,
   search_decision_text = FALSE,
   search_legal_principles = TRUE,
   echo = FALSE,
@@ -36,12 +34,38 @@ ris_search_vfgh(
 \code{EntscheidungsdatumBis}).}
 
 \item{decision_type}{Optional decision type (\code{Entscheidungsart}).
-Allowed values depend on \code{application}.
-For \code{Vwgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+Allowed values depend on \code{application}:
+\itemize{
+\item \strong{VfGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Vergleich"}, \code{"KeineAngabe"} (English aliases: \code{"order"}, \code{"judgment"},
+\code{"settlement"}, \code{"not_specified"}).
+\item \strong{VwGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
 \code{"BeschlussVS"}, \code{"ErkenntnisVS"}.
-For \code{Vfgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"Vergleich"}, \code{"KeineAngabe"} (aliases: \code{"order"}, \code{"judgment"},
-\code{"settlement"}, \code{"not_specified"}).}
+\item \strong{BVwG}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}.
+\item \strong{LVwG / UVS}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Bescheid"}.
+\item \strong{Justiz}: \code{"Ordentliche Erledigung (Sachentscheidung)"},
+\code{"Zurückweisung mangels erheblicher Rechtsfrage"},
+\code{"Zurückweisung aus anderen Gründen"}, \code{"Verstärkter Senat"}.
+\item \strong{AsylGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"ErkenntnisGrundsatzentscheidung"},
+\code{"ErkenntnisVerstaerkterSenat"}, \code{"Bescheid"}.
+\item \strong{Ubas}: \code{"Undefined"}, \code{"Bescheid"}, \code{"Ersatzbescheid"}.
+\item \strong{Gbk}: \code{"Undefined"}, \code{"Einzelfallpruefungsergebnis"},
+\code{"Gutachten"}.
+\item \strong{Dsk}: \code{"Undefined"}, \code{"BescheidBeschwerde"},
+\code{"BescheidAmtswegigesPruefverfahren"},
+\code{"VerwaltungsstraferkenntnisVerwarnungErmahnung"},
+\code{"BescheidWissenschaftStatistikArchiv"},
+\code{"BescheidInternatDatenverkehr"},
+\code{"BescheidAkkreditierungZertifizierung"},
+\code{"BescheidVerhaltensregeln"}, \code{"BescheidWarnung"},
+\code{"BescheidRegistrierung"}, \code{"BescheidSonstiger"},
+\code{"Empfehlung"}, \code{"BescheidIFG"},
+\code{"Verfahrensschriftsaetze"}.
+}
+
+Other applications accept free-text or have no decision type filter.}
 
 \item{index_term}{Optional index term (\code{Index}).}
 
@@ -52,14 +76,6 @@ Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}
 \code{"EinemMonat"}, \code{"DreiMonaten"}, \code{"SechsMonaten"}, \code{"EinemJahr"}) and
 English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{"three_months"}, \code{"six_months"}, \code{"one_year"}).}
-
-\item{sort_by}{Optional sort column (\code{SortierungSortedByColumn}).
-For \code{Vwgh} and \code{Vfgh}, accepted values are \code{"Geschaeftszahl"},
-\code{"Datum"}, \code{"Art"}, \code{"Typ"} and aliases \code{"business_number"},
-\code{"decision_date"}, \code{"decision_type"}, \code{"document_type"}.}
-
-\item{sort_direction}{Optional sort direction (\code{SortierungSortDirection}),
-one of \code{"Ascending"} or \code{"Descending"} (case-insensitive).}
 
 \item{search_decision_text}{Optional flag for decision text search
 (\code{SucheInEntscheidungstexten}).}
@@ -91,10 +107,61 @@ Defaults are aligned with the VfGH RIS handbook:
 \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}, \code{"Vergleich"},
 \code{"KeineAngabe"}, and English aliases
 \code{"order"}, \code{"judgment"}, \code{"settlement"}, \code{"not_specified"}.
+}
+\examples{
+\dontrun{
+# Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
+# The query field supports full-text operators: space/"und" = AND,
+# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+ris_search_vfgh(query = "Meinungsfreiheit")
 
-\code{sort_by} for VfGH accepts:
-\code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"},
-and English aliases
-\code{"business_number"}, \code{"decision_date"}, \code{"decision_type"},
-\code{"document_type"}.
+# Wildcard and phrase search examples
+ris_search_vfgh(query = "Grundrecht*")
+ris_search_vfgh(query = "'wahlwerbenden Parteien'")
+
+# Also search full decision texts (overrides the VfGH default of RS only)
+ris_search_vfgh(
+  query = "Eigentumsrecht",
+  search_decision_text = TRUE,
+  search_legal_principles = TRUE
+)
+
+# Judgments on a specific norm. Results are always sorted by decision date
+# descending (most recent first).
+# Norm notation: include the year where it is part of the official
+# abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
+# For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+ris_search_vfgh(
+  norm = "B-VG Art7",
+  decision_type = "judgment"
+)
+
+# Search by Sammlungsnummer (collection number from the official VfGH
+# series VfSlg). Enter digits only, without dot, space, or slash.
+ris_search_vfgh(collection_number = "18743")
+
+# Decisions added to RIS within the last six months
+ris_search_vfgh(in_ris_since = "six_months")
+
+# Search by Index (numeric classification of Austrian law).
+# Federal law index values start with a number (e.g. "32/02" for Steuerrecht,
+# "07/01" for Verfassungsrecht), state law index values start with "L"
+# (e.g. "L6500"). The full index list is linked from the VfGH search page.
+ris_search_vfgh(index_term = "07/01")
+
+# Look up a specific case by business number and echo the equivalent
+# browser URL on www.ris.bka.gv.at.
+# VfGH decisions are available from 1980 in full text; selected decisions
+# from 1919-1933 and 1946-1979 are available as PDF scans.
+# Business number formats (four-digit year since 08.04.2013):
+#   G NNNN/YYYY  (constitutional review of laws, Gesetzesprüfung)
+#   V NNN/YYYY   (review of ordinances, Verordnungsprüfung)
+#   U NNN/YYYY   (individual complaint, Art144 B-VG)
+#   E NNN/YYYY   (complaint under EU Charter of Fundamental Rights)
+#   B NNN/YY     (old-style individual complaint, pre-2013)
+ris_search_vfgh(
+  business_number = "G 97/2021",
+  echo = TRUE
+)
+}
 }

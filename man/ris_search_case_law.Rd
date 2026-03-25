@@ -34,8 +34,6 @@ ris_search_case_law(
   short_title = NULL,
   domain = NULL,
   in_ris_since = NULL,
-  sort_by = NULL,
-  sort_direction = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
   echo = FALSE,
@@ -43,12 +41,26 @@ ris_search_case_law(
 )
 }
 \arguments{
-\item{application}{Judikatur application. Accepts RIS codes (\code{"Vfgh"}, \code{"Vwgh"},
-\code{"Normenliste"}, \code{"Justiz"}, \code{"Bvwg"}, \code{"Lvwg"}, \code{"Dsk"}, \code{"Dok"},
-\code{"Pvak"}, \code{"Gbk"}, \code{"Uvs"}, \code{"AsylGH"}, \code{"Ubas"}, \code{"Umse"}, \code{"Bks"}, \code{"Verg"}) and
-English aliases (for example \code{"constitutional_court"},
-\code{"administrative_court"}, \code{"justice"}, \code{"federal_administrative_court"},
-\code{"state_administrative_courts"}).}
+\item{application}{Judikatur application. Accepts RIS codes or English aliases
+(case-insensitive):\tabular{lll}{
+   Code \tab English Alias \tab Court / Body \cr
+   \code{"Vfgh"} \tab \code{"constitutional_court"} \tab Constitutional Court (VfGH) \cr
+   \code{"Vwgh"} \tab \code{"administrative_court"} \tab Supreme Administrative Court (VwGH) \cr
+   \code{"Justiz"} \tab \code{"justice"} \tab Ordinary courts (OGH, OLG, LG, BG, OPMS, AUSL) \cr
+   \code{"Bvwg"} \tab \code{"federal_administrative_court"} \tab Federal Administrative Court (BVwG) \cr
+   \code{"Lvwg"} \tab \code{"state_administrative_courts"} \tab State Administrative Courts (LVwG) \cr
+   \code{"Normenliste"} \tab \code{"norm_list"} \tab VwGH Norm List \cr
+   \code{"Dsk"} \tab \code{"data_protection_authority"} \tab Data protection authorities (DSK/DSB/PDK) \cr
+   \code{"Dok"} \tab \code{"disciplinary_bodies"} \tab Federal Disciplinary Authority & commissions \cr
+   \code{"Pvak"} \tab \code{"staff_representation_oversight"} \tab Staff Representation Oversight Authority \cr
+   \code{"Gbk"} \tab \code{"equal_treatment_commission"} \tab Equal Treatment Commissions (since 2014) \cr
+   \code{"Uvs"} \tab \code{"independent_administrative_panels"} \tab Independent Administrative Panels (1991--2013) \cr
+   \code{"AsylGH"} \tab \code{"asylum_court"} \tab Asylum Court (2008--2013) \cr
+   \code{"Ubas"} \tab \code{"independent_federal_asylum_panel"} \tab Independent Federal Asylum Panel (1998--2008) \cr
+   \code{"Umse"} \tab \code{"environmental_panel"} \tab Environmental Panel (1994--2013) \cr
+   \code{"Bks"} \tab \code{"federal_communications_panel"} \tab Federal Communications Panel (2001--2013) \cr
+   \code{"Verg"} \tab \code{"procurement_review_bodies"} \tab Procurement Review Bodies (until 2013) \cr
+}}
 
 \item{query}{Optional full-text query (\code{Suchworte}).}
 
@@ -63,12 +75,38 @@ English aliases (for example \code{"constitutional_court"},
 \code{EntscheidungsdatumBis}).}
 
 \item{decision_type}{Optional decision type (\code{Entscheidungsart}).
-Allowed values depend on \code{application}.
-For \code{Vwgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+Allowed values depend on \code{application}:
+\itemize{
+\item \strong{VfGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Vergleich"}, \code{"KeineAngabe"} (English aliases: \code{"order"}, \code{"judgment"},
+\code{"settlement"}, \code{"not_specified"}).
+\item \strong{VwGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
 \code{"BeschlussVS"}, \code{"ErkenntnisVS"}.
-For \code{Vfgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"Vergleich"}, \code{"KeineAngabe"} (aliases: \code{"order"}, \code{"judgment"},
-\code{"settlement"}, \code{"not_specified"}).}
+\item \strong{BVwG}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}.
+\item \strong{LVwG / UVS}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Bescheid"}.
+\item \strong{Justiz}: \code{"Ordentliche Erledigung (Sachentscheidung)"},
+\code{"Zurückweisung mangels erheblicher Rechtsfrage"},
+\code{"Zurückweisung aus anderen Gründen"}, \code{"Verstärkter Senat"}.
+\item \strong{AsylGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"ErkenntnisGrundsatzentscheidung"},
+\code{"ErkenntnisVerstaerkterSenat"}, \code{"Bescheid"}.
+\item \strong{Ubas}: \code{"Undefined"}, \code{"Bescheid"}, \code{"Ersatzbescheid"}.
+\item \strong{Gbk}: \code{"Undefined"}, \code{"Einzelfallpruefungsergebnis"},
+\code{"Gutachten"}.
+\item \strong{Dsk}: \code{"Undefined"}, \code{"BescheidBeschwerde"},
+\code{"BescheidAmtswegigesPruefverfahren"},
+\code{"VerwaltungsstraferkenntnisVerwarnungErmahnung"},
+\code{"BescheidWissenschaftStatistikArchiv"},
+\code{"BescheidInternatDatenverkehr"},
+\code{"BescheidAkkreditierungZertifizierung"},
+\code{"BescheidVerhaltensregeln"}, \code{"BescheidWarnung"},
+\code{"BescheidRegistrierung"}, \code{"BescheidSonstiger"},
+\code{"Empfehlung"}, \code{"BescheidIFG"},
+\code{"Verfahrensschriftsaetze"}.
+}
+
+Other applications accept free-text or have no decision type filter.}
 
 \item{index_term}{Optional index term (\code{Index}).}
 
@@ -125,14 +163,6 @@ Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}
 \code{"EinemMonat"}, \code{"DreiMonaten"}, \code{"SechsMonaten"}, \code{"EinemJahr"}) and
 English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{"three_months"}, \code{"six_months"}, \code{"one_year"}).}
-
-\item{sort_by}{Optional sort column (\code{SortierungSortedByColumn}).
-For \code{Vwgh} and \code{Vfgh}, accepted values are \code{"Geschaeftszahl"},
-\code{"Datum"}, \code{"Art"}, \code{"Typ"} and aliases \code{"business_number"},
-\code{"decision_date"}, \code{"decision_type"}, \code{"document_type"}.}
-
-\item{sort_direction}{Optional sort direction (\code{SortierungSortDirection}),
-one of \code{"Ascending"} or \code{"Descending"} (case-insensitive).}
 
 \item{search_decision_text}{Optional flag for decision text search
 (\code{SucheInEntscheidungstexten}).}

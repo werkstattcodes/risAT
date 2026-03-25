@@ -2,11 +2,11 @@ Package: risAT
 Type: Package
 Title: Interface to the Austrian RIS OGD REST API
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(
-      given = "risAT",
-      family = "Contributors",
-      email = "you@example.com",
+      given = "Roland",
+      family = "Schmidt",
+      email = "rs2903@gmail.com",
       role = c("aut", "cre")
     )
 Description: Search helpers for Austrian legal information from the

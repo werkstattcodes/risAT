@@ -289,8 +289,8 @@ The `/Judikatur` endpoint serves 16 distinct Judikatur applications. Each has it
 | `Bvwg` | `federal_administrative_court` | Bundesverwaltungsgericht |
 | `Lvwg` | `state_administrative_courts` | Landesverwaltungsgerichte |
 | `Normenliste` | `norm_list` | Normenliste |
-| `Dsk` | `data_protection_authority` | Datenschutzbehorde |
-| `Dok` | `disciplinary_bodies` | Disziplinarkommissionen |
+| `Dsk` | `data_protection_authority` | Datenschutz-Aufsichtsbehoerden (DSK/DSB/PDK) |
+| `Dok` | `disciplinary_bodies` | Bundesdisziplinarbehoerde, Disziplinarkommissionen |
 | `Pvak` | `staff_representation_oversight` | Personalvertretungs-Aufsichtskommission |
 | `Gbk` | `equal_treatment_commission` | Gleichbehandlungskommission |
 | `Uvs` | `independent_administrative_panels` | Unabhangige Verwaltungssenate |

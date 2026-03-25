@@ -20,6 +20,11 @@ reference:
       - ris_search_vwgh
       - ris_search_vfgh
 
+  - title: "Request Building"
+    contents:
+      - ris_req_case_law
+      - ris_perform_case_law
+
   - title: "Parsers"
     contents:
       - ris_parse_search

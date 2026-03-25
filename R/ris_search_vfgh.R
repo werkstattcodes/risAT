@@ -125,8 +125,6 @@ ris_search_vfgh <- function(
     index_term = index_term,
     collection_number = collection_number,
     in_ris_since = in_ris_since,
-    sort_by = "Datum",
-    sort_direction = "Descending",
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     echo = echo,

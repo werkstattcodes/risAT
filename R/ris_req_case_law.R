@@ -27,12 +27,27 @@
 #' [ris_perform_case_law()] to send it and parse the results, or use
 #' [httr2::req_dry_run()] to inspect the URL.
 #'
-#' @param application Judikatur application. Accepts RIS codes (`"Vfgh"`, `"Vwgh"`,
-#'   `"Normenliste"`, `"Justiz"`, `"Bvwg"`, `"Lvwg"`, `"Dsk"`, `"Dok"`,
-#'   `"Pvak"`, `"Gbk"`, `"Uvs"`, `"AsylGH"`, `"Ubas"`, `"Umse"`, `"Bks"`, `"Verg"`) and
-#'   English aliases (for example `"constitutional_court"`,
-#'   `"administrative_court"`, `"justice"`, `"federal_administrative_court"`,
-#'   `"state_administrative_courts"`).
+#' @param application Judikatur application. Accepts RIS codes or English aliases
+#'   (case-insensitive):
+#'
+#'   | Code | English Alias | Court / Body |
+#'   |------|---------------|--------------|
+#'   | `"Vfgh"` | `"constitutional_court"` | Constitutional Court (VfGH) |
+#'   | `"Vwgh"` | `"administrative_court"` | Supreme Administrative Court (VwGH) |
+#'   | `"Justiz"` | `"justice"` | Ordinary courts (OGH, OLG, LG, BG, OPMS, AUSL) |
+#'   | `"Bvwg"` | `"federal_administrative_court"` | Federal Administrative Court (BVwG) |
+#'   | `"Lvwg"` | `"state_administrative_courts"` | State Administrative Courts (LVwG) |
+#'   | `"Normenliste"` | `"norm_list"` | VwGH Norm List |
+#'   | `"Dsk"` | `"data_protection_authority"` | Data protection authorities (DSK/DSB/PDK) |
+#'   | `"Dok"` | `"disciplinary_bodies"` | Federal Disciplinary Authority & commissions |
+#'   | `"Pvak"` | `"staff_representation_oversight"` | Staff Representation Oversight Authority |
+#'   | `"Gbk"` | `"equal_treatment_commission"` | Equal Treatment Commissions (since 2014) |
+#'   | `"Uvs"` | `"independent_administrative_panels"` | Independent Administrative Panels (1991--2013) |
+#'   | `"AsylGH"` | `"asylum_court"` | Asylum Court (2008--2013) |
+#'   | `"Ubas"` | `"independent_federal_asylum_panel"` | Independent Federal Asylum Panel (1998--2008) |
+#'   | `"Umse"` | `"environmental_panel"` | Environmental Panel (1994--2013) |
+#'   | `"Bks"` | `"federal_communications_panel"` | Federal Communications Panel (2001--2013) |
+#'   | `"Verg"` | `"procurement_review_bodies"` | Procurement Review Bodies (until 2013) |
 #' @param query Optional full-text query (`Suchworte`).
 #' @param business_number Optional business number (`Geschaeftszahl`).
 #' @param norm Optional legal norm query (`Norm`).
@@ -41,12 +56,36 @@
 #' @param decision_date_to Optional upper date bound (`YYYY-MM-DD`,
 #'   `EntscheidungsdatumBis`).
 #' @param decision_type Optional decision type (`Entscheidungsart`).
-#'   Allowed values depend on `application`.
-#'   For `Vwgh`: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-#'   `"BeschlussVS"`, `"ErkenntnisVS"`.
-#'   For `Vfgh`: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-#'   `"Vergleich"`, `"KeineAngabe"` (aliases: `"order"`, `"judgment"`,
-#'   `"settlement"`, `"not_specified"`).
+#'   Allowed values depend on `application`:
+#'   - **VfGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'     `"Vergleich"`, `"KeineAngabe"` (English aliases: `"order"`, `"judgment"`,
+#'     `"settlement"`, `"not_specified"`).
+#'   - **VwGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'     `"BeschlussVS"`, `"ErkenntnisVS"`.
+#'   - **BVwG**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
+#'   - **LVwG / UVS**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'     `"Bescheid"`.
+#'   - **Justiz**: `"Ordentliche Erledigung (Sachentscheidung)"`,
+#'     `"Zurückweisung mangels erheblicher Rechtsfrage"`,
+#'     `"Zurückweisung aus anderen Gründen"`, `"Verstärkter Senat"`.
+#'   - **AsylGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
+#'     `"ErkenntnisGrundsatzentscheidung"`,
+#'     `"ErkenntnisVerstaerkterSenat"`, `"Bescheid"`.
+#'   - **Ubas**: `"Undefined"`, `"Bescheid"`, `"Ersatzbescheid"`.
+#'   - **Gbk**: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
+#'     `"Gutachten"`.
+#'   - **Dsk**: `"Undefined"`, `"BescheidBeschwerde"`,
+#'     `"BescheidAmtswegigesPruefverfahren"`,
+#'     `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
+#'     `"BescheidWissenschaftStatistikArchiv"`,
+#'     `"BescheidInternatDatenverkehr"`,
+#'     `"BescheidAkkreditierungZertifizierung"`,
+#'     `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
+#'     `"BescheidRegistrierung"`, `"BescheidSonstiger"`,
+#'     `"Empfehlung"`, `"BescheidIFG"`,
+#'     `"Verfahrensschriftsaetze"`.
+#'
+#'   Other applications accept free-text or have no decision type filter.
 #' @param index_term Optional index term (`Index`).
 #' @param collection_number Optional collection number (`Sammlungsnummer`).
 #' @param title Optional title (`Titel`), used for `Normenliste`.

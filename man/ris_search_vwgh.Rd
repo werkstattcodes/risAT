@@ -14,8 +14,6 @@ ris_search_vwgh(
   index_term = NULL,
   collection_number = NULL,
   in_ris_since = NULL,
-  sort_by = NULL,
-  sort_direction = NULL,
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
@@ -36,12 +34,38 @@ ris_search_vwgh(
 \code{EntscheidungsdatumBis}).}
 
 \item{decision_type}{Optional decision type (\code{Entscheidungsart}).
-Allowed values depend on \code{application}.
-For \code{Vwgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+Allowed values depend on \code{application}:
+\itemize{
+\item \strong{VfGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Vergleich"}, \code{"KeineAngabe"} (English aliases: \code{"order"}, \code{"judgment"},
+\code{"settlement"}, \code{"not_specified"}).
+\item \strong{VwGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
 \code{"BeschlussVS"}, \code{"ErkenntnisVS"}.
-For \code{Vfgh}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
-\code{"Vergleich"}, \code{"KeineAngabe"} (aliases: \code{"order"}, \code{"judgment"},
-\code{"settlement"}, \code{"not_specified"}).}
+\item \strong{BVwG}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}.
+\item \strong{LVwG / UVS}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"Bescheid"}.
+\item \strong{Justiz}: \code{"Ordentliche Erledigung (Sachentscheidung)"},
+\code{"Zurückweisung mangels erheblicher Rechtsfrage"},
+\code{"Zurückweisung aus anderen Gründen"}, \code{"Verstärkter Senat"}.
+\item \strong{AsylGH}: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
+\code{"ErkenntnisGrundsatzentscheidung"},
+\code{"ErkenntnisVerstaerkterSenat"}, \code{"Bescheid"}.
+\item \strong{Ubas}: \code{"Undefined"}, \code{"Bescheid"}, \code{"Ersatzbescheid"}.
+\item \strong{Gbk}: \code{"Undefined"}, \code{"Einzelfallpruefungsergebnis"},
+\code{"Gutachten"}.
+\item \strong{Dsk}: \code{"Undefined"}, \code{"BescheidBeschwerde"},
+\code{"BescheidAmtswegigesPruefverfahren"},
+\code{"VerwaltungsstraferkenntnisVerwarnungErmahnung"},
+\code{"BescheidWissenschaftStatistikArchiv"},
+\code{"BescheidInternatDatenverkehr"},
+\code{"BescheidAkkreditierungZertifizierung"},
+\code{"BescheidVerhaltensregeln"}, \code{"BescheidWarnung"},
+\code{"BescheidRegistrierung"}, \code{"BescheidSonstiger"},
+\code{"Empfehlung"}, \code{"BescheidIFG"},
+\code{"Verfahrensschriftsaetze"}.
+}
+
+Other applications accept free-text or have no decision type filter.}
 
 \item{index_term}{Optional index term (\code{Index}).}
 
@@ -52,14 +76,6 @@ Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}
 \code{"EinemMonat"}, \code{"DreiMonaten"}, \code{"SechsMonaten"}, \code{"EinemJahr"}) and
 English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{"three_months"}, \code{"six_months"}, \code{"one_year"}).}
-
-\item{sort_by}{Optional sort column (\code{SortierungSortedByColumn}).
-For \code{Vwgh} and \code{Vfgh}, accepted values are \code{"Geschaeftszahl"},
-\code{"Datum"}, \code{"Art"}, \code{"Typ"} and aliases \code{"business_number"},
-\code{"decision_date"}, \code{"decision_type"}, \code{"document_type"}.}
-
-\item{sort_direction}{Optional sort direction (\code{SortierungSortDirection}),
-one of \code{"Ascending"} or \code{"Descending"} (case-insensitive).}
 
 \item{search_decision_text}{Optional flag for decision text search
 (\code{SucheInEntscheidungstexten}).}
@@ -86,4 +102,58 @@ Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law
 \code{decision_type} for VwGH accepts:
 \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"}, \code{"BeschlussVS"},
 \code{"ErkenntnisVS"}.
+}
+\examples{
+\dontrun{
+# Keyword search across both decision texts and Rechtssaetze (default).
+# The query field supports full-text operators: space/"und" = AND,
+# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+ris_search_vwgh(query = "Asylrecht")
+
+# Wildcard and phrase search examples
+ris_search_vwgh(query = "Verwaltungsstrafe*")
+ris_search_vwgh(query = "'unverhältnismäßiger Eingriff'")
+
+# Search only in Rechtssaetze for a specific legal norm.
+# Norm notation: include the year where it is part of the official
+# abbreviation (e.g. "AsylG 2005", "StVO 1960", "EStG 1988").
+ris_search_vwgh(
+  norm = "AsylG 2005 §3",
+  search_decision_text = FALSE,
+  search_legal_principles = TRUE
+)
+
+# Multiple norms: wrap each in single quotes and join with "oder"
+ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+
+# Filter by decision type and date range.
+# decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
+# "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).
+ris_search_vwgh(
+  query = "Ermessen",
+  decision_type = "Erkenntnis",
+  decision_date_from = "2022-01-01",
+  decision_date_to = "2023-12-31"
+)
+
+# Reinforced senate judgments (ErkenntnisVS) added to RIS in the last month
+ris_search_vwgh(
+  decision_type = "ErkenntnisVS",
+  in_ris_since = "one_month"
+)
+
+# Search by Index (numeric classification of Austrian law).
+# Federal law index values start with a number (e.g. "40/01" for Steuerrecht),
+# state law index values start with "L" (e.g. "L37152" for Tiroler Baurecht).
+ris_search_vwgh(index_term = "40/01")
+
+# Look up a specific case by business number and echo the equivalent
+# browser URL on www.ris.bka.gv.at.
+# VwGH business number formats: "Ra YYYY/XX/NNNN", "Ro YYYY/XX/NNNN",
+# or older format "YYYY/XX/NNNN". VwGH decisions are available from 1990.
+ris_search_vwgh(
+  business_number = "Ra 2021/01/0001",
+  echo = TRUE
+)
+}
 }
