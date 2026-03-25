@@ -48,45 +48,9 @@ ris_search_vwgh(
 
 - decision_type:
 
-  Optional decision type (`Entscheidungsart`). Allowed values depend on
-  `application`:
-
-  - **VfGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"Vergleich"`, `"KeineAngabe"` (English aliases: `"order"`,
-    `"judgment"`, `"settlement"`, `"not_specified"`).
-
-  - **VwGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"BeschlussVS"`, `"ErkenntnisVS"`.
-
-  - **BVwG**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
-
-  - **LVwG / UVS**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"Bescheid"`.
-
-  - **Justiz**: `"Ordentliche Erledigung (Sachentscheidung)"`,
-    `"Zurückweisung mangels erheblicher Rechtsfrage"`,
-    `"Zurückweisung aus anderen Gründen"`, `"Verstärkter Senat"`.
-
-  - **AsylGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"ErkenntnisGrundsatzentscheidung"`,
-    `"ErkenntnisVerstaerkterSenat"`, `"Bescheid"`.
-
-  - **Ubas**: `"Undefined"`, `"Bescheid"`, `"Ersatzbescheid"`.
-
-  - **Gbk**: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
-    `"Gutachten"`.
-
-  - **Dsk**: `"Undefined"`, `"BescheidBeschwerde"`,
-    `"BescheidAmtswegigesPruefverfahren"`,
-    `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
-    `"BescheidWissenschaftStatistikArchiv"`,
-    `"BescheidInternatDatenverkehr"`,
-    `"BescheidAkkreditierungZertifizierung"`,
-    `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
-    `"BescheidRegistrierung"`, `"BescheidSonstiger"`, `"Empfehlung"`,
-    `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
-
-  Other applications accept free-text or have no decision type filter.
+  Optional decision type (`Entscheidungsart`). VwGH accepts:
+  `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"BeschlussVS"`,
+  `"ErkenntnisVS"` (VS = Verstaerkter Senat / reinforced senate).
 
 - index_term:
 
@@ -128,11 +92,6 @@ ris_search_vwgh(
 A tidy tibble with parsed search results. Includes list-columns
 `content_urls` and `app_metadata`.
 
-## Details
-
-`decision_type` for VwGH accepts: `"Undefined"`, `"Beschluss"`,
-`"Erkenntnis"`, `"BeschlussVS"`, `"ErkenntnisVS"`.
-
 ## Examples
 
 ``` r
@@ -157,7 +116,8 @@ ris_search_vwgh(
 
 # Multiple norms: wrap each in single quotes and join with "oder"
 ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
-
+ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+ 
 # Filter by decision type and date range.
 # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
 # "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).

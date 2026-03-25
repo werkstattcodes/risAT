@@ -48,45 +48,10 @@ ris_search_vfgh(
 
 - decision_type:
 
-  Optional decision type (`Entscheidungsart`). Allowed values depend on
-  `application`:
-
-  - **VfGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"Vergleich"`, `"KeineAngabe"` (English aliases: `"order"`,
-    `"judgment"`, `"settlement"`, `"not_specified"`).
-
-  - **VwGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"BeschlussVS"`, `"ErkenntnisVS"`.
-
-  - **BVwG**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`.
-
-  - **LVwG / UVS**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"Bescheid"`.
-
-  - **Justiz**: `"Ordentliche Erledigung (Sachentscheidung)"`,
-    `"Zurückweisung mangels erheblicher Rechtsfrage"`,
-    `"Zurückweisung aus anderen Gründen"`, `"Verstärkter Senat"`.
-
-  - **AsylGH**: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
-    `"ErkenntnisGrundsatzentscheidung"`,
-    `"ErkenntnisVerstaerkterSenat"`, `"Bescheid"`.
-
-  - **Ubas**: `"Undefined"`, `"Bescheid"`, `"Ersatzbescheid"`.
-
-  - **Gbk**: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
-    `"Gutachten"`.
-
-  - **Dsk**: `"Undefined"`, `"BescheidBeschwerde"`,
-    `"BescheidAmtswegigesPruefverfahren"`,
-    `"VerwaltungsstraferkenntnisVerwarnungErmahnung"`,
-    `"BescheidWissenschaftStatistikArchiv"`,
-    `"BescheidInternatDatenverkehr"`,
-    `"BescheidAkkreditierungZertifizierung"`,
-    `"BescheidVerhaltensregeln"`, `"BescheidWarnung"`,
-    `"BescheidRegistrierung"`, `"BescheidSonstiger"`, `"Empfehlung"`,
-    `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
-
-  Other applications accept free-text or have no decision type filter.
+  Optional decision type (`Entscheidungsart`). VfGH accepts:
+  `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`, `"Vergleich"`,
+  `"KeineAngabe"` (English aliases: `"order"`, `"judgment"`,
+  `"settlement"`, `"not_specified"`).
 
 - index_term:
 
@@ -133,10 +98,6 @@ A tidy tibble with parsed search results. Includes list-columns
 Defaults are aligned with the VfGH RIS handbook:
 `search_legal_principles = TRUE` and `search_decision_text = FALSE`
 (default search in Rechtssaetze).
-
-`decision_type` for VfGH accepts: `"Undefined"`, `"Beschluss"`,
-`"Erkenntnis"`, `"Vergleich"`, `"KeineAngabe"`, and English aliases
-`"order"`, `"judgment"`, `"settlement"`, `"not_specified"`.
 
 ## Examples
 
