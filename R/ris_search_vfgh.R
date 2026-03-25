@@ -49,6 +49,39 @@
 #' @return A tidy tibble with parsed search results from all pages in scope.
 #'   Includes `page`, `per_page`, and list-columns `content_urls`,
 #'   `app_metadata`.
+#'
+#' @examples
+#' \dontrun{
+#' # Search Rechtssaetze (default) for a constitutional keyword
+#' ris_search_vfgh(query = "Meinungsfreiheit")
+#'
+#' # Also search full decision texts (override the VfGH default)
+#' ris_search_vfgh(
+#'   query = "Eigentumsrecht",
+#'   search_decision_text = TRUE,
+#'   search_legal_principles = TRUE
+#' )
+#'
+#' # Judgments (Erkenntnisse) on a specific norm, sorted by decision date
+#' ris_search_vfgh(
+#'   norm = "B-VG Art144",
+#'   decision_type = "judgment",
+#'   sort_by = "decision_date",
+#'   sort_direction = "Descending"
+#' )
+#'
+#' # Decisions published in RIS within the last six months
+#' ris_search_vfgh(
+#'   in_ris_since = "six_months",
+#'   per_page = 50
+#' )
+#'
+#' # Look up a specific case by business number and echo the browser URL
+#' ris_search_vfgh(
+#'   business_number = "G 123/2023",
+#'   echo = TRUE
+#' )
+#' }
 #' @export
 ris_search_vfgh <- function(
     query = NULL,

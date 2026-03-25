@@ -33,6 +33,40 @@
 #' @return A tidy tibble with parsed search results from all pages in scope.
 #'   Includes `page`, `per_page`, and list-columns `content_urls`,
 #'   `app_metadata`.
+#'
+#' @examples
+#' \dontrun{
+#' # Simple keyword search across both decision texts and Rechtssaetze
+#' ris_search_vwgh(query = "Asylrecht")
+#'
+#' # Search only in Rechtssaetze for a specific legal norm
+#' ris_search_vwgh(
+#'   norm = "AsylG 2005 §3",
+#'   search_decision_text = FALSE,
+#'   search_legal_principles = TRUE
+#' )
+#'
+#' # Filter by decision type and date range, return up to 50 results per page
+#' ris_search_vwgh(
+#'   query = "Ermessen",
+#'   decision_type = "Erkenntnis",
+#'   decision_date_from = "2022-01-01",
+#'   decision_date_to = "2023-12-31",
+#'   per_page = 50
+#' )
+#'
+#' # Reinforced senate (Verstaerkter Senat) decisions added to RIS in the last month
+#' ris_search_vwgh(
+#'   decision_type = "ErkenntnisVS",
+#'   in_ris_since = "one_month"
+#' )
+#'
+#' # Look up a specific case by business number and echo the browser URL
+#' ris_search_vwgh(
+#'   business_number = "Ra 2021/01/0001",
+#'   echo = TRUE
+#' )
+#' }
 #' @export
 ris_search_vwgh <- function(
     query = NULL,
