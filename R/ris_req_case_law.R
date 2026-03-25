@@ -81,12 +81,6 @@
 #'   `"EinemMonat"`, `"DreiMonaten"`, `"SechsMonaten"`, `"EinemJahr"`) and
 #'   English aliases (`"one_week"`, `"two_weeks"`, `"one_month"`,
 #'   `"three_months"`, `"six_months"`, `"one_year"`).
-#' @param sort_by Optional sort column (`SortierungSortedByColumn`).
-#'   For `Vwgh` and `Vfgh`, accepted values are `"Geschaeftszahl"`,
-#'   `"Datum"`, `"Art"`, `"Typ"` and aliases `"business_number"`,
-#'   `"decision_date"`, `"decision_type"`, `"document_type"`.
-#' @param sort_direction Optional sort direction (`SortierungSortDirection`),
-#'   one of `"Ascending"` or `"Descending"` (case-insensitive).
 #' @param search_decision_text Optional flag for decision text search
 #'   (`SucheInEntscheidungstexten`).
 #' @param search_legal_principles Optional flag for legal principles search
@@ -143,8 +137,6 @@ ris_req_case_law <- function(
     short_title = NULL,
     domain = NULL,
     in_ris_since = NULL,
-    sort_by = NULL,
-    sort_direction = NULL,
     search_decision_text = NULL,
     search_legal_principles = NULL,
     per_page = 20L,
@@ -157,16 +149,11 @@ ris_req_case_law <- function(
   application_code <- ris_case_law_application_to_code(application)
   ris_validate_per_page(per_page)
 
-  # Normalize decision_type and sort_by based on which court application was
-  # selected.  VwGH and VfGH have specific allowed enums; other applications
-  # pass the values through unchanged.
+  # Normalize decision_type based on which court application was selected.
+  # VwGH and VfGH have specific allowed enums; other applications pass through.
   decision_type <- ris_normalize_case_law_decision_type(
     application_code = application_code,
     decision_type = decision_type
-  )
-  sort_by <- ris_normalize_case_law_sort_by(
-    application_code = application_code,
-    sort_by = sort_by
   )
 
   # Resolve the document-type search flags (Entscheidungstexte vs.
@@ -214,8 +201,8 @@ ris_req_case_law <- function(
     short_title = short_title,
     domain = domain,
     in_ris_since = in_ris_since,
-    sort_by = sort_by,
-    sort_direction = sort_direction,
+    sort_by = "Datum",
+    sort_direction = "Descending",
     search_decision_text = document_type_flags$search_decision_text,
     search_legal_principles = document_type_flags$search_legal_principles,
     page = 1L,
