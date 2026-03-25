@@ -1,7 +1,47 @@
 # risAT
 
-`risAT` is an R package for querying Austrian court decisions from the
-RIS OGD REST API v2.6 (`/Judikatur`).
+The risAT package provides a tidyverse-friendly interface to the
+Austrian [RIS](https://www.ris.bka.gv.at/) (Rechtsinformationssystem)
+Open Government Data REST API v2.6. It currently focuses on the
+`/Judikatur` endpoint (case law / jurisprudence) and is designed for
+reproducible legal research.
+
+Please note that the package is **in a development stage**. Upcoming
+changes may break existing code. If you encounter any bug, you are
+welcome to file an issue at the package’s [GitHub
+repo](https://github.com/werkstattcodes/risAT/issues).
+
+Also note that neither the package nor its author is affiliated with the
+Austrian Federal Chancellery (BKA) or the RIS.
+
+## Installation
+
+You can install risAT from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("werkstattcodes/risAT")
+```
+
+## Available court applications and functions
+
+The RIS Judikatur endpoint covers multiple court applications. risAT
+currently provides convenience wrappers for the following, plus a
+generic search function that covers all applications:
+
+| Court / Application         | risAT Function                                                                                     |
+|-----------------------------|----------------------------------------------------------------------------------------------------|
+| All Judikatur applications  | [`ris_search_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.md) |
+| VwGH (Administrative Court) | [`ris_search_vwgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.md)         |
+| VfGH (Constitutional Court) | [`ris_search_vfgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.md)         |
+
+Lower-level building blocks for advanced use:
+
+| Step                              | Function                                                                                             |
+|-----------------------------------|------------------------------------------------------------------------------------------------------|
+| Build request                     | [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md)         |
+| Execute request (with pagination) | [`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md) |
+| Parse response                    | [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md)         |
 
 ## Minimal example
 
@@ -21,25 +61,20 @@ results_vwgh <- ris_search_vwgh(
   per_page = 10
 )
 
-# Convenience wrapper: Verfassungsgerichtshof (VfGH)
+# Convenience wrapper: Constitutional Court (VfGH)
 # Defaults to Rechtssätze (RS). Set `search_decision_text = TRUE`
 # to include Entscheidungstexte (TE).
 results_vfgh <- ris_search_vfgh(
   query = "Grundrecht",
   per_page = 10
 )
-
-# VfGH aliases (english) for decision_type, sort_by, and in_ris_since
-results_vfgh_recent <- ris_search_vfgh(
-  decision_type = "judgment",
-  sort_by = "decision_date",
-  sort_direction = "descending",
-  in_ris_since = "one_week",
-  per_page = 10,
-  echo = TRUE
-)
 ```
 
+## Output
+
 Search functions automatically iterate through all RIS pages and return
-all results in scope. Returned tibbles include: - pagination columns:
-`page`, `per_page` - `content_urls` - `app_metadata`
+results as a tidy tibble with columns including `id`, `court`,
+`decision_date`, `case_number`, `content_urls` (list-column), and
+`app_metadata` (list-column). See the [reference
+documentation](https://werkstattcodes.github.io/risAT/reference/) for
+full details.
