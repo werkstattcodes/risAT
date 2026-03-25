@@ -1,0 +1,32 @@
+url: https://werkstattcodes.github.io/risAT
+template:
+  bootstrap: 5
+  light-switch: true
+  includes:
+    before_title: pkgdown/includes/lifecycle-badge.html
+  bslib:
+    bootswatch: materia
+    pkgdown-navbar-bg: "#FFFFFF"
+
+navbar:
+  structure:
+    left: [intro, reference, news]
+    right: [search, github, lightswitch]
+
+reference:
+  - title: "Search Functions"
+    contents:
+      - ris_search_case_law
+      - ris_search_vwgh
+      - ris_search_vfgh
+
+  - title: "Parsers"
+    contents:
+      - ris_parse_search
+
+exclude:
+  - AGENTS.md
+
+build:
+  exclude:
+    - AGENTS.md

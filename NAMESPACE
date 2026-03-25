@@ -1,0 +1,6 @@
+export(ris_parse_search)
+export(ris_perform_case_law)
+export(ris_req_case_law)
+export(ris_search_case_law)
+export(ris_search_vfgh)
+export(ris_search_vwgh)

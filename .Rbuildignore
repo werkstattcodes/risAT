@@ -1,0 +1,5 @@
+^docs$
+^pkgdown$
+^_pkgdown\.yml$
+^AGENTS\.md$
+^background_docs$
