@@ -14,11 +14,22 @@ navbar:
     right: [search, github, lightswitch]
 
 reference:
-  - title: "Search Functions"
+  - title: "Search Functions — Generic"
     contents:
       - ris_search_case_law
-      - ris_search_vwgh
+
+  - title: "Search Functions — Court Wrappers"
+    desc: "Convenience wrappers pre-filled with a specific application code."
+    contents:
       - ris_search_vfgh
+      - ris_search_vwgh
+      - ris_search_justiz
+      - ris_search_bvwg
+      - ris_search_lvwg
+      - ris_search_dsk
+      - ris_search_dok
+      - ris_search_pvak
+      - ris_search_gbk
 
   - title: "Request Building"
     contents:

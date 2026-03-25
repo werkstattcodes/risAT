@@ -308,3 +308,159 @@ test_that("ris_req_case_law accepts English aliases for application", {
   meta <- attr(req, "ris_meta")
   expect_equal(meta$application_code, "Vfgh")
 })
+
+# ── New court-specific wrapper tests ──────────────────────────────────────────
+
+test_that("ris_search_justiz routes to Justiz application", {
+  req <- ris_req_case_law(application = "Justiz", query = "Schadenersatz")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Justiz")
+})
+
+test_that("ris_search_justiz forwards court-specific params to request URL", {
+  req <- ris_req_case_law(
+    application = "Justiz",
+    court = "OGH",
+    legal_area = "Zivilrecht",
+    legal_principle_number = "0000001",
+    citation = "SZ 75/123"
+  )
+  url <- req$url
+  expect_match(url, "Applikation=Justiz")
+  expect_match(url, "Gericht=OGH")
+  expect_match(url, "Rechtsgebiet=Zivilrecht")
+  expect_match(url, "Rechtssatznummer=0000001")
+  expect_match(url, "Fundstelle=SZ")
+})
+
+test_that("ris_search_justiz rejects invalid echo argument", {
+  expect_error(
+    ris_search_justiz(echo = "yes"),
+    "Assertion on 'echo' failed"
+  )
+})
+
+test_that("ris_search_bvwg routes to Bvwg application", {
+  req <- ris_req_case_law(application = "Bvwg")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Bvwg")
+})
+
+test_that("ris_search_bvwg encodes application in URL", {
+  req <- ris_req_case_law(application = "Bvwg", query = "Asyl")
+  expect_match(req$url, "Applikation=Bvwg")
+  expect_match(req$url, "Suchworte=Asyl")
+})
+
+test_that("ris_search_bvwg rejects invalid echo argument", {
+  expect_error(
+    ris_search_bvwg(echo = "yes"),
+    "Assertion on 'echo' failed"
+  )
+})
+
+test_that("ris_search_lvwg routes to Lvwg application", {
+  req <- ris_req_case_law(application = "Lvwg")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Lvwg")
+})
+
+test_that("ris_search_lvwg forwards federal_state param to request URL", {
+  req <- ris_req_case_law(application = "Lvwg", federal_state = "Wien")
+  expect_match(req$url, "Applikation=Lvwg")
+  expect_match(req$url, "Bundesland=Wien")
+})
+
+test_that("ris_search_lvwg rejects invalid echo argument", {
+  expect_error(
+    ris_search_lvwg(echo = "yes"),
+    "Assertion on 'echo' failed"
+  )
+})
+
+test_that("ris_search_dsk routes to Dsk application", {
+  req <- ris_req_case_law(application = "Dsk")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Dsk")
+})
+
+test_that("ris_search_dsk forwards deciding_authority param to request URL", {
+  req <- ris_req_case_law(
+    application = "Dsk",
+    deciding_authority = "Datenschutzbeh\u00f6rde"
+  )
+  expect_match(req$url, "Applikation=Dsk")
+  expect_match(req$url, "EntscheidendeBehoerde=")
+})
+
+test_that("ris_search_dsk rejects invalid echo argument", {
+  expect_error(
+    ris_search_dsk(echo = "yes"),
+    "Assertion on 'echo' failed"
+  )
+})
+
+test_that("ris_search_dok routes to Dok application", {
+  req <- ris_req_case_law(application = "Dok")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Dok")
+})
+
+test_that("ris_search_dok forwards deciding_authority param to request URL", {
+  req <- ris_req_case_law(
+    application = "Dok",
+    deciding_authority = "Bundesdisziplinarbeh\u00f6rde"
+  )
+  expect_match(req$url, "Applikation=Dok")
+  expect_match(req$url, "EntscheidendeBehoerde=")
+})
+
+test_that("ris_search_pvak routes to Pvak application", {
+  req <- ris_req_case_law(application = "Pvak")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Pvak")
+})
+
+test_that("ris_search_pvak forwards deciding_authority param to request URL", {
+  req <- ris_req_case_law(
+    application = "Pvak",
+    deciding_authority = "Personalvertretungsaufsichtsbeh\u00f6rde"
+  )
+  expect_match(req$url, "Applikation=Pvak")
+  expect_match(req$url, "EntscheidendeBehoerde=")
+})
+
+test_that("ris_search_gbk routes to Gbk application", {
+  req <- ris_req_case_law(application = "Gbk")
+  meta <- attr(req, "ris_meta")
+  expect_equal(meta$application_code, "Gbk")
+})
+
+test_that("ris_search_gbk forwards commission, senate, and discrimination_ground to URL", {
+  req <- ris_req_case_law(
+    application = "Gbk",
+    commission = "Gleichbehandlungskommission",
+    senate = "Senat I",
+    discrimination_ground = "Geschlecht"
+  )
+  url <- req$url
+  expect_match(url, "Applikation=Gbk")
+  expect_match(url, "Kommission=Gleichbehandlungskommission")
+  expect_match(url, "Senat=Senat")
+  expect_match(url, "Diskriminierungsgrund=Geschlecht")
+})
+
+test_that("ris_search_gbk does not accept search_decision_text or search_legal_principles", {
+  # Gbk wrapper intentionally omits these params — verify the function
+  # signature does not include them by checking formals()
+  gbk_args <- names(formals(ris_search_gbk))
+  expect_false("search_decision_text" %in% gbk_args)
+  expect_false("search_legal_principles" %in% gbk_args)
+})
+
+test_that("ris_search_gbk rejects invalid echo argument", {
+  expect_error(
+    ris_search_gbk(echo = "yes"),
+    "Assertion on 'echo' failed"
+  )
+})
