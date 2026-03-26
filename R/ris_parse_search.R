@@ -10,6 +10,17 @@
 #'
 #' @return A tibble parsed from one RIS response payload.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#'
+#' @details
+#' The parser is designed to be robust against partial or heterogeneous RIS
+#' payloads:
+#'
+#' - missing nested fields are converted to `NA` where possible,
+#' - variable metadata structures are retained via list-columns,
+#' - mixed column types across documents are harmonized before row-binding.
+#'
+#' @seealso [ris_search_case_law()], [ris_req_case_law()], [ris_perform_case_law()]
+#' @family case law search
 #' @export
 #'
 #' @examples

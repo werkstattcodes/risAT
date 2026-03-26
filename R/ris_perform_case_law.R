@@ -31,6 +31,17 @@
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#'
+#' @details
+#' This function follows all result pages exposed by the RIS API and row-binds
+#' the parsed outputs. Equivalent RIS browser URLs are attached to the output
+#' tibble as attributes:
+#'
+#' - `attr(x, "ris_app_url")`
+#' - `attr(x, "ris_search_url")`
+#'
+#' @seealso [ris_req_case_law()], [ris_search_case_law()], [ris_parse_search()]
+#' @family case law search
 #' @export
 #'
 #' @examples

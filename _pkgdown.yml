@@ -1,4 +1,7 @@
 url: https://werkstattcodes.github.io/risAT
+development:
+  mode: auto
+
 template:
   bootstrap: 5
   light-switch: true
@@ -12,6 +15,13 @@ navbar:
   structure:
     left: [intro, reference, news]
     right: [search, github, lightswitch]
+
+home:
+  links:
+    - text: RIS API v2.6 documentation
+      href: https://data.bka.gv.at/ris/api/v2.6/
+    - text: Report an issue
+      href: https://github.com/werkstattcodes/risAT/issues
 
 reference:
   - title: "Search Functions — Generic"

@@ -32,6 +32,19 @@
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#'
+#' @details
+#' The output follows tidyverse conventions:
+#'
+#' - one row per RIS document reference,
+#' - scalar metadata in regular columns,
+#' - nested structures in list-columns (`content_urls`, `app_metadata`).
+#'
+#' Use [tidyr::unnest_longer()] / [tidyr::unnest_wider()] or
+#' `purrr::map_*()` helpers to work with list-column content.
+#'
+#' @seealso [ris_req_case_law()], [ris_perform_case_law()], [ris_parse_search()]
+#' @family case law search
 #' @export
 #'
 #' @examples

@@ -5,7 +5,7 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
-The risAT package provides a tidyverse-friendly interface to the Austrian
+The `risAT` package provides a tidyverse-friendly interface to the Austrian
 [RIS](https://www.ris.bka.gv.at/) (Rechtsinformationssystem) Open Government
 Data REST API v2.6. It covers the `/Judikatur` endpoint (case law /
 jurisprudence) across all supported court applications and is designed for
@@ -21,7 +21,7 @@ Austrian Federal Chancellery (BKA) or the RIS.
 
 ## Installation
 
-You can install risAT from [GitHub](https://github.com/) with:
+You can install `risAT` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -86,12 +86,34 @@ results_all <- ris_search_case_law(
   application = "data_protection",
   query = "Videoüberwachung"
 )
+
+# `content_urls` is a list-column, so unnest or map as needed
+dplyr::glimpse(results_vwgh)
+
+# Example: keep first available content URL per document
+results_vwgh |>
+  dplyr::mutate(
+    first_content_url = purrr::map_chr(
+      content_urls,
+      ~ purrr::pluck(.x, 1, .default = NA_character_)
+    )
+  )
 ```
 
-## Output
+## Output and conventions
 
 Search functions automatically iterate through all RIS pages and return results
 as a tidy tibble with columns including `id`, `court`, `decision_date`,
 `case_number`, `content_urls` (list-column), and `app_metadata` (list-column).
-See the [reference documentation](https://werkstattcodes.github.io/risAT/reference/)
-for full details.
+The output is designed to work well in tidyverse pipelines (`dplyr`, `tidyr`,
+`purrr`) and follows these conventions:
+
+- English user-facing function names and arguments (`snake_case`).
+- Internal mapping to German RIS API parameters.
+- List-columns for nested API payload parts (`content_urls`, `app_metadata`).
+
+See the pkgdown site for full documentation:
+
+- [Get started](https://werkstattcodes.github.io/risAT/)
+- [Function reference](https://werkstattcodes.github.io/risAT/reference/)
+- [Changelog](https://werkstattcodes.github.io/risAT/news/index.html)

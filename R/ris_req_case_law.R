@@ -129,6 +129,9 @@
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
 #'   containing the application code and website URLs. Pass this to
 #'   [ris_perform_case_law()] to execute the search.
+#'
+#' @seealso [ris_perform_case_law()], [ris_search_case_law()]
+#' @family case law search
 #' @export
 #'
 #' @examples
