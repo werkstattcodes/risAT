@@ -247,7 +247,7 @@ ris_iterate_case_law_pages <- function(req) {
       httr2::req_url_query(req, Seitennummer = as.integer(next_page))
     },
     max_reqs = Inf,
-    progress = FALSE
+    progress = TRUE
   )
 }
 
@@ -267,7 +267,11 @@ ris_next_case_law_page <- function(root) {
   page_info <- ris_extract_page_info(root)
   total_hits <- ris_extract_hits_count(root)
 
-  if (is.na(page_info$page_number) || is.na(page_info$page_size) || page_info$page_size < 1L) {
+  if (
+    is.na(page_info$page_number) ||
+      is.na(page_info$page_size) ||
+      page_info$page_size < 1L
+  ) {
     return(NULL)
   }
   if (is.na(total_hits) || total_hits <= 0L) {
