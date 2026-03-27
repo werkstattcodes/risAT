@@ -11,7 +11,8 @@ ris_perform_case_law(req, echo = FALSE)
 \code{\link[=ris_req_case_law]{ris_req_case_law()}}.}
 
 \item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-and the number of returned rows.}
+and the number of returned rows. For \code{Vfgh} searches, \code{echo = TRUE}
+also shows \code{cli} progress while results are fetched.}
 }
 \value{
 A tidy tibble with parsed search results.

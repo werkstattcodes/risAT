@@ -29,7 +29,8 @@
 #'
 #' Defaults are aligned with the VfGH RIS handbook:
 #' `search_legal_principles = TRUE` and `search_decision_text = FALSE`
-#' (default search in Rechtssaetze).
+#' (default search in Rechtssaetze). When `echo = TRUE`, the function also
+#' shows `cli` progress while results are fetched.
 #'
 #' @inheritParams ris_search_case_law
 #' @param decision_type Optional decision type (`Entscheidungsart`).

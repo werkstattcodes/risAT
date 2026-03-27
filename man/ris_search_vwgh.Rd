@@ -91,8 +91,7 @@ ris_search_vwgh(
 
 # Multiple norms: wrap each in single quotes and join with "oder"
 ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
-ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
- 
+
 # Filter by decision type and date range.
 # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
 # "ErkenntnisVS" (VS = Verstaerkter Senat / reinforced senate).

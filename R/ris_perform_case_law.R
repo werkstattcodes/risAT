@@ -27,7 +27,8 @@
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_case_law()].
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
-#'   and the number of returned rows.
+#'   and the number of returned rows. For `Vfgh` searches, `echo = TRUE`
+#'   also shows `cli` progress while results are fetched.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
@@ -59,6 +60,11 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   application_code <- meta$application_code
   per_page <- meta$per_page
   website_urls <- meta$website_urls
+  progress_state <- ris_create_case_law_progress(
+    application_code = application_code,
+    echo = echo
+  )
+  on.exit(ris_case_law_progress_finalize(progress_state), add = TRUE)
 
   # When echo = TRUE, print the RIS website URLs so the user can open the
   # same search in a browser to cross-check the results.
@@ -71,7 +77,7 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   # ris_iterate_case_law_pages() wraps httr2::req_perform_iterative() and
   # automatically follows pagination by inspecting each response's page
   # metadata.  It returns a list of httr2_response objects, one per page.
-  responses <- ris_iterate_case_law_pages(req)
+  responses <- ris_iterate_case_law_pages(req, progress_state = progress_state)
 
   # -- Step 3: Parse each page response into a tibble -------------------------
   # ris_parse_search() (from ris_parse_search.R) handles the JSON-to-tibble
@@ -231,13 +237,16 @@ ris_bind_case_law_pages <- function(page_results) {
 # max_reqs = Inf means we fetch *all* pages (the RIS API may return hundreds
 # for broad queries).  progress = FALSE suppresses httr2's built-in progress
 # bar since we may add our own later.
-ris_iterate_case_law_pages <- function(req) {
+ris_iterate_case_law_pages <- function(req, progress_state = NULL) {
+  ris_case_law_progress_begin(progress_state)
+
   httr2::req_perform_iterative(
     req = req,
     next_req = function(resp, req) {
       payload <- httr2::resp_body_json(resp, simplifyVector = FALSE)
       root <- ris_extract_root(payload)
       ris_stop_on_api_error(root)
+      ris_case_law_progress_after_response(progress_state, root)
 
       next_page <- ris_next_case_law_page(root)
       if (is.null(next_page)) {
@@ -249,6 +258,138 @@ ris_iterate_case_law_pages <- function(req) {
     max_reqs = Inf,
     progress = FALSE
   )
+}
+
+# -- cli progress helpers -----------------------------------------------------
+ris_create_case_law_progress <- function(application_code, echo) {
+  enabled <- isTRUE(echo) && identical(application_code, "Vfgh")
+  state <- new.env(parent = emptyenv())
+  state$enabled <- enabled
+  state$application_code <- application_code
+  state$spinner_id <- NULL
+  state$bar_id <- NULL
+  state$total_pages <- NA_integer_
+  state$cli_env <- new.env(parent = emptyenv())
+  class(state) <- "ris_case_law_progress"
+  state
+}
+
+ris_case_law_progress_begin <- function(state) {
+  if (!ris_case_law_progress_is_enabled(state) || !is.null(state$spinner_id)) {
+    return(invisible(state))
+  }
+
+  state$spinner_id <- ris_cli_progress_bar(
+    total = NA,
+    clear = TRUE,
+    .envir = state$cli_env,
+    format = paste0(
+      "Fetching ",
+      state$application_code,
+      " search results {cli::spinner}"
+    )
+  )
+
+  invisible(state)
+}
+
+ris_case_law_progress_after_response <- function(state, root) {
+  if (!ris_case_law_progress_is_enabled(state)) {
+    return(invisible(state))
+  }
+
+  page_info <- ris_extract_page_info(root)
+  total_hits <- ris_extract_hits_count(root)
+  current_page <- as.integer(page_info$page_number)
+  page_size <- as.integer(page_info$page_size)
+
+  total_pages <- if (
+    is.na(total_hits) ||
+      total_hits <= 0L ||
+      is.na(page_size) ||
+      page_size < 1L
+  ) {
+    1L
+  } else {
+    as.integer(max(1L, ceiling(total_hits / page_size)))
+  }
+
+  state$total_pages <- total_pages
+
+  if (isTRUE(total_pages <= 1L)) {
+    ris_case_law_progress_complete_spinner(state)
+    return(invisible(state))
+  }
+
+  if (is.null(state$bar_id)) {
+    ris_case_law_progress_complete_spinner(state)
+    state$bar_id <- ris_cli_progress_bar(
+      total = total_pages,
+      clear = TRUE,
+      .envir = state$cli_env,
+      format = paste0(
+        "Fetching ", state$application_code, " search results ",
+        "[{cli::pb_bar}] {cli::pb_percent} | page {cli::pb_current}/{cli::pb_total}"
+      )
+    )
+  }
+
+  if (!is.na(current_page)) {
+    ris_cli_progress_update(
+      id = state$bar_id,
+      set = current_page,
+      .envir = state$cli_env
+    )
+  }
+
+  invisible(state)
+}
+
+ris_case_law_progress_finalize <- function(state) {
+  if (!ris_case_law_progress_is_enabled(state)) {
+    return(invisible(state))
+  }
+
+  if (!is.null(state$spinner_id)) {
+    ris_cli_progress_done(id = state$spinner_id, .envir = state$cli_env)
+    state$spinner_id <- NULL
+  }
+
+  if (!is.null(state$bar_id)) {
+    ris_cli_progress_done(id = state$bar_id, .envir = state$cli_env)
+    state$bar_id <- NULL
+  }
+
+  invisible(state)
+}
+
+ris_case_law_progress_complete_spinner <- function(state) {
+  if (!ris_case_law_progress_is_enabled(state) || is.null(state$spinner_id)) {
+    return(invisible(state))
+  }
+
+  ris_cli_progress_done(id = state$spinner_id, .envir = state$cli_env)
+  state$spinner_id <- NULL
+
+  invisible(state)
+}
+
+ris_case_law_progress_is_enabled <- function(state) {
+  is.environment(state) &&
+    inherits(state, "ris_case_law_progress") &&
+    isTRUE(state$enabled)
+}
+
+ris_cli_progress_bar <- function(..., .envir = parent.frame()) {
+  cli::cli_progress_bar(..., .envir = .envir)
+}
+
+ris_cli_progress_update <- function(..., .envir = parent.frame()) {
+  cli::cli_progress_update(..., .envir = .envir)
+}
+
+ris_cli_progress_done <- function(..., .envir = parent.frame()) {
+  cli::cli_progress_done(..., .envir = .envir)
 }
 
 # -- ris_next_case_law_page() -------------------------------------------------

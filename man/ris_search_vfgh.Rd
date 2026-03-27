@@ -72,7 +72,8 @@ Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law
 \details{
 Defaults are aligned with the VfGH RIS handbook:
 \code{search_legal_principles = TRUE} and \code{search_decision_text = FALSE}
-(default search in Rechtssaetze).
+(default search in Rechtssaetze). When \code{echo = TRUE}, the function also
+shows \code{cli} progress while results are fetched.
 }
 \examples{
 \dontrun{
