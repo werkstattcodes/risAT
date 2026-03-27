@@ -4,7 +4,7 @@
 
 
     <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
-    pkgdown/includes/lifecycle-badge.html
+
     <a class="navbar-brand me-2" href="index.html">risAT</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
@@ -156,44 +156,44 @@ ris_parse_search()          Parses JSON response list → flat tidy tibble</code
 <div class="section level2">
 <h2 id="output-schema">Output schema<a class="anchor" aria-label="anchor" href="#output-schema"></a></h2>
 <p>All search functions return a <code>tibble</code> with:</p>
-<table class="table"><thead><tr><th>Column</th>
+<table class="table"><thead><tr class="header"><th>Column</th>
 <th>Type</th>
 <th>Description</th>
-</tr></thead><tbody><tr><td><code>id</code></td>
+</tr></thead><tbody><tr class="odd"><td><code>id</code></td>
 <td>character</td>
 <td>Unique document ID</td>
-</tr><tr><td><code>application</code></td>
+</tr><tr class="even"><td><code>application</code></td>
 <td>character</td>
 <td>RIS application (e.g. <code>"Vwgh"</code>)</td>
-</tr><tr><td><code>court</code></td>
+</tr><tr class="odd"><td><code>court</code></td>
 <td>character</td>
 <td>Court name</td>
-</tr><tr><td><code>decision_date</code></td>
+</tr><tr class="even"><td><code>decision_date</code></td>
 <td>Date</td>
 <td>Date of the decision</td>
-</tr><tr><td><code>case_number</code></td>
+</tr><tr class="odd"><td><code>case_number</code></td>
 <td>character</td>
 <td>Geschäftszahl</td>
-</tr><tr><td><code>decision_type</code></td>
+</tr><tr class="even"><td><code>decision_type</code></td>
 <td>character</td>
 <td>Type of decision</td>
-</tr><tr><td><code>title</code></td>
+</tr><tr class="odd"><td><code>title</code></td>
 <td>character</td>
 <td>Document title</td>
-</tr><tr><td><code>ris_url</code></td>
+</tr><tr class="even"><td><code>ris_url</code></td>
 <td>character</td>
 <td>Link to RIS web page</td>
-</tr><tr><td><code>content_urls</code></td>
+</tr><tr class="odd"><td><code>content_urls</code></td>
 <td>list-column</td>
 <td>Tibble of <code>data_type</code> + <code>url</code>
 </td>
-</tr><tr><td><code>app_metadata</code></td>
+</tr><tr class="even"><td><code>app_metadata</code></td>
 <td>list-column</td>
 <td>Application-specific nested metadata</td>
-</tr><tr><td><code>page</code></td>
+</tr><tr class="odd"><td><code>page</code></td>
 <td>integer</td>
 <td>Source page number</td>
-</tr><tr><td><code>per_page</code></td>
+</tr><tr class="even"><td><code>per_page</code></td>
 <td>integer</td>
 <td>Page size used</td>
 </tr></tbody></table><p>Result tibbles carry attributes: <code>total_hits</code>, <code>page_number</code>, <code>page_size</code>.</p>

@@ -53,25 +53,25 @@ ris_req_case_law(
   Judikatur application. Accepts RIS codes or English aliases
   (case-insensitive):
 
-  |  |  |  |
-  |----|----|----|
-  | Code | English Alias | Court / Body |
-  | `"Vfgh"` | `"constitutional_court"` | Constitutional Court (VfGH) |
-  | `"Vwgh"` | `"administrative_court"` | Supreme Administrative Court (VwGH) |
-  | `"Justiz"` | `"justice"` | Ordinary courts (OGH, OLG, LG, BG, OPMS, AUSL) |
-  | `"Bvwg"` | `"federal_administrative_court"` | Federal Administrative Court (BVwG) |
-  | `"Lvwg"` | `"state_administrative_courts"` | State Administrative Courts (LVwG) |
-  | `"Normenliste"` | `"norm_list"` | VwGH Norm List |
-  | `"Dsk"` | `"data_protection_authority"` | Data protection authorities (DSK/DSB/PDK) |
-  | `"Dok"` | `"disciplinary_bodies"` | Federal Disciplinary Authority & commissions |
-  | `"Pvak"` | `"staff_representation_oversight"` | Staff Representation Oversight Authority |
-  | `"Gbk"` | `"equal_treatment_commission"` | Equal Treatment Commissions (since 2014) |
-  | `"Uvs"` | `"independent_administrative_panels"` | Independent Administrative Panels (1991–2013) |
-  | `"AsylGH"` | `"asylum_court"` | Asylum Court (2008–2013) |
-  | `"Ubas"` | `"independent_federal_asylum_panel"` | Independent Federal Asylum Panel (1998–2008) |
-  | `"Umse"` | `"environmental_panel"` | Environmental Panel (1994–2013) |
-  | `"Bks"` | `"federal_communications_panel"` | Federal Communications Panel (2001–2013) |
-  | `"Verg"` | `"procurement_review_bodies"` | Procurement Review Bodies (until 2013) |
+  |                 |                                       |                                                |
+  |-----------------|---------------------------------------|------------------------------------------------|
+  | Code            | English Alias                         | Court / Body                                   |
+  | `"Vfgh"`        | `"constitutional_court"`              | Constitutional Court (VfGH)                    |
+  | `"Vwgh"`        | `"administrative_court"`              | Supreme Administrative Court (VwGH)            |
+  | `"Justiz"`      | `"justice"`                           | Ordinary courts (OGH, OLG, LG, BG, OPMS, AUSL) |
+  | `"Bvwg"`        | `"federal_administrative_court"`      | Federal Administrative Court (BVwG)            |
+  | `"Lvwg"`        | `"state_administrative_courts"`       | State Administrative Courts (LVwG)             |
+  | `"Normenliste"` | `"norm_list"`                         | VwGH Norm List                                 |
+  | `"Dsk"`         | `"data_protection_authority"`         | Data protection authorities (DSK/DSB/PDK)      |
+  | `"Dok"`         | `"disciplinary_bodies"`               | Federal Disciplinary Authority & commissions   |
+  | `"Pvak"`        | `"staff_representation_oversight"`    | Staff Representation Oversight Authority       |
+  | `"Gbk"`         | `"equal_treatment_commission"`        | Equal Treatment Commissions (since 2014)       |
+  | `"Uvs"`         | `"independent_administrative_panels"` | Independent Administrative Panels (1991–2013)  |
+  | `"AsylGH"`      | `"asylum_court"`                      | Asylum Court (2008–2013)                       |
+  | `"Ubas"`        | `"independent_federal_asylum_panel"`  | Independent Federal Asylum Panel (1998–2008)   |
+  | `"Umse"`        | `"environmental_panel"`               | Environmental Panel (1994–2013)                |
+  | `"Bks"`         | `"federal_communications_panel"`      | Federal Communications Panel (2001–2013)       |
+  | `"Verg"`        | `"procurement_review_bodies"`         | Procurement Review Bodies (until 2013)         |
 
 - query:
 

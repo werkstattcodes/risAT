@@ -2,8 +2,6 @@ url: https://werkstattcodes.github.io/risAT
 template:
   bootstrap: 5
   light-switch: true
-  includes:
-    before_title: pkgdown/includes/lifecycle-badge.html
   bslib:
     bootswatch: materia
     pkgdown-navbar-bg: "#FFFFFF"

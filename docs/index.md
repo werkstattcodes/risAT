@@ -29,26 +29,26 @@ The RIS Judikatur endpoint covers multiple court applications. risAT
 provides convenience wrappers for all of them, plus a generic search
 function that accepts any application code:
 
-| Court / Application | Function | Notes |
-|----|----|----|
-| All Judikatur applications | [`ris_search_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.md) | Generic; accepts any application code |
-| VfGH (Constitutional Court) | [`ris_search_vfgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.md) | Defaults to Rechtssätze |
-| VwGH (Administrative Court) | [`ris_search_vwgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.md) |  |
-| Justiz (OGH, OLG, LG, BG) | [`ris_search_justiz()`](https://werkstattcodes.github.io/risAT/reference/ris_search_justiz.md) | Richest parameter set |
-| BVwG (Federal Administrative Court) | [`ris_search_bvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_bvwg.md) | Since 2014 |
-| LVwG (9 state administrative courts) | [`ris_search_lvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_lvwg.md) | Use `federal_state` to narrow |
-| DSK / DSB / PDK (data protection) | [`ris_search_dsk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dsk.md) |  |
-| BDB / DK / DOK / BK (disciplinary) | [`ris_search_dok()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dok.md) |  |
-| PVAK / PVAB (staff representation) | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md) |  |
-| GBK (equal treatment commissions) | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md) | No doc-type flags |
+| Court / Application                  | Function                                                                                           | Notes                                 |
+|--------------------------------------|----------------------------------------------------------------------------------------------------|---------------------------------------|
+| All Judikatur applications           | [`ris_search_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.md) | Generic; accepts any application code |
+| VfGH (Constitutional Court)          | [`ris_search_vfgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.md)         | Defaults to Rechtssätze               |
+| VwGH (Administrative Court)          | [`ris_search_vwgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.md)         |                                       |
+| Justiz (OGH, OLG, LG, BG)            | [`ris_search_justiz()`](https://werkstattcodes.github.io/risAT/reference/ris_search_justiz.md)     | Richest parameter set                 |
+| BVwG (Federal Administrative Court)  | [`ris_search_bvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_bvwg.md)         | Since 2014                            |
+| LVwG (9 state administrative courts) | [`ris_search_lvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_lvwg.md)         | Use `federal_state` to narrow         |
+| DSK / DSB / PDK (data protection)    | [`ris_search_dsk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dsk.md)           |                                       |
+| BDB / DK / DOK / BK (disciplinary)   | [`ris_search_dok()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dok.md)           |                                       |
+| PVAK / PVAB (staff representation)   | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md)         |                                       |
+| GBK (equal treatment commissions)    | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md)           | No doc-type flags                     |
 
 Lower-level building blocks for advanced use:
 
-| Step | Function |
-|----|----|
-| Build request | [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md) |
+| Step                              | Function                                                                                             |
+|-----------------------------------|------------------------------------------------------------------------------------------------------|
+| Build request                     | [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md)         |
 | Execute request (with pagination) | [`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md) |
-| Parse response | [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md) |
+| Parse response                    | [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md)         |
 
 ## Minimal example
 

@@ -4,7 +4,7 @@
 
 
     <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
-    pkgdown/includes/lifecycle-badge.html
+
     <a class="navbar-brand me-2" href="index.html">risAT</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
@@ -40,13 +40,13 @@
 <div id="risat--r-interface-to-the-austrian-ris-rechtsinformationssystem" class="section level1">
 
 <div class="section level2">
-<h2 id="dart-project-goal">🎯 Project goal<a class="anchor" aria-label="anchor" href="#dart-project-goal"></a></h2>
+<h2 id="id_-project-goal">🎯 Project goal<a class="anchor" aria-label="anchor" href="#id_-project-goal"></a></h2>
 <p><code>risAT</code> is an R package that provides a tidyverse-friendly interface to the Austrian RIS Open Government Data API (OGD-RIS API v2.6).</p>
 <p>The package focuses on: - reproducible research - tidy data structures - easy access to Austrian legal texts and jurisprudence</p>
 <p>The API is documented here: <a href="https://data.bka.gv.at/ris/api/v2.6/" class="external-link uri">https://data.bka.gv.at/ris/api/v2.6/</a></p>
 <hr></div>
 <div class="section level2">
-<h2 id="package-design-principles">📦 Design principles<a class="anchor" aria-label="anchor" href="#package-design-principles"></a></h2>
+<h2 id="id_-design-principles">📦 Design principles<a class="anchor" aria-label="anchor" href="#id_-design-principles"></a></h2>
 <p>The package follows these principles:</p>
 <ol style="list-style-type: decimal"><li>
 <strong>User-facing API in English</strong>
@@ -73,7 +73,7 @@
 </ul></li>
 </ol><hr></div>
 <div class="section level2">
-<h2 id="mag-scope-v01">🔍 Scope (v0.1)<a class="anchor" aria-label="anchor" href="#mag-scope-v01"></a></h2>
+<h2 id="id_-scope-v01">🔍 Scope (v0.1)<a class="anchor" aria-label="anchor" href="#id_-scope-v01"></a></h2>
 <p>Initial focus: <strong>Jurisprudence</strong></p>
 <p>Endpoints: - Judikatur / VwGH - Judikatur / VfGH</p>
 <p>Functions to implement:</p>
@@ -82,7 +82,7 @@
 <li><code><a href="reference/ris_parse_search.html">ris_parse_search()</a></code></li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="globe_with_meridians-api-structure">🌐 API structure<a class="anchor" aria-label="anchor" href="#globe_with_meridians-api-structure"></a></h2>
+<h2 id="id_-api-structure">🌐 API structure<a class="anchor" aria-label="anchor" href="#id_-api-structure"></a></h2>
 <p>Base URL:</p>
 <p><a href="https://data.bka.gv.at/ris/api/v2.6/" class="external-link uri">https://data.bka.gv.at/ris/api/v2.6/</a></p>
 <p>Jurisprudence endpoint:</p>
@@ -91,7 +91,7 @@
 <p>Applikation = “Vwgh” or “Vfgh”</p>
 <hr></div>
 <div class="section level2">
-<h2 id="jigsaw-function-interface-design">🧩 Function interface design<a class="anchor" aria-label="anchor" href="#jigsaw-function-interface-design"></a></h2>
+<h2 id="id_-function-interface-design">🧩 Function interface design<a class="anchor" aria-label="anchor" href="#id_-function-interface-design"></a></h2>
 <div class="section level3">
 <h3 id="example-ris_search_vwgh">Example: ris_search_vwgh()<a class="anchor" aria-label="anchor" href="#example-ris_search_vwgh"></a></h3>
 <p>User-facing arguments (English):</p>
@@ -103,19 +103,19 @@
 <li>decision_type</li>
 <li>search_in</li>
 </ul><p>Internal mapping:</p>
-<table class="table"><thead><tr><th>English arg</th>
+<table class="table"><thead><tr class="header"><th>English arg</th>
 <th>RIS parameter</th>
-</tr></thead><tbody><tr><td>query</td>
+</tr></thead><tbody><tr class="odd"><td>query</td>
 <td>Suchworte</td>
-</tr><tr><td>case_number</td>
+</tr><tr class="even"><td>case_number</td>
 <td>Geschaeftszahl</td>
-</tr><tr><td>legal_norm</td>
+</tr><tr class="odd"><td>legal_norm</td>
 <td>Norm</td>
-</tr><tr><td>decision_date_from</td>
+</tr><tr class="even"><td>decision_date_from</td>
 <td>EntscheidungsdatumVon</td>
-</tr><tr><td>decision_date_to</td>
+</tr><tr class="odd"><td>decision_date_to</td>
 <td>EntscheidungsdatumBis</td>
-</tr><tr><td>decision_type</td>
+</tr><tr class="even"><td>decision_type</td>
 <td>Entscheidungsart</td>
 </tr></tbody></table><p>Search location mapping:</p>
 <p>search_in → RIS Dokumenttyp:</p>
@@ -125,7 +125,7 @@
 </ul><hr></div>
 </div>
 <div class="section level2">
-<h2 id="bar_chart-output-format">📊 Output format<a class="anchor" aria-label="anchor" href="#bar_chart-output-format"></a></h2>
+<h2 id="id_-output-format">📊 Output format<a class="anchor" aria-label="anchor" href="#id_-output-format"></a></h2>
 <p>All search functions return a tibble with:</p>
 <p>Core columns:</p>
 <ul><li>id</li>
@@ -145,7 +145,7 @@
 <li>page_size</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="brain-parser-behavior">🧠 Parser behavior<a class="anchor" aria-label="anchor" href="#brain-parser-behavior"></a></h2>
+<h2 id="id_-parser-behavior">🧠 Parser behavior<a class="anchor" aria-label="anchor" href="#id_-parser-behavior"></a></h2>
 <p>Function: <code><a href="reference/ris_parse_search.html">ris_parse_search()</a></code></p>
 <p>Responsibilities:</p>
 <ul><li><p>extract OgdSearchResult</p></li>
@@ -160,7 +160,7 @@
 <li><p>convert to tidy tibble</p></li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="gear-internal-helper-functions">⚙️ Internal helper functions<a class="anchor" aria-label="anchor" href="#gear-internal-helper-functions"></a></h2>
+<h2 id="id_️-internal-helper-functions">⚙️ Internal helper functions<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-internal-helper-functions"></a></h2>
 <p>The package should include:</p>
 <ul><li>
 <code>ris_req()</code> → build httr2 request</li>
@@ -172,7 +172,7 @@
 <code><a href="reference/ris_parse_search.html">ris_parse_search()</a></code> → tidy parser</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="test_tube-testing">🧪 Testing<a class="anchor" aria-label="anchor" href="#test_tube-testing"></a></h2>
+<h2 id="id_-testing">🧪 Testing<a class="anchor" aria-label="anchor" href="#id_-testing"></a></h2>
 <p>Use:</p>
 <ul><li><code>testthat</code></li>
 <li>optionally <code>httptest2</code> for mocking API calls</li>
@@ -182,7 +182,7 @@
 <li>parser returns expected columns</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="blue_book-documentation">📘 Documentation<a class="anchor" aria-label="anchor" href="#blue_book-documentation"></a></h2>
+<h2 id="id_-documentation">📘 Documentation<a class="anchor" aria-label="anchor" href="#id_-documentation"></a></h2>
 <p>Use roxygen2.</p>
 <p>Each exported function must include:</p>
 <ul><li>description</li>
@@ -191,7 +191,7 @@
 <li>examples</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="rocket-future-roadmap">🚀 Future roadmap<a class="anchor" aria-label="anchor" href="#rocket-future-roadmap"></a></h2>
+<h2 id="id_-future-roadmap">🚀 Future roadmap<a class="anchor" aria-label="anchor" href="#id_-future-roadmap"></a></h2>
 <p>Planned extensions:</p>
 <ul><li>Justiz (OGH, LG, BG, …)</li>
 <li>BVwG / LVwG</li>
@@ -204,7 +204,7 @@
 <li><code>ris_pick_content_url()</code></li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="technologist-coding-style">🧑‍💻 Coding style<a class="anchor" aria-label="anchor" href="#technologist-coding-style"></a></h2>
+<h2 id="id_-coding-style">🧑‍💻 Coding style<a class="anchor" aria-label="anchor" href="#id_-coding-style"></a></h2>
 <ul><li>tidyverse style</li>
 <li>pipe-friendly</li>
 <li>no base R loops where purrr is clearer</li>
@@ -212,13 +212,13 @@
 <li>minimal dependencies</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="stop_sign-important-constraints">🛑 Important constraints<a class="anchor" aria-label="anchor" href="#stop_sign-important-constraints"></a></h2>
+<h2 id="id_-important-constraints">🛑 Important constraints<a class="anchor" aria-label="anchor" href="#id_-important-constraints"></a></h2>
 <ul><li>Respect RIS API rate limits</li>
 <li>avoid large parallel downloads</li>
 <li>follow OGD netiquette</li>
 </ul><hr></div>
 <div class="section level2">
-<h2 id="compass-guidance-for-ai-agents-codex">🧭 Guidance for AI agents (Codex)<a class="anchor" aria-label="anchor" href="#compass-guidance-for-ai-agents-codex"></a></h2>
+<h2 id="id_-guidance-for-ai-agents-codex">🧭 Guidance for AI agents (Codex)<a class="anchor" aria-label="anchor" href="#id_-guidance-for-ai-agents-codex"></a></h2>
 <p>When modifying this repo:</p>
 <ol style="list-style-type: decimal"><li>Preserve function interfaces</li>
 <li>Keep English user-facing API</li>
