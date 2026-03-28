@@ -77,7 +77,7 @@ ris_as_payload <- function(x) {
   if (is.list(x)) {
     return(x)
   }
-  stop("`x` must be an `httr2_response` or a list.", call. = FALSE)
+  rlang::abort("`x` must be an `httr2_response` or a list.")
 }
 
 ris_extract_root <- function(payload) {
@@ -95,7 +95,7 @@ ris_stop_on_api_error <- function(root) {
 
   application <- err$Applikation %||% "Unknown"
   message <- err$Message %||% "Unknown RIS API error."
-  stop(paste0("RIS API error [", application, "]: ", message), call. = FALSE)
+  rlang::abort(paste0("RIS API error [", application, "]: ", message))
 }
 
 ris_extract_document_references <- function(root) {
@@ -315,9 +315,9 @@ ris_to_scalar_or_list <- function(x) {
 ris_to_snake_case <- function(x) {
   x |>
     stringr::str_replace_all(c(
-      "Ä" = "Ae", "Ö" = "Oe", "Ü" = "Ue",
-      "ä" = "ae", "ö" = "oe", "ü" = "ue",
-      "ß" = "ss"
+      "\u00c4" = "Ae", "\u00d6" = "Oe", "\u00dc" = "Ue",
+      "\u00e4" = "ae", "\u00f6" = "oe", "\u00fc" = "ue",
+      "\u00df" = "ss"
     )) |>
     stringr::str_replace_all("([a-z0-9])([A-Z])", "\\1_\\2") |>
     stringr::str_to_lower() |>

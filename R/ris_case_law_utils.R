@@ -287,7 +287,7 @@ ris_build_case_law_params <- function(
 # to specialized bodies like the Equal Treatment Commission (Gbk).
 ris_case_law_application_to_code <- function(application) {
   if (!is.character(application) || length(application) != 1L || is.na(application)) {
-    stop("`application` must be a single string.", call. = FALSE)
+    rlang::abort("`application` must be a single string.")
   }
 
   # The official RIS application codes, in their canonical casing.
@@ -341,14 +341,11 @@ ris_case_law_application_to_code <- function(application) {
 
   # No match — build a helpful error message listing all valid options.
   valid_values <- c(canonical_codes, names(alias_to_code))
-  stop(
-    paste0(
-      "`application` is invalid. Use one of: ",
-      paste(valid_values, collapse = ", "),
-      "."
-    ),
-    call. = FALSE
-  )
+  rlang::abort(paste0(
+    "`application` is invalid. Use one of: ",
+    paste(valid_values, collapse = ", "),
+    "."
+  ))
 }
 
 # -- Document type support check -----------------------------------------------
@@ -648,16 +645,15 @@ ris_normalize_document_type_flags <- function(
   if (length(provided) > 0L) {
     valid <- purrr::map_lgl(provided, ~ is.logical(.x) && length(.x) == 1L && !is.na(.x))
     if (!all(valid)) {
-      stop("`search_decision_text` and `search_legal_principles` must be TRUE or FALSE.", call. = FALSE)
+      rlang::abort("`search_decision_text` and `search_legal_principles` must be TRUE or FALSE.")
     }
   }
 
   # Applications that don't support document-type flags: warn and return NULLs.
   if (!supports) {
     if (length(provided) > 0L) {
-      warning(
-        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application.",
-        call. = FALSE
+      rlang::warn(
+        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application."
       )
     }
     return(list(search_decision_text = NULL, search_legal_principles = NULL))
@@ -674,7 +670,7 @@ ris_normalize_document_type_flags <- function(
 
   # Guard: at least one must be TRUE, otherwise the API returns no results.
   if (!isTRUE(search_decision_text) && !isTRUE(search_legal_principles)) {
-    stop("At least one of `search_decision_text` or `search_legal_principles` must be TRUE.", call. = FALSE)
+    rlang::abort("At least one of `search_decision_text` or `search_legal_principles` must be TRUE.")
   }
 
   list(
@@ -703,7 +699,7 @@ ris_bool_to_true_or_null <- function(x) {
     return(NULL)
   }
   if (!is.logical(x) || length(x) != 1L || is.na(x)) {
-    stop("Logical RIS search flags must be TRUE or FALSE.", call. = FALSE)
+    rlang::abort("Logical RIS search flags must be TRUE or FALSE.")
   }
   if (isTRUE(x)) "true" else NULL
 }
@@ -723,7 +719,7 @@ ris_normalize_named_interval <- function(x) {
   }
 
   if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    stop("Named interval parameters must be a single string.", call. = FALSE)
+    rlang::abort("Named interval parameters must be a single string.")
   }
 
   lookup <- c(
@@ -744,22 +740,19 @@ ris_normalize_named_interval <- function(x) {
 
   key <- ris_normalize_key(x)
   if (!key %in% names(lookup)) {
-    stop(
-      paste0(
-        "Interval value is invalid. Use one of: ",
-        paste(
-          c(
-            "Undefined", "EinerWoche", "ZweiWochen", "EinemMonat",
-            "DreiMonaten", "SechsMonaten", "EinemJahr",
-            "one_week", "two_weeks", "one_month", "three_months",
-            "six_months", "one_year"
-          ),
-          collapse = ", "
+    rlang::abort(paste0(
+      "Interval value is invalid. Use one of: ",
+      paste(
+        c(
+          "Undefined", "EinerWoche", "ZweiWochen", "EinemMonat",
+          "DreiMonaten", "SechsMonaten", "EinemJahr",
+          "one_week", "two_weeks", "one_month", "three_months",
+          "six_months", "one_year"
         ),
-        "."
+        collapse = ", "
       ),
-      call. = FALSE
-    )
+      "."
+    ))
   }
 
   unname(lookup[[key]])
@@ -774,12 +767,12 @@ ris_normalize_sort_direction <- function(x) {
     return(NULL)
   }
   if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    stop("`sort_direction` must be a single string.", call. = FALSE)
+    rlang::abort("`sort_direction` must be a single string.")
   }
   allowed <- c("Ascending", "Descending")
   idx <- match(tolower(x), tolower(allowed))
   if (is.na(idx)) {
-    stop("`sort_direction` must be 'Ascending' or 'Descending'.", call. = FALSE)
+    rlang::abort("`sort_direction` must be 'Ascending' or 'Descending'.")
   }
   allowed[[idx]]
 }
@@ -796,7 +789,7 @@ ris_per_page_to_api_value <- function(per_page) {
   )
   out <- unname(lookup[[as.character(as.integer(per_page))]])
   if (is.null(out)) {
-    stop("`per_page` must be one of: 10, 20, 50, 100.", call. = FALSE)
+    rlang::abort("`per_page` must be one of: 10, 20, 50, 100.")
   }
   out
 }

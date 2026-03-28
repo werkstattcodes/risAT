@@ -6,3 +6,4 @@
 ^\.github$
 ^\.claude$
 ^CLAUDE\.md$
+^\.playwright-mcp$

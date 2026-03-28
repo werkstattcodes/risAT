@@ -50,9 +50,8 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   # attribute is missing, the request wasn't built by our constructor.
   meta <- attr(req, "ris_meta")
   if (is.null(meta)) {
-    stop(
-      "`req` must be built with `ris_req_case_law()` (missing `ris_meta` attribute).",
-      call. = FALSE
+    rlang::abort(
+      "`req` must be built with `ris_req_case_law()` (missing `ris_meta` attribute)."
     )
   }
 
