@@ -51,9 +51,12 @@ test_that("ris_parse_search returns tibble with required list-columns", {
   expect_type(out$content_urls[[1]], "character")
   expect_equal(length(out$content_urls[[1]]), 2L)
   expect_type(out$app_metadata[[1]], "list")
-  expect_true("technisch_id" %in% names(out))
-  expect_true("allgemein_dokument_url" %in% names(out))
-  expect_equal(out$technisch_id[[1]], "TEST-001")
+  expect_true("id" %in% names(out))
+  expect_true("document_url" %in% names(out))
+  expect_equal(out$id[[1]], "TEST-001")
+  # XML artifact columns should be dropped
+  expect_false("technisch_import_timestamp_xsi_nil" %in% names(out))
+  expect_false("technisch_import_timestamp_xmlns_xsi" %in% names(out))
 })
 
 test_that("ris_parse_search raises for RIS API errors", {

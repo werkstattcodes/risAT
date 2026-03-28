@@ -208,13 +208,13 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
 
 test_that("case law page binding harmonizes mixed list/scalar columns", {
   page_1 <- tibble::tibble(
-    judikatur_vfgh_indizes_item = "41/02",
+    vfgh_indices = "41/02",
     content_urls = list(c("https://example.org/1")),
     app_metadata = list(list(request = list(application = "Vfgh")))
   )
 
   page_2 <- tibble::tibble(
-    judikatur_vfgh_indizes_item = list(c("41/02", "41/03")),
+    vfgh_indices = list(c("41/02", "41/03")),
     content_urls = list(c("https://example.org/2")),
     app_metadata = list(list(request = list(application = "Vfgh")))
   )
@@ -222,9 +222,9 @@ test_that("case law page binding harmonizes mixed list/scalar columns", {
   out <- risAT:::ris_bind_case_law_pages(list(page_1, page_2))
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 2L)
-  expect_true(is.list(out$judikatur_vfgh_indizes_item))
-  expect_equal(out$judikatur_vfgh_indizes_item[[1]], "41/02")
-  expect_equal(out$judikatur_vfgh_indizes_item[[2]], c("41/02", "41/03"))
+  expect_true(is.list(out$vfgh_indices))
+  expect_equal(out$vfgh_indices[[1]], "41/02")
+  expect_equal(out$vfgh_indices[[2]], c("41/02", "41/03"))
 })
 
 test_that("next page calculation for iterative pagination is correct", {

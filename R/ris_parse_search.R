@@ -39,7 +39,7 @@
 #'         )
 #'       )
 #'     )
-#'   ),
+#'   )
 #' )
 #' ris_parse_search(payload)
 ris_parse_search <- function(x, requested_page = NULL, requested_per_page = NULL) {
@@ -176,6 +176,12 @@ ris_reference_to_tibble_row <- function(reference, response_meta) {
 
   names(metadata_flat) <- make.unique(ris_to_snake_case(names(metadata_flat)))
   metadata_flat <- purrr::modify(metadata_flat, ris_to_scalar_or_list)
+
+  # Drop XML serialization artifact columns before building the row.
+  metadata_flat <- metadata_flat[!names(metadata_flat) %in% ris_columns_to_drop]
+
+  # Translate German snake_case names to English.
+  names(metadata_flat) <- ris_translate_column_names(names(metadata_flat))
 
   row <- tibble::as_tibble_row(metadata_flat, .name_repair = "minimal")
   row$content_urls <- list(ris_extract_content_urls(data$Dokumentliste))
@@ -321,4 +327,130 @@ ris_to_snake_case <- function(x) {
 
 `%||%` <- function(x, y) {
   if (is.null(x)) y else x
+}
+
+# ============================================================================
+# Column name translation: German snake_case -> English
+# ============================================================================
+# The RIS API returns metadata in German.  After flattening and converting to
+# snake_case, we rename columns to English for a user-friendly tibble.
+# Columns not in this map are returned as-is (preserving the snake_case form).
+# The two XML serialization artifact columns are dropped entirely.
+
+# Named vector: names = German snake_case, values = English name
+ris_column_name_map <- c(
+
+  # -- Common columns (most/all applications) --
+  technisch_id                        = "id",
+  technisch_applikation               = "application",
+  technisch_organ                     = "authority",
+  allgemein_veroeffentlicht           = "published",
+  allgemein_geaendert                 = "modified",
+  allgemein_dokument_url              = "document_url",
+  judikatur_dokumenttyp               = "document_type",
+  judikatur_geschaeftszahl_item       = "case_number",
+  judikatur_normen_item               = "norms",
+  judikatur_entscheidungsdatum        = "decision_date",
+  judikatur_schlagworte               = "keywords",
+  judikatur_european_case_law_identifier = "ecli",
+  judikatur_gesamte_entscheidung_url  = "full_decision_url",
+  judikatur_rechtssaetze_url          = "legal_principles_url",
+  judikatur_entscheidungstext_url     = "decision_text_url",
+
+  # -- VwGH --
+  judikatur_vwgh_entscheidungsart             = "vwgh_decision_type",
+  judikatur_vwgh_gericht                      = "vwgh_court",
+  judikatur_vwgh_indizes_item                 = "vwgh_indices",
+  judikatur_vwgh_sammlungsnummer              = "vwgh_collection_number",
+  judikatur_vwgh_dokumentnummer_typ           = "vwgh_document_number_type",
+  judikatur_vwgh_stammrechtssatznummer        = "vwgh_primary_legal_principle_number",
+  judikatur_vwgh_rechtssatznummer             = "vwgh_legal_principle_number",
+  judikatur_vwgh_hinweis_auf_stammrechtssatz  = "vwgh_primary_principle_reference",
+  judikatur_vwgh_rechtssatzkette_url          = "vwgh_legal_principle_chain_url",
+  judikatur_vwgh_beachte                      = "vwgh_note",
+  judikatur_vwgh_gerichtsentscheidungen_item  = "vwgh_court_decisions",
+
+  # -- VfGH --
+  judikatur_vfgh_entscheidungsart                           = "vfgh_decision_type",
+  judikatur_vfgh_gericht                                    = "vfgh_court",
+  judikatur_vfgh_indizes_item                               = "vfgh_indices",
+  judikatur_vfgh_sammlungsnummer                            = "vfgh_collection_number",
+  judikatur_vfgh_leitsatz                                   = "vfgh_headnote",
+  judikatur_vfgh_entscheidungstexte_item                    = "vfgh_decision_texts",
+  judikatur_vfgh_entscheidungstexte_item_geschaeftszahl     = "vfgh_decision_text_case_number",
+  judikatur_vfgh_entscheidungstexte_item_dokumenttyp        = "vfgh_decision_text_document_type",
+  judikatur_vfgh_entscheidungstexte_item_gericht            = "vfgh_decision_text_court",
+  judikatur_vfgh_entscheidungstexte_item_entscheidungsdatum = "vfgh_decision_text_decision_date",
+  judikatur_vfgh_entscheidungstexte_item_dokument_url       = "vfgh_decision_text_document_url",
+  judikatur_vfgh_entscheidungstexte_item_dokumentnummer     = "vfgh_decision_text_document_number",
+  judikatur_vfgh_entscheidungstexte_item_entscheidungsart   = "vfgh_decision_text_decision_type",
+
+  # -- BVwG --
+  judikatur_bvwg_entscheidungsart = "bvwg_decision_type",
+  judikatur_bvwg_gericht          = "bvwg_court",
+  judikatur_bvwg_anmerkung        = "bvwg_note",
+
+  # -- LVwG --
+  judikatur_lvwg_entscheidungsart        = "lvwg_decision_type",
+  judikatur_lvwg_gericht                 = "lvwg_court",
+  judikatur_lvwg_indizes_item            = "lvwg_indices",
+  judikatur_lvwg_bundesland              = "lvwg_federal_state",
+  judikatur_lvwg_anmerkung               = "lvwg_note",
+  judikatur_lvwg_rechtssatznummern_item  = "lvwg_legal_principle_numbers",
+
+  # -- Justiz --
+  judikatur_justiz_entscheidungsart                         = "justiz_decision_type",
+  judikatur_justiz_gericht                                  = "justiz_court",
+  judikatur_justiz_rechtsgebiete_item                       = "justiz_legal_areas",
+  judikatur_justiz_fachgebiete_item                         = "justiz_specialist_areas",
+  judikatur_justiz_textnummern_item                         = "justiz_text_numbers",
+  judikatur_justiz_rechtssatznummern_item                   = "justiz_legal_principle_numbers",
+  judikatur_justiz_fundstelle                               = "justiz_citation",
+  judikatur_justiz_anmerkung                                = "justiz_note",
+  judikatur_justiz_entscheidungstexte_item                  = "justiz_decision_texts",
+  judikatur_justiz_entscheidungstexte_item_geschaeftszahl   = "justiz_decision_text_case_number",
+  judikatur_justiz_entscheidungstexte_item_dokumenttyp      = "justiz_decision_text_document_type",
+  judikatur_justiz_entscheidungstexte_item_gericht          = "justiz_decision_text_court",
+  judikatur_justiz_entscheidungstexte_item_entscheidungsart = "justiz_decision_text_decision_type",
+  judikatur_justiz_entscheidungstexte_item_entscheidungsdatum = "justiz_decision_text_decision_date",
+  judikatur_justiz_entscheidungstexte_item_anmerkung        = "justiz_decision_text_note",
+  judikatur_justiz_entscheidungstexte_item_dokument_url     = "justiz_decision_text_document_url",
+
+  # -- DSK / DSB --
+  judikatur_dsk_entscheidungsart                = "dsk_decision_type",
+  judikatur_dsk_kurzinformation                 = "dsk_brief_info",
+  judikatur_dsk_entscheidende_behoerde          = "dsk_deciding_authority",
+  judikatur_dsk_anfechtung                      = "dsk_appeal",
+  judikatur_dsk_staat                           = "dsk_country",
+  judikatur_dsk_sprache                         = "dsk_language",
+  judikatur_dsk_zugang                          = "dsk_access",
+  judikatur_dsk_entscheidung_ueber_dsb_dokument = "dsk_decision_on_dsb_document",
+  judikatur_dsk_anmerkung                       = "dsk_note",
+  judikatur_dsk_rechtssatznummern_item          = "dsk_legal_principle_numbers",
+
+  # -- DOK --
+  judikatur_dok_entscheidungsart       = "dok_decision_type",
+  judikatur_dok_kurzinformation        = "dok_brief_info",
+  judikatur_dok_entscheidende_behoerde = "dok_deciding_authority",
+
+  # -- GBK --
+  judikatur_gbk_entscheidungsart          = "gbk_decision_type",
+  judikatur_gbk_kommission                = "gbk_commission",
+  judikatur_gbk_senat                     = "gbk_senate",
+  judikatur_gbk_diskriminierungsgrund     = "gbk_discrimination_ground",
+  judikatur_gbk_diskriminierungstatbestand = "gbk_discrimination_offense"
+)
+
+# Columns to drop entirely (XML serialization artifacts with no user value).
+ris_columns_to_drop <- c(
+  "technisch_import_timestamp_xsi_nil",
+  "technisch_import_timestamp_xmlns_xsi"
+)
+
+# Rename columns using the mapping and drop artifact columns.
+# Unknown columns are kept with their original snake_case name.
+ris_translate_column_names <- function(nms) {
+  nms <- nms[!nms %in% ris_columns_to_drop]
+  matched <- match(nms, names(ris_column_name_map))
+  ifelse(is.na(matched), nms, ris_column_name_map[matched])
 }
