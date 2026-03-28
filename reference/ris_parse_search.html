@@ -103,11 +103,13 @@ Includes list-columns <code>content_urls</code> and <code>app_metadata</code>.</
 <span class="r-in"><span>        <span class="op">)</span></span></span>
 <span class="r-in"><span>      <span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in list(OgdSearchResult = list(status = "ok", OgdDocumentResults = list(OgdDocumentReference = list(list(Data = list(Metadaten = list(Technisch = list(ID = "DOC-1",     Applikation = "Vwgh"), Allgemein = list(DokumentUrl = "https://example.org/meta/1")),     Dokumentliste = list(ContentReference = list(list(Urls = list(ContentUrl = list(list(DataType = "Html",         Url = "https://example.org/doc/1.html"))))))))))), ):</span> argument 2 is empty</span>
 <span class="r-in"><span><span class="fu">ris_parse_search</span><span class="op">(</span><span class="va">payload</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'payload' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id    application document_url               content_urls app_metadata    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> DOC-1 Vwgh        https://example.org/meta/1 <span style="color: #949494;">&lt;chr [1]&gt;</span>    <span style="color: #949494;">&lt;named list [3]&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
