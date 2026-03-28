@@ -49,7 +49,7 @@ payload <- list(
         )
       )
     )
-  ),
+  )
 )
 ris_parse_search(payload)
 }
