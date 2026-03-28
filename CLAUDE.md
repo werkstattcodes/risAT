@@ -276,9 +276,14 @@ built package (see `.Rbuildignore`).
 
 ------------------------------------------------------------------------
 
+## Implemented court endpoints
+
+All 9 Judikatur court applications are supported with convenience
+wrappers: VfGH, VwGH, Justiz (OGH, OLG, LG, BG), BVwG, LVwG, DSK/DSB,
+DOK, PVAK, GBK.
+
 ## Future roadmap (planned)
 
-- Additional court endpoints: Justiz (OGH, LG, BG), BVwG, LVwG
 - Bundesrecht endpoint (`BrKons`)
 - Bundesgesetzblatt (`BGBl`)
 - Sonstige Kundmachungen endpoint (`/Sonstige`) — includes UPTS
