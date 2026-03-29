@@ -1,0 +1,8 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "risAT: Interface to the Austrian RIS OGD REST API",
+  author   = person("Roland", "Schmidt"),
+  year     = "2026",
+  url      = "https://github.com/werkstattcodes/risAT",
+  note     = "R package version 0.0.0.9000"
+)
