@@ -28,6 +28,7 @@ Imports:
     stringr,
     tibble
 Suggests:
+    jsonlite,
     knitr,
     pkgdown,
     rmarkdown,
