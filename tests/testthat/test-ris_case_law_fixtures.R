@@ -15,7 +15,7 @@ test_that("ris_req_case_law builds Judikatur request with mapped parameters", {
   )
 
   expect_s3_class(req, "httr2_request")
-  expect_match(req$url, "/Judikatur$")
+  expect_match(req$url, "/Judikatur\\?")
   expect_match(req$url, "Applikation=Vwgh")
   expect_match(req$url, "Suchworte=Asyl")
   expect_match(req$url, "Geschaeftszahl=Ra%202026%2F01%2F0001")
@@ -66,9 +66,9 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 2L)
   expect_equal(out$id, c("Vfgh-2026-0001", "Vfgh-2026-0002"))
-  expect_true(is.list(out$index_term))
-  expect_equal(out$index_term[[1]], "07/01")
-  expect_equal(out$index_term[[2]], c("07/01", "07/02"))
+  expect_true(is.list(out$judikatur_vfgh_index))
+  expect_equal(out$judikatur_vfgh_index[[1]], "07/01")
+  expect_equal(out$judikatur_vfgh_index[[2]], list("07/01", "07/02"))
   expect_equal(out$app_metadata[[1]]$request$seitennummer, 1L)
   expect_equal(out$app_metadata[[2]]$request$seitennummer, 2L)
   expect_equal(attr(out, "ris_search_url"), attr(req, "ris_meta")$website_urls$search_url)
@@ -99,7 +99,7 @@ test_that("ris_perform_case_law surfaces API error payloads", {
       ris_iterate_case_law_pages = function(req) list(err_payload),
       ris_perform_case_law(req)
     ),
-    "RIS API error \\\[Vwgh\\\]"
+    "RIS API error \\[Vwgh\\]"
   )
 })
 
