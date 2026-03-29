@@ -106,3 +106,15 @@ full details.
 For a full column name reference mapping the original German RIS API
 fields to their English risAT equivalents, see
 [`vignette("risAT")`](https://werkstattcodes.github.io/risAT/articles/risAT.md).
+
+## Citation
+
+If you use risAT in your research, please cite it:
+
+``` r
+citation("risAT")
+```
+
+> Schmidt R (2026). *risAT: Interface to the Austrian RIS OGD REST API*.
+> R package version 0.0.0.9000,
+> <https://github.com/werkstattcodes/risAT>.
