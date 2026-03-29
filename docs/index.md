@@ -16,7 +16,7 @@ Austrian Federal Chancellery (BKA) or the RIS.
 
 ## Installation
 
-You can install risAT from [GitHub](https://github.com/) with:
+You can install risAT from [GitHub](https://github.com/werkstattcodes/risAT) with:
 
 ``` r
 # install.packages("pak")
