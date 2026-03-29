@@ -16,8 +16,17 @@ may break existing code. If you encounter any bug, you are welcome to file an
 issue at the package's
 [GitHub repo](https://github.com/werkstattcodes/risAT/issues).
 
-Also note that neither the package nor its author is affiliated with the
-Austrian Federal Chancellery (BKA) or the RIS.
+## Data source
+
+This package accesses data from the
+[RIS (Rechtsinformationssystem)](https://www.ris.bka.gv.at/) provided by
+the Austrian Federal Chancellery (BKA) via its
+[Open Government Data REST API](https://data.bka.gv.at/ris/api/v2.6/).
+The data is published under the
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+licence as part of Austria's Open Data initiative.
+
+Neither the package nor its author is affiliated with the BKA or the RIS.
 
 ## Installation
 
