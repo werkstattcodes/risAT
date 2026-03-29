@@ -111,8 +111,8 @@ metadata).</p>
 <div class="section level2">
 <h2 id="available-court-wrappers">Available court wrappers<a class="anchor" aria-label="anchor" href="#available-court-wrappers"></a>
 </h2>
-<p>risAT provides convenience wrappers for all 9 Judikatur
-applications:</p>
+<p>risAT provides convenience wrappers for the most commonly used
+Judikatur applications:</p>
 <table class="table">
 <thead><tr class="header">
 <th>Court / Application</th>
@@ -157,7 +157,9 @@ applications:</p>
 </tr>
 </tbody>
 </table>
-<p>Plus a generic function that accepts any application code:</p>
+<p>Plus a generic function that accepts all RIS Judikatur application
+codes and English aliases documented in
+<code><a href="../reference/ris_req_case_law.html">?ris_req_case_law</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ris_search_case_law.html">ris_search_case_law</a></span><span class="op">(</span></span>
 <span>  application <span class="op">=</span> <span class="st">"data_protection"</span>,</span>
@@ -173,8 +175,7 @@ applications:</p>
 <span>  query <span class="op">=</span> <span class="st">"Asyl"</span>,</span>
 <span>  decision_date_from <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  decision_date_to <span class="op">=</span> <span class="st">"2024-06-30"</span>,</span>
-<span>  decision_type <span class="op">=</span> <span class="st">"Erkenntnis"</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">50</span></span>
+<span>  decision_type <span class="op">=</span> <span class="st">"Erkenntnis"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Some courts have additional parameters. For example,
 <code><a href="../reference/ris_search_justiz.html">ris_search_justiz()</a></code> accepts <code>court</code>,
@@ -203,8 +204,7 @@ pagination</li>
 <code class="sourceCode R"><span><span class="co"># Build the request (no network call yet)</span></span>
 <span><span class="va">req</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ris_req_case_law.html">ris_req_case_law</a></span><span class="op">(</span></span>
 <span>  application <span class="op">=</span> <span class="st">"Vwgh"</span>,</span>
-<span>  query <span class="op">=</span> <span class="st">"Baurecht"</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">20</span></span>
+<span>  query <span class="op">=</span> <span class="st">"Baurecht"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Inspect the URL before sending</span></span>
@@ -217,27 +217,27 @@ pagination</li>
 <h2 id="pagination">Pagination<a class="anchor" aria-label="anchor" href="#pagination"></a>
 </h2>
 <p>The RIS API returns results in pages. risAT handles pagination
-automatically, fetching all available pages by default. Use
-<code>max_pages</code> to limit the number of pages retrieved (useful
-during development or for large result sets):</p>
+automatically and fetches all available pages in scope. Pagination
+metadata for each row is stored in the <code>app_metadata</code>
+list-column under <code>response</code> (API response info) and
+<code>request</code> (request provenance):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fetch at most 3 pages (60 results at 20 per page)</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ris_search_vwgh.html">ris_search_vwgh</a></span><span class="op">(</span></span>
-<span>  query <span class="op">=</span> <span class="st">"Baurecht"</span>,</span>
-<span>  max_pages <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  per_page <span class="op">=</span> <span class="fl">20</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>The total number of hits reported by the API is stored in the
-response metadata and can be accessed via the <code>app_metadata</code>
-list-column:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">hits</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Total hit count reported by the API</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">hits</span></span>
+<span></span>
+<span><span class="co"># Current response page metadata</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">page_number</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">page_size</span></span>
+<span></span>
+<span><span class="co"># Request provenance metadata attached by risAT</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">request</span><span class="op">$</span><span class="va">seitennummer</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">request</span><span class="op">$</span><span class="va">dokumente_pro_seite</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="working-with-results">Working with results<a class="anchor" aria-label="anchor" href="#working-with-results"></a>
 </h2>
 <p>The output tibble is designed for use with dplyr and tidyr:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span> <span class="op">|&gt;</span></span>
@@ -245,7 +245,7 @@ list-column:</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">id</span>, <span class="va">case_number</span>, <span class="va">decision_date</span>, <span class="va">decision_type</span><span class="op">)</span></span></code></pre></div>
 <p>Content download URLs are stored as a character vector in the
 <code>content_urls</code> list-column:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get URLs for the first result</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">content_urls</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 </div>
@@ -255,7 +255,7 @@ list-column:</p>
 <p>Set <code>echo = TRUE</code> in any search function to print the
 equivalent RIS website URL. This lets you open the same search in a
 browser to cross-check results:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ris_search_vwgh.html">ris_search_vwgh</a></span><span class="op">(</span></span>
 <span>  query <span class="op">=</span> <span class="st">"Baurecht"</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">TRUE</span></span>

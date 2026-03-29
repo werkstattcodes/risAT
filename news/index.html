@@ -46,7 +46,7 @@
 <ul><li>
 <code><a href="../reference/ris_search_vfgh.html">ris_search_vfgh()</a></code> defaults to Rechtssätze (RS).</li>
 <li>Search functions always iterate over all pages in scope.</li>
-<li>Result schema includes <code>page</code>, <code>per_page</code>, <code>content_urls</code>, and <code>app_metadata</code>.</li>
+<li>Result schema includes list-columns <code>content_urls</code> and <code>app_metadata</code>; pagination context is available in nested <code>app_metadata$response</code> and <code>app_metadata$request</code> metadata.</li>
 <li>VfGH english aliases documented for <code>decision_type</code>, <code>sort_by</code>, and <code>in_ris_since</code>.</li>
 </ul></li>
 <li>Fixed mixed column-type binding across multi-page responses.</li>

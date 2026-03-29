@@ -36,7 +36,8 @@ list-columns: `content_urls` (download links) and `app_metadata`
 
 ## Available court wrappers
 
-risAT provides convenience wrappers for all 9 Judikatur applications:
+risAT provides convenience wrappers for the most commonly used Judikatur
+applications:
 
 | Court / Application                 | Function                                                                                       |
 |-------------------------------------|------------------------------------------------------------------------------------------------|
@@ -50,7 +51,9 @@ risAT provides convenience wrappers for all 9 Judikatur applications:
 | PVAK (Staff Representation)         | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md)     |
 | GBK (Equal Treatment Commission)    | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md)       |
 
-Plus a generic function that accepts any application code:
+Plus a generic function that accepts all RIS Judikatur application codes
+and English aliases documented in
+[`?ris_req_case_law`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md):
 
 ``` r
 results <- ris_search_case_law(
@@ -68,8 +71,7 @@ results <- ris_search_vwgh(
   query = "Asyl",
   decision_date_from = "2024-01-01",
   decision_date_to = "2024-06-30",
-  decision_type = "Erkenntnis",
-  per_page = 50
+  decision_type = "Erkenntnis"
 )
 ```
 
@@ -99,8 +101,7 @@ You can use these directly for more control:
 # Build the request (no network call yet)
 req <- ris_req_case_law(
   application = "Vwgh",
-  query = "Baurecht",
-  per_page = 20
+  query = "Baurecht"
 )
 
 # Inspect the URL before sending
@@ -113,24 +114,21 @@ results <- ris_perform_case_law(req)
 ## Pagination
 
 The RIS API returns results in pages. risAT handles pagination
-automatically, fetching all available pages by default. Use `max_pages`
-to limit the number of pages retrieved (useful during development or for
-large result sets):
+automatically and fetches all available pages in scope. Pagination
+metadata for each row is stored in the `app_metadata` list-column under
+`response` (API response info) and `request` (request provenance):
 
 ``` r
-# Fetch at most 3 pages (60 results at 20 per page)
-results <- ris_search_vwgh(
-  query = "Baurecht",
-  max_pages = 3,
-  per_page = 20
-)
-```
-
-The total number of hits reported by the API is stored in the response
-metadata and can be accessed via the `app_metadata` list-column:
-
-``` r
+# Total hit count reported by the API
 results$app_metadata[[1]]$response$hits
+
+# Current response page metadata
+results$app_metadata[[1]]$response$page_number
+results$app_metadata[[1]]$response$page_size
+
+# Request provenance metadata attached by risAT
+results$app_metadata[[1]]$request$seitennummer
+results$app_metadata[[1]]$request$dokumente_pro_seite
 ```
 
 ## Working with results
