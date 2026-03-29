@@ -34,14 +34,27 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Prepare clean docs artifact
+        run: |
+          rm -rf docs
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
+
+      - name: Enforce docs cleanup
+        run: |
+          rm -f docs/AGENTS.* docs/CLAUDE.*
+
+      - name: Assert forbidden files are absent
+        run: |
+          test ! -e docs/AGENTS.html
+          test ! -e docs/CLAUDE.html
 
       - name: Deploy to GitHub pages
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          clean: false
+          clean: true
           branch: gh-pages
           folder: docs
