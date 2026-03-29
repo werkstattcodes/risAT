@@ -1,0 +1,54 @@
+{
+  "OgdSearchResult": {
+    "status": "ok",
+    "OgdDocumentResults": {
+      "Hits": {
+        "pageNumber": "2",
+        "pageSize": "1",
+        "#text": "2"
+      },
+      "OgdDocumentReference": [
+        {
+          "Data": {
+            "Metadaten": {
+              "Technisch": {
+                "ID": "Vfgh-2026-0002",
+                "Applikation": "Vfgh"
+              },
+              "Allgemein": {
+                "DokumentUrl": "https://www.ris.bka.gv.at/Dokument.wxe?Abfrage=Vfgh&Dokumentnummer=Vfgh-2026-0002",
+                "Titel": "VfGH Rechtssatz 2",
+                "Gericht": "VfGH",
+                "Entscheidungsdatum": "2026-02-02"
+              },
+              "Judikatur": {
+                "Vfgh": {
+                  "Geschaeftszahl": "G 2/2026",
+                  "Entscheidungsart": "Beschluss",
+                  "Index": ["07/01", "07/02"]
+                }
+              }
+            },
+            "Dokumentliste": {
+              "ContentReference": {
+                "ContentType": "MainDocument",
+                "Urls": {
+                  "ContentUrl": [
+                    {
+                      "DataType": "Html",
+                      "Url": "https://www.ris.bka.gv.at/Dokumente/Vfgh/JFT_20260202_1/JFT_20260202_1.html"
+                    },
+                    {
+                      "DataType": "Pdf",
+                      "Url": "https://www.ris.bka.gv.at/Dokumente/Vfgh/JFT_20260202_1/JFT_20260202_1.pdf"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

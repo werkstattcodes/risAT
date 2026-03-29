@@ -1,0 +1,54 @@
+{
+  "OgdSearchResult": {
+    "status": "ok",
+    "OgdDocumentResults": {
+      "Hits": {
+        "pageNumber": "1",
+        "pageSize": "100",
+        "#text": "1"
+      },
+      "OgdDocumentReference": [
+        {
+          "Data": {
+            "Metadaten": {
+              "Technisch": {
+                "ID": "Vwgh-2026-0001",
+                "Applikation": "Vwgh"
+              },
+              "Allgemein": {
+                "DokumentUrl": "https://www.ris.bka.gv.at/Dokument.wxe?Abfrage=Vwgh&Dokumentnummer=Vwgh-2026-0001",
+                "Titel": "VwGH Entscheidung",
+                "Gericht": "VwGH",
+                "Entscheidungsdatum": "2026-01-10",
+                "Veroeffentlicht": "2026-01-20"
+              },
+              "Judikatur": {
+                "Vwgh": {
+                  "Geschaeftszahl": "Ra 2026/01/0001",
+                  "Entscheidungsart": "Erkenntnis"
+                }
+              }
+            },
+            "Dokumentliste": {
+              "ContentReference": {
+                "ContentType": "MainDocument",
+                "Urls": {
+                  "ContentUrl": [
+                    {
+                      "DataType": "Html",
+                      "Url": "https://www.ris.bka.gv.at/Dokumente/Vwgh/JWT_20260110_1/JWT_20260110_1.html"
+                    },
+                    {
+                      "DataType": "Pdf",
+                      "Url": "https://www.ris.bka.gv.at/Dokumente/Vwgh/JWT_20260110_1/JWT_20260110_1.pdf"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
