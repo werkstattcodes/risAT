@@ -151,18 +151,38 @@ Content download URLs are stored as a character vector in the
 results$content_urls[[1]]
 ```
 
-## Echo mode
+## Verifying results with echo
 
-Set `echo = TRUE` in any search function to print the equivalent RIS
-website URL. This lets you open the same search in a browser to
-cross-check results:
+Whenever relevant and feasible, risAT search functions provide the
+option to echo the query to the console. Setting `echo = TRUE` prints
+the search arguments and the corresponding URL on the [RIS
+website](https://www.ris.bka.gv.at/) that produces the same results.
+
+This serves three purposes:
+
+1.  **Verification** – open the URL in a browser to double-check that
+    the results returned by risAT match the official RIS website.
+2.  **Sharing** – copy the URL to share a specific query with colleagues
+    who may not use R.
+3.  **Exploration** – use the RIS website interface to explore the data
+    interactively before refining your programmatic query.
 
 ``` r
 results <- ris_search_vwgh(
   query = "Baurecht",
+  decision_date_from = "2024-01-01",
   echo = TRUE
 )
 ```
+
+The printed output includes the total number of hits and a clickable URL
+pointing to the equivalent search on `www.ris.bka.gv.at`. The URL
+preserves all filter parameters (query, date range, decision type, etc.)
+so the browser results correspond exactly to the API results.
+
+All court-specific wrappers and
+[`ris_search_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_search_case_law.md)
+support the `echo` argument.
 
 ## Column name reference
 

@@ -250,16 +250,40 @@ list-column under <code>response</code> (API response info) and
 <span><span class="va">results</span><span class="op">$</span><span class="va">content_urls</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="echo-mode">Echo mode<a class="anchor" aria-label="anchor" href="#echo-mode"></a>
+<h2 id="verifying-results-with-echo">Verifying results with echo<a class="anchor" aria-label="anchor" href="#verifying-results-with-echo"></a>
 </h2>
-<p>Set <code>echo = TRUE</code> in any search function to print the
-equivalent RIS website URL. This lets you open the same search in a
-browser to cross-check results:</p>
+<p>Whenever relevant and feasible, risAT search functions provide the
+option to echo the query to the console. Setting
+<code>echo = TRUE</code> prints the search arguments and the
+corresponding URL on the <a href="https://www.ris.bka.gv.at/" class="external-link">RIS
+website</a> that produces the same results.</p>
+<p>This serves three purposes:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Verification</strong> – open the URL in a browser to
+double-check that the results returned by risAT match the official RIS
+website.</li>
+<li>
+<strong>Sharing</strong> – copy the URL to share a specific query
+with colleagues who may not use R.</li>
+<li>
+<strong>Exploration</strong> – use the RIS website interface to
+explore the data interactively before refining your programmatic
+query.</li>
+</ol>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ris_search_vwgh.html">ris_search_vwgh</a></span><span class="op">(</span></span>
 <span>  query <span class="op">=</span> <span class="st">"Baurecht"</span>,</span>
+<span>  decision_date_from <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>The printed output includes the total number of hits and a clickable
+URL pointing to the equivalent search on <code>www.ris.bka.gv.at</code>.
+The URL preserves all filter parameters (query, date range, decision
+type, etc.) so the browser results correspond exactly to the API
+results.</p>
+<p>All court-specific wrappers and <code><a href="../reference/ris_search_case_law.html">ris_search_case_law()</a></code>
+support the <code>echo</code> argument.</p>
 </div>
 <div class="section level2">
 <h2 id="column-name-reference">Column name reference<a class="anchor" aria-label="anchor" href="#column-name-reference"></a>
