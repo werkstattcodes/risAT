@@ -27,6 +27,7 @@ Imports:
     stringr,
     tibble
 Suggests:
+    ggplot2,
     jsonlite,
     knitr,
     lubridate,
