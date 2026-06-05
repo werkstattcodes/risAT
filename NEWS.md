@@ -8,3 +8,10 @@
   - Result schema includes list-columns `content_urls` and `app_metadata`; pagination context is available in nested `app_metadata$response` and `app_metadata$request` metadata.
   - VfGH english aliases documented for `decision_type`, `sort_by`, and `in_ris_since`.
 - Fixed mixed column-type binding across multi-page responses.
+- `ris_search_gbk()` now normalizes `commission`, `senate`, and
+  `discrimination_ground`, accepting short aliases and English translations
+  (e.g. `"federal"`, `"gbk"`, `"gender"`, `"disability"`) alongside the
+  canonical German API values.
+- `ris_search_lvwg()` now accepts English aliases for `federal_state`
+  (e.g. `"Vienna"`, `"Styria"`, `"Carinthia"`) as well as the German
+  Bundesland names.

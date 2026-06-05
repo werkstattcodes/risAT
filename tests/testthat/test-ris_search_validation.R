@@ -1,25 +1,25 @@
 test_that("echo must be a logical flag", {
-  expect_error(
+  expect_snapshot(
     ris_search_case_law(application = "Vwgh", echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_vwgh(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_vfgh(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
 test_that("at least one document type flag must be enabled", {
-  expect_error(
+  expect_snapshot(
     ris_search_vwgh(
       search_decision_text = FALSE,
       search_legal_principles = FALSE
     ),
-    "At least one of `search_decision_text` or `search_legal_principles` must be TRUE."
+    error = TRUE
   )
 })
 
@@ -41,7 +41,10 @@ test_that("website URL helper builds expected RIS Ergebnis.wxe URL", {
   )
 
   expect_equal(urls$app_url, "https://www.ris.bka.gv.at/Vfgh/")
-  expect_match(urls$search_url, "^https://www\\.ris\\.bka\\.gv\\.at/Ergebnis\\.wxe\\?")
+  expect_match(
+    urls$search_url,
+    "^https://www\\.ris\\.bka\\.gv\\.at/Ergebnis\\.wxe\\?"
+  )
   expect_match(urls$search_url, "Abfrage=Vfgh")
   expect_match(urls$search_url, "Entscheidungsart=Undefined")
   expect_match(urls$search_url, "SucheNachRechtssatz=True")
@@ -87,17 +90,32 @@ test_that("english args are mapped to documented German RIS parameters", {
 })
 
 test_that("all Judikatur applications can be mapped from english or RIS codes", {
-  expect_equal(risAT:::ris_case_law_application_to_code("administrative_court"), "Vwgh")
-  expect_equal(risAT:::ris_case_law_application_to_code("constitutional_court"), "Vfgh")
+  expect_equal(
+    risAT:::ris_case_law_application_to_code("administrative_court"),
+    "Vwgh"
+  )
+  expect_equal(
+    risAT:::ris_case_law_application_to_code("constitutional_court"),
+    "Vfgh"
+  )
   expect_equal(risAT:::ris_case_law_application_to_code("justice"), "Justiz")
-  expect_equal(risAT:::ris_case_law_application_to_code("federal_administrative_court"), "Bvwg")
-  expect_equal(risAT:::ris_case_law_application_to_code("state_administrative_courts"), "Lvwg")
-  expect_equal(risAT:::ris_case_law_application_to_code("procurement_review_bodies"), "Verg")
+  expect_equal(
+    risAT:::ris_case_law_application_to_code("federal_administrative_court"),
+    "Bvwg"
+  )
+  expect_equal(
+    risAT:::ris_case_law_application_to_code("state_administrative_courts"),
+    "Lvwg"
+  )
+  expect_equal(
+    risAT:::ris_case_law_application_to_code("procurement_review_bodies"),
+    "Verg"
+  )
   expect_equal(risAT:::ris_case_law_application_to_code("AsylGH"), "AsylGH")
 
-  expect_error(
+  expect_snapshot(
     risAT:::ris_case_law_application_to_code("invalid_app"),
-    "`application` is invalid."
+    error = TRUE
   )
 })
 
@@ -110,8 +128,14 @@ test_that("named interval parameters accept english aliases", {
   expect_equal(risAT:::ris_normalize_named_interval("one_week"), "EinerWoche")
   expect_equal(risAT:::ris_normalize_named_interval("two_weeks"), "ZweiWochen")
   expect_equal(risAT:::ris_normalize_named_interval("one_month"), "EinemMonat")
-  expect_equal(risAT:::ris_normalize_named_interval("three_months"), "DreiMonaten")
-  expect_equal(risAT:::ris_normalize_named_interval("six_months"), "SechsMonaten")
+  expect_equal(
+    risAT:::ris_normalize_named_interval("three_months"),
+    "DreiMonaten"
+  )
+  expect_equal(
+    risAT:::ris_normalize_named_interval("six_months"),
+    "SechsMonaten"
+  )
   expect_equal(risAT:::ris_normalize_named_interval("one_year"), "EinemJahr")
 })
 
@@ -133,13 +157,13 @@ test_that("VfGH decision_type and sort_by can use english aliases", {
     "Art"
   )
 
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Vfgh", "invalid_type"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_sort_by("Vfgh", "invalid_sort"),
-    "Assertion on 'sort_by' failed"
+    error = TRUE
   )
 })
 
@@ -152,9 +176,9 @@ test_that("VwGH decision_type is validated against documented values", {
     risAT:::ris_normalize_case_law_decision_type("Vwgh", "erkenntnisvs"),
     "ErkenntnisVS"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Vwgh", "Vergleich"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
@@ -167,20 +191,26 @@ test_that("VwGH and VfGH sort_by is validated against documented values", {
     risAT:::ris_normalize_case_law_sort_by("Vwgh", "decision_date"),
     "Datum"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_sort_by("Vwgh", "invalid_sort"),
-    "Assertion on 'sort_by' failed"
+    error = TRUE
   )
 })
 
 test_that("document type flags are ignored for apps without Dokumenttyp", {
-  flags <- expect_warning(
+  expect_snapshot(
     risAT:::ris_normalize_document_type_flags(
       application_code = "Normenliste",
       search_decision_text = TRUE,
       search_legal_principles = TRUE
-    ),
-    "are ignored for this Judikatur application"
+    )
+  )
+  flags <- suppressWarnings(
+    risAT:::ris_normalize_document_type_flags(
+      application_code = "Normenliste",
+      search_decision_text = TRUE,
+      search_legal_principles = TRUE
+    )
   )
   expect_null(flags$search_decision_text)
   expect_null(flags$search_legal_principles)
@@ -297,9 +327,9 @@ test_that("ris_req_case_law encodes query params in the URL", {
 
 test_that("ris_perform_case_law rejects requests without ris_meta", {
   plain_req <- httr2::request("https://example.org")
-  expect_error(
+  expect_snapshot(
     ris_perform_case_law(plain_req),
-    "missing `ris_meta` attribute"
+    error = TRUE
   )
 })
 
@@ -334,9 +364,9 @@ test_that("ris_search_justiz forwards court-specific params to request URL", {
 })
 
 test_that("ris_search_justiz rejects invalid echo argument", {
-  expect_error(
+  expect_snapshot(
     ris_search_justiz(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
@@ -353,9 +383,9 @@ test_that("ris_search_bvwg encodes application in URL", {
 })
 
 test_that("ris_search_bvwg rejects invalid echo argument", {
-  expect_error(
+  expect_snapshot(
     ris_search_bvwg(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
@@ -372,9 +402,9 @@ test_that("ris_search_lvwg forwards federal_state param to request URL", {
 })
 
 test_that("ris_search_lvwg rejects invalid echo argument", {
-  expect_error(
+  expect_snapshot(
     ris_search_lvwg(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
@@ -387,16 +417,16 @@ test_that("ris_search_dsk routes to Dsk application", {
 test_that("ris_search_dsk forwards deciding_authority param to request URL", {
   req <- ris_req_case_law(
     application = "Dsk",
-    deciding_authority = "Datenschutzbeh\u00f6rde"
+    deciding_authority = "Datenschutzbehörde"
   )
   expect_match(req$url, "Applikation=Dsk")
   expect_match(req$url, "EntscheidendeBehoerde=")
 })
 
 test_that("ris_search_dsk rejects invalid echo argument", {
-  expect_error(
+  expect_snapshot(
     ris_search_dsk(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
@@ -409,7 +439,7 @@ test_that("ris_search_dok routes to Dok application", {
 test_that("ris_search_dok forwards deciding_authority param to request URL", {
   req <- ris_req_case_law(
     application = "Dok",
-    deciding_authority = "Bundesdisziplinarbeh\u00f6rde"
+    deciding_authority = "Bundesdisziplinarbehörde"
   )
   expect_match(req$url, "Applikation=Dok")
   expect_match(req$url, "EntscheidendeBehoerde=")
@@ -424,7 +454,7 @@ test_that("ris_search_pvak routes to Pvak application", {
 test_that("ris_search_pvak forwards deciding_authority param to request URL", {
   req <- ris_req_case_law(
     application = "Pvak",
-    deciding_authority = "Personalvertretungsaufsichtsbeh\u00f6rde"
+    deciding_authority = "Personalvertretungsaufsichtsbehörde"
   )
   expect_match(req$url, "Applikation=Pvak")
   expect_match(req$url, "EntscheidendeBehoerde=")
@@ -459,53 +489,53 @@ test_that("ris_search_gbk does not accept search_decision_text or search_legal_p
 })
 
 test_that("ris_search_gbk rejects invalid echo argument", {
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(echo = "yes"),
-    "Assertion on 'echo' failed"
+    error = TRUE
   )
 })
 
 # ── Input type validation (checkmate assertions) ────────────────────────────
 
 test_that("common string params reject non-string input", {
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", query = 123),
-    "Assertion on 'query' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", business_number = TRUE),
-    "Assertion on 'business_number' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", norm = 42),
-    "Assertion on 'norm' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", index_term = list("a")),
-    "Assertion on 'index_term' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", collection_number = 123),
-    "Assertion on 'collection_number' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", base_url = NULL),
-    "Assertion on 'base_url' failed"
+    error = TRUE
   )
 })
 
 test_that("date params reject malformed strings", {
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", decision_date_from = "01-2024-01"),
-    "Assertion on 'decision_date_from' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", decision_date_to = "2024/01/01"),
-    "Assertion on 'decision_date_to' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_req_case_law(application = "Vwgh", decision_date_from = 20240101),
-    "Assertion on 'decision_date_from' failed"
+    error = TRUE
   )
 })
 
@@ -541,13 +571,13 @@ test_that("BVwG decision_type is validated against documented values", {
     risAT:::ris_normalize_case_law_decision_type("Bvwg", "beschluss"),
     "Beschluss"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Bvwg", "BeschlussVS"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Bvwg", "Vergleich"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
@@ -560,28 +590,30 @@ test_that("LVwG decision_type is validated against documented values", {
     risAT:::ris_normalize_case_law_decision_type("Lvwg", "erkenntnis"),
     "Erkenntnis"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Lvwg", "BeschlussVS"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
 test_that("Justiz decision_type is validated against documented values", {
   expect_equal(
     risAT:::ris_normalize_case_law_decision_type(
-      "Justiz", "Ordentliche Erledigung (Sachentscheidung)"
+      "Justiz",
+      "Ordentliche Erledigung (Sachentscheidung)"
     ),
     "Ordentliche Erledigung (Sachentscheidung)"
   )
   expect_equal(
     risAT:::ris_normalize_case_law_decision_type(
-      "Justiz", "Verst\u00e4rkter Senat"
+      "Justiz",
+      "Verstärkter Senat"
     ),
-    "Verst\u00e4rkter Senat"
+    "Verstärkter Senat"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Justiz", "Erkenntnis"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
@@ -594,9 +626,9 @@ test_that("Dsk decision_type is validated against documented values", {
     risAT:::ris_normalize_case_law_decision_type("Dsk", "Empfehlung"),
     "Empfehlung"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Dsk", "Erkenntnis"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
@@ -607,13 +639,14 @@ test_that("Gbk decision_type is validated against documented values", {
   )
   expect_equal(
     risAT:::ris_normalize_case_law_decision_type(
-      "Gbk", "Einzelfallpruefungsergebnis"
+      "Gbk",
+      "Einzelfallpruefungsergebnis"
     ),
     "Einzelfallpruefungsergebnis"
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_case_law_decision_type("Gbk", "Beschluss"),
-    "Assertion on 'decision_type' failed"
+    error = TRUE
   )
 })
 
@@ -631,77 +664,89 @@ test_that("Dok and Pvak pass decision_type through (free-text)", {
 # ── Wrapper-specific param validation ───────────────────────────────────────
 
 test_that("ris_search_justiz rejects non-string wrapper params", {
-  expect_error(
+  expect_snapshot(
     ris_search_justiz(court = 123),
-    "Assertion on 'court' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_justiz(legal_area = TRUE),
-    "Assertion on 'legal_area' failed"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_justiz(citation = list("x")),
-    "Assertion on 'citation' failed"
+    error = TRUE
   )
 })
 
 test_that("ris_search_lvwg rejects non-string federal_state", {
-  expect_error(
+  expect_snapshot(
     ris_search_lvwg(federal_state = 42),
-    "`federal_state` must be a single string"
+    error = TRUE
   )
 })
 
 test_that("ris_search_dsk rejects non-string deciding_authority", {
-  expect_error(
+  expect_snapshot(
     ris_search_dsk(deciding_authority = TRUE),
-    "Assertion on 'deciding_authority' failed"
+    error = TRUE
   )
 })
 
 test_that("ris_search_gbk rejects non-string commission and senate", {
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(commission = 123),
-    "`commission` must be a single string"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(senate = TRUE),
-    "`senate` must be a single string"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(discrimination_ground = list("x")),
-    "`discrimination_ground` must be a single string"
+    error = TRUE
   )
 })
 
 # ── federal_state normalizer ─────────────────────────────────────────────────
 
 test_that("ris_normalize_federal_state accepts canonical German names", {
-  expect_equal(risAT:::ris_normalize_federal_state("Wien"),             "Wien")
-  expect_equal(risAT:::ris_normalize_federal_state("Steiermark"),       "Steiermark")
-  expect_equal(risAT:::ris_normalize_federal_state("Burgenland"),       "Burgenland")
-  expect_equal(risAT:::ris_normalize_federal_state("Tirol"),            "Tirol")
-  expect_equal(risAT:::ris_normalize_federal_state("Vorarlberg"),       "Vorarlberg")
-  expect_equal(risAT:::ris_normalize_federal_state("Salzburg"),         "Salzburg")
-  expect_equal(risAT:::ris_normalize_federal_state("K\u00e4rnten"),     "K\u00e4rnten")
-  expect_equal(risAT:::ris_normalize_federal_state("Nieder\u00f6sterreich"), "Nieder\u00f6sterreich")
-  expect_equal(risAT:::ris_normalize_federal_state("Ober\u00f6sterreich"),   "Ober\u00f6sterreich")
+  expect_equal(risAT:::ris_normalize_federal_state("Wien"), "Wien")
+  expect_equal(risAT:::ris_normalize_federal_state("Steiermark"), "Steiermark")
+  expect_equal(risAT:::ris_normalize_federal_state("Burgenland"), "Burgenland")
+  expect_equal(risAT:::ris_normalize_federal_state("Tirol"), "Tirol")
+  expect_equal(risAT:::ris_normalize_federal_state("Vorarlberg"), "Vorarlberg")
+  expect_equal(risAT:::ris_normalize_federal_state("Salzburg"), "Salzburg")
+  expect_equal(risAT:::ris_normalize_federal_state("Kärnten"), "Kärnten")
+  expect_equal(
+    risAT:::ris_normalize_federal_state("Niederösterreich"),
+    "Niederösterreich"
+  )
+  expect_equal(
+    risAT:::ris_normalize_federal_state("Oberösterreich"),
+    "Oberösterreich"
+  )
 })
 
 test_that("ris_normalize_federal_state accepts English aliases", {
-  expect_equal(risAT:::ris_normalize_federal_state("Vienna"),        "Wien")
-  expect_equal(risAT:::ris_normalize_federal_state("Styria"),        "Steiermark")
-  expect_equal(risAT:::ris_normalize_federal_state("Carinthia"),     "K\u00e4rnten")
-  expect_equal(risAT:::ris_normalize_federal_state("Tyrol"),         "Tirol")
-  expect_equal(risAT:::ris_normalize_federal_state("Lower Austria"), "Nieder\u00f6sterreich")
-  expect_equal(risAT:::ris_normalize_federal_state("Upper Austria"), "Ober\u00f6sterreich")
+  expect_equal(risAT:::ris_normalize_federal_state("Vienna"), "Wien")
+  expect_equal(risAT:::ris_normalize_federal_state("Styria"), "Steiermark")
+  expect_equal(risAT:::ris_normalize_federal_state("Carinthia"), "Kärnten")
+  expect_equal(risAT:::ris_normalize_federal_state("Tyrol"), "Tirol")
+  expect_equal(
+    risAT:::ris_normalize_federal_state("Lower Austria"),
+    "Niederösterreich"
+  )
+  expect_equal(
+    risAT:::ris_normalize_federal_state("Upper Austria"),
+    "Oberösterreich"
+  )
 })
 
 test_that("ris_normalize_federal_state is case-insensitive", {
-  expect_equal(risAT:::ris_normalize_federal_state("wien"),    "Wien")
-  expect_equal(risAT:::ris_normalize_federal_state("WIEN"),    "Wien")
-  expect_equal(risAT:::ris_normalize_federal_state("VIENNA"),  "Wien")
-  expect_equal(risAT:::ris_normalize_federal_state("styria"),  "Steiermark")
+  expect_equal(risAT:::ris_normalize_federal_state("wien"), "Wien")
+  expect_equal(risAT:::ris_normalize_federal_state("WIEN"), "Wien")
+  expect_equal(risAT:::ris_normalize_federal_state("VIENNA"), "Wien")
+  expect_equal(risAT:::ris_normalize_federal_state("styria"), "Steiermark")
 })
 
 test_that("ris_normalize_federal_state returns NULL for NULL input", {
@@ -709,13 +754,13 @@ test_that("ris_normalize_federal_state returns NULL for NULL input", {
 })
 
 test_that("ris_normalize_federal_state errors on invalid value", {
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_federal_state("Bavaria"),
-    "`federal_state` is invalid"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_federal_state("Nonsense"),
-    "`federal_state` is invalid"
+    error = TRUE
   )
 })
 
@@ -728,9 +773,9 @@ test_that("ris_search_lvwg normalizes federal_state and encodes it in the URL", 
 })
 
 test_that("ris_search_lvwg rejects invalid federal_state", {
-  expect_error(
+  expect_snapshot(
     ris_search_lvwg(federal_state = "Bavaria"),
-    "`federal_state` is invalid"
+    error = TRUE
   )
 })
 
@@ -748,20 +793,44 @@ test_that("ris_normalize_gbk_commission accepts canonical German names", {
 })
 
 test_that("ris_normalize_gbk_commission accepts short aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_commission("bundesgbk"), "Bundes-Gleichbehandlungskommission")
-  expect_equal(risAT:::ris_normalize_gbk_commission("bgbk"),      "Bundes-Gleichbehandlungskommission")
-  expect_equal(risAT:::ris_normalize_gbk_commission("gbk"),       "Gleichbehandlungskommission")
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("bundesgbk"),
+    "Bundes-Gleichbehandlungskommission"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("bgbk"),
+    "Bundes-Gleichbehandlungskommission"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("gbk"),
+    "Gleichbehandlungskommission"
+  )
 })
 
 test_that("ris_normalize_gbk_commission accepts English aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_commission("federal"),         "Bundes-Gleichbehandlungskommission")
-  expect_equal(risAT:::ris_normalize_gbk_commission("private_sector"),  "Gleichbehandlungskommission")
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("federal"),
+    "Bundes-Gleichbehandlungskommission"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("private_sector"),
+    "Gleichbehandlungskommission"
+  )
 })
 
 test_that("ris_normalize_gbk_commission is case-insensitive", {
-  expect_equal(risAT:::ris_normalize_gbk_commission("GBK"),    "Gleichbehandlungskommission")
-  expect_equal(risAT:::ris_normalize_gbk_commission("BGBK"),   "Bundes-Gleichbehandlungskommission")
-  expect_equal(risAT:::ris_normalize_gbk_commission("Federal"), "Bundes-Gleichbehandlungskommission")
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("GBK"),
+    "Gleichbehandlungskommission"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("BGBK"),
+    "Bundes-Gleichbehandlungskommission"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_commission("Federal"),
+    "Bundes-Gleichbehandlungskommission"
+  )
 })
 
 test_that("ris_normalize_gbk_commission returns NULL for NULL input", {
@@ -769,23 +838,23 @@ test_that("ris_normalize_gbk_commission returns NULL for NULL input", {
 })
 
 test_that("ris_normalize_gbk_commission errors on invalid value", {
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_gbk_commission("Nonsense"),
-    "`commission` is invalid"
+    error = TRUE
   )
 })
 
 # ── GBK senate normalizer ────────────────────────────────────────────────────
 
 test_that("ris_normalize_gbk_senate accepts full canonical names", {
-  expect_equal(risAT:::ris_normalize_gbk_senate("Senat I"),   "Senat I")
-  expect_equal(risAT:::ris_normalize_gbk_senate("Senat II"),  "Senat II")
+  expect_equal(risAT:::ris_normalize_gbk_senate("Senat I"), "Senat I")
+  expect_equal(risAT:::ris_normalize_gbk_senate("Senat II"), "Senat II")
   expect_equal(risAT:::ris_normalize_gbk_senate("Senat III"), "Senat III")
 })
 
 test_that("ris_normalize_gbk_senate accepts Roman numeral aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_senate("I"),   "Senat I")
-  expect_equal(risAT:::ris_normalize_gbk_senate("II"),  "Senat II")
+  expect_equal(risAT:::ris_normalize_gbk_senate("I"), "Senat I")
+  expect_equal(risAT:::ris_normalize_gbk_senate("II"), "Senat II")
   expect_equal(risAT:::ris_normalize_gbk_senate("III"), "Senat III")
 })
 
@@ -800,28 +869,46 @@ test_that("ris_normalize_gbk_senate returns NULL for NULL input", {
 })
 
 test_that("ris_normalize_gbk_senate errors on invalid value", {
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_gbk_senate("IV"),
-    "`senate` is invalid"
+    error = TRUE
   )
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_gbk_senate("4"),
-    "`senate` is invalid"
+    error = TRUE
   )
 })
 
 # ── GBK discrimination_ground normalizer ─────────────────────────────────────
 
 test_that("ris_normalize_gbk_discrimination_ground accepts canonical German values", {
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Geschlecht"),              "Geschlecht")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Religion"),                "Religion")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Weltanschauung"),          "Weltanschauung")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Alter"),                   "Alter")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Behinderung"),             "Behinderung")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Mehrfachdiskriminierung"), "Mehrfachdiskriminierung")
   expect_equal(
-    risAT:::ris_normalize_gbk_discrimination_ground("Ethnische Zugeh\u00f6rigkeit"),
-    "Ethnische Zugeh\u00f6rigkeit"
+    risAT:::ris_normalize_gbk_discrimination_ground("Geschlecht"),
+    "Geschlecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Religion"),
+    "Religion"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Weltanschauung"),
+    "Weltanschauung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Alter"),
+    "Alter"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Behinderung"),
+    "Behinderung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Mehrfachdiskriminierung"),
+    "Mehrfachdiskriminierung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Ethnische Zugehörigkeit"),
+    "Ethnische Zugehörigkeit"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("Sexuelle Orientierung"),
@@ -830,20 +917,50 @@ test_that("ris_normalize_gbk_discrimination_ground accepts canonical German valu
 })
 
 test_that("ris_normalize_gbk_discrimination_ground accepts English aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("gender"),             "Geschlecht")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("sex"),                "Geschlecht")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("age"),                "Alter")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("disability"),         "Behinderung")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("ethnicity"),          "Ethnische Zugeh\u00f6rigkeit")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("sexual_orientation"), "Sexuelle Orientierung")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("worldview"),          "Weltanschauung")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("multiple"),           "Mehrfachdiskriminierung")
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("gender"),
+    "Geschlecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("sex"),
+    "Geschlecht"
+  )
+  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("age"), "Alter")
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("disability"),
+    "Behinderung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("ethnicity"),
+    "Ethnische Zugehörigkeit"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("sexual_orientation"),
+    "Sexuelle Orientierung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("worldview"),
+    "Weltanschauung"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("multiple"),
+    "Mehrfachdiskriminierung"
+  )
 })
 
 test_that("ris_normalize_gbk_discrimination_ground is case-insensitive", {
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("Gender"),   "Geschlecht")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("GENDER"),   "Geschlecht")
-  expect_equal(risAT:::ris_normalize_gbk_discrimination_ground("geschlecht"), "Geschlecht")
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("Gender"),
+    "Geschlecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("GENDER"),
+    "Geschlecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("geschlecht"),
+    "Geschlecht"
+  )
 })
 
 test_that("ris_normalize_gbk_discrimination_ground returns NULL for NULL input", {
@@ -851,9 +968,9 @@ test_that("ris_normalize_gbk_discrimination_ground returns NULL for NULL input",
 })
 
 test_that("ris_normalize_gbk_discrimination_ground errors on invalid value", {
-  expect_error(
+  expect_snapshot(
     risAT:::ris_normalize_gbk_discrimination_ground("Nationalitaet"),
-    "`discrimination_ground` is invalid"
+    error = TRUE
   )
 })
 
@@ -871,22 +988,22 @@ test_that("ris_search_gbk normalizes and encodes GBK-specific params in URL", {
 })
 
 test_that("ris_search_gbk rejects invalid commission", {
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(commission = "Nonsense"),
-    "`commission` is invalid"
+    error = TRUE
   )
 })
 
 test_that("ris_search_gbk rejects invalid senate", {
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(senate = "IV"),
-    "`senate` is invalid"
+    error = TRUE
   )
 })
 
 test_that("ris_search_gbk rejects invalid discrimination_ground", {
-  expect_error(
+  expect_snapshot(
     ris_search_gbk(discrimination_ground = "Nationalitaet"),
-    "`discrimination_ground` is invalid"
+    error = TRUE
   )
 })
