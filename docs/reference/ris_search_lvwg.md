@@ -58,7 +58,11 @@ ris_search_lvwg(
 - federal_state:
 
   Optional federal state (`Bundesland`) to restrict results to a single
-  LVwG, e.g. `"Wien"`, `"Steiermark"`, `"Niederösterreich"`.
+  LVwG. Accepts the German name of any of the nine Austrian
+  Bundesländer: `"Burgenland"`, `"Kärnten"`, `"Niederösterreich"`,
+  `"Oberösterreich"`, `"Salzburg"`, `"Steiermark"`, `"Tirol"`,
+  `"Vorarlberg"`, `"Wien"`. Common English aliases (`"Vienna"`,
+  `"Styria"`, `"Carinthia"`, etc.) are also accepted (case-insensitive).
 
 - in_ris_since:
 

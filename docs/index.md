@@ -11,12 +11,23 @@ changes may break existing code. If you encounter any bug, you are
 welcome to file an issue at the package’s [GitHub
 repo](https://github.com/werkstattcodes/risAT/issues).
 
-Also note that neither the package nor its author is affiliated with the
-Austrian Federal Chancellery (BKA) or the RIS.
+## Data source
+
+This package accesses data from the [RIS
+(Rechtsinformationssystem)](https://www.ris.bka.gv.at/) provided by the
+Austrian Federal Chancellery (BKA) via its [Open Government Data REST
+API](https://data.bka.gv.at/ris/api/v2.6/). The data is published under
+the [Creative Commons Attribution 4.0 International (CC BY
+4.0)](https://creativecommons.org/licenses/by/4.0/) licence as part of
+Austria’s Open Data initiative.
+
+Neither the package nor its author is affiliated with the BKA or the
+RIS.
 
 ## Installation
 
-You can install risAT from [GitHub](https://github.com/werkstattcodes/risAT) with:
+You can install risAT from
+[GitHub](https://github.com/werkstattcodes/risAT) with:
 
 ``` r
 # install.packages("pak")
@@ -91,3 +102,19 @@ results as a tidy tibble with columns including `id`, `court`,
 `app_metadata` (list-column). See the [reference
 documentation](https://werkstattcodes.github.io/risAT/reference/) for
 full details.
+
+For a full column name reference mapping the original German RIS API
+fields to their English risAT equivalents, see
+[`vignette("risAT")`](https://werkstattcodes.github.io/risAT/articles/risAT.md).
+
+## Citation
+
+If you use risAT in your research, please cite it:
+
+``` r
+citation("risAT")
+```
+
+> Schmidt R (2026). *risAT: Interface to the Austrian RIS OGD REST API*.
+> R package version 0.0.0.9000,
+> <https://github.com/werkstattcodes/risAT>.

@@ -146,7 +146,7 @@ All search functions return a `tibble` with:
 | `decision_type` | character | Type of decision |
 | `title` | character | Document title |
 | `ris_url` | character | Link to RIS web page |
-| `content_urls` | list-column | Tibble of `data_type` + `url` |
+| `content_urls` | list-column | Character vector of download URLs (XML, HTML, RTF, PDF) |
 | `app_metadata` | list-column | Application-specific nested metadata |
 | `page` | integer | Source page number |
 | `per_page` | integer | Page size used |

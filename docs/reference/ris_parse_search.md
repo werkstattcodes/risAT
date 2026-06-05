@@ -58,9 +58,11 @@ payload <- list(
         )
       )
     )
-  ),
+  )
 )
-#> Error in list(OgdSearchResult = list(status = "ok", OgdDocumentResults = list(OgdDocumentReference = list(list(Data = list(Metadaten = list(Technisch = list(ID = "DOC-1",     Applikation = "Vwgh"), Allgemein = list(DokumentUrl = "https://example.org/meta/1")),     Dokumentliste = list(ContentReference = list(list(Urls = list(ContentUrl = list(list(DataType = "Html",         Url = "https://example.org/doc/1.html"))))))))))), ): argument 2 is empty
 ris_parse_search(payload)
-#> Error: object 'payload' not found
+#> # A tibble: 1 × 5
+#>   id    application document_url               content_urls app_metadata    
+#>   <chr> <chr>       <chr>                      <list>       <list>          
+#> 1 DOC-1 Vwgh        https://example.org/meta/1 <chr [1]>    <named list [3]>
 ```

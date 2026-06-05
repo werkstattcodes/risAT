@@ -52,20 +52,26 @@ ris_search_gbk(
 
 - commission:
 
-  Optional commission filter (`Kommission`), e.g.
-  `"Bundes-Gleichbehandlungskommission"` or
-  `"Gleichbehandlungskommission"`.
+  Optional commission filter (`Kommission`). Accepted values:
+  `"Bundes-Gleichbehandlungskommission"` (federal public service) or
+  `"Gleichbehandlungskommission"` (private sector). Short aliases
+  `"bundesgbk"`/`"bgbk"` and `"gbk"`, and English aliases `"federal"`/
+  `"private_sector"` are also accepted (case-insensitive).
 
 - senate:
 
-  Optional senate filter (`Senat`), e.g. `"Senat I"`, `"Senat II"`,
-  `"Senat III"`.
+  Optional senate filter (`Senat`). Accepted values: `"Senat I"`,
+  `"Senat II"`, `"Senat III"`. Roman numerals (`"I"`, `"II"`, `"III"`)
+  and digits (`"1"`, `"2"`, `"3"`) are also accepted.
 
 - discrimination_ground:
 
-  Optional discrimination ground (`Diskriminierungsgrund`), e.g.
-  `"Geschlecht"`, `"Ethnische Zugehörigkeit"`, `"Religion"`,
-  `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`.
+  Optional discrimination ground (`Diskriminierungsgrund`). Accepted
+  values: `"Geschlecht"`, `"Ethnische Zugehörigkeit"`, `"Religion"`,
+  `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`,
+  `"Behinderung"`, `"Mehrfachdiskriminierung"`. English aliases
+  (`"gender"`, `"age"`, `"disability"`, `"ethnicity"`,
+  `"sexual_orientation"`, etc.) are also accepted (case-insensitive).
 
 - in_ris_since:
 
