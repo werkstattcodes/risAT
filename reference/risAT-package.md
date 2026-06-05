@@ -37,3 +37,7 @@ combine both steps for common court applications.
 ## Author
 
 **Maintainer**: Roland Schmidt <rs2903@gmail.com>
+
+Authors:
+
+- Roland Schmidt <rs2903@gmail.com>

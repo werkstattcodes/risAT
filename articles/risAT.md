@@ -11,6 +11,7 @@ designed for reproducible legal research.
 ## Installation
 
 ``` r
+
 # install.packages("pak")
 pak::pak("werkstattcodes/risAT")
 ```
@@ -22,6 +23,7 @@ targets a single court application and provides typed, validated
 arguments:
 
 ``` r
+
 library(risAT)
 
 # Search the Administrative Court (VwGH) for decisions about "Baurecht"
@@ -39,23 +41,24 @@ list-columns: `content_urls` (download links) and `app_metadata`
 risAT provides convenience wrappers for the most commonly used Judikatur
 applications:
 
-| Court / Application                 | Function                                                                                       |
-|-------------------------------------|------------------------------------------------------------------------------------------------|
-| VfGH (Constitutional Court)         | [`ris_search_vfgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.md)     |
-| VwGH (Administrative Court)         | [`ris_search_vwgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.md)     |
-| Justiz (OGH, OLG, LG, BG)           | [`ris_search_justiz()`](https://werkstattcodes.github.io/risAT/reference/ris_search_justiz.md) |
-| BVwG (Federal Administrative Court) | [`ris_search_bvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_bvwg.md)     |
-| LVwG (State Administrative Courts)  | [`ris_search_lvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_lvwg.md)     |
-| DSK / DSB (Data Protection)         | [`ris_search_dsk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dsk.md)       |
-| DOK (Disciplinary Bodies)           | [`ris_search_dok()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dok.md)       |
-| PVAK (Staff Representation)         | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md)     |
-| GBK (Equal Treatment Commission)    | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md)       |
+| Court / Application | Function |
+|----|----|
+| VfGH (Constitutional Court) | [`ris_search_vfgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vfgh.md) |
+| VwGH (Administrative Court) | [`ris_search_vwgh()`](https://werkstattcodes.github.io/risAT/reference/ris_search_vwgh.md) |
+| Justiz (OGH, OLG, LG, BG) | [`ris_search_justiz()`](https://werkstattcodes.github.io/risAT/reference/ris_search_justiz.md) |
+| BVwG (Federal Administrative Court) | [`ris_search_bvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_bvwg.md) |
+| LVwG (State Administrative Courts) | [`ris_search_lvwg()`](https://werkstattcodes.github.io/risAT/reference/ris_search_lvwg.md) |
+| DSK / DSB (Data Protection) | [`ris_search_dsk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dsk.md) |
+| DOK (Disciplinary Bodies) | [`ris_search_dok()`](https://werkstattcodes.github.io/risAT/reference/ris_search_dok.md) |
+| PVAK (Staff Representation) | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md) |
+| GBK (Equal Treatment Commission) | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md) |
 
 Plus a generic function that accepts all RIS Judikatur application codes
 and English aliases documented in
 [`?ris_req_case_law`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md):
 
 ``` r
+
 results <- ris_search_case_law(
   application = "data_protection",
   query = "DSGVO"
@@ -67,6 +70,7 @@ results <- ris_search_case_law(
 All wrappers accept common filter arguments:
 
 ``` r
+
 results <- ris_search_vwgh(
   query = "Asyl",
   decision_date_from = "2024-01-01",
@@ -80,6 +84,7 @@ Some courts have additional parameters. For example,
 accepts `court`, `legal_area`, and `specialist_area`:
 
 ``` r
+
 results <- ris_search_justiz(
   query = "Schadenersatz",
   court = "OGH"
@@ -98,6 +103,7 @@ Under the hood, each search wrapper calls two lower-level functions:
 You can use these directly for more control:
 
 ``` r
+
 # Build the request (no network call yet)
 req <- ris_req_case_law(
   application = "Vwgh",
@@ -119,6 +125,7 @@ metadata for each row is stored in the `app_metadata` list-column under
 `response` (API response info) and `request` (request provenance):
 
 ``` r
+
 # Total hit count reported by the API
 results$app_metadata[[1]]$response$hits
 
@@ -136,6 +143,7 @@ results$app_metadata[[1]]$request$dokumente_pro_seite
 The output tibble is designed for use with dplyr and tidyr:
 
 ``` r
+
 library(dplyr)
 
 results |>
@@ -147,6 +155,7 @@ Content download URLs are stored as a character vector in the
 `content_urls` list-column:
 
 ``` r
+
 # Get URLs for the first result
 results$content_urls[[1]]
 ```
@@ -168,6 +177,7 @@ This serves three purposes:
     interactively before refining your programmatic query.
 
 ``` r
+
 results <- ris_search_vwgh(
   query = "Baurecht",
   decision_date_from = "2024-01-01",
@@ -196,59 +206,59 @@ passed through in their original snake_case form.
 
 These columns appear across most or all court applications.
 
-| Column                 | German source field                | Description                                                 |
-|------------------------|------------------------------------|-------------------------------------------------------------|
-| `id`                   | `Technisch > ID`                   | Unique RIS document identifier                              |
-| `application`          | `Technisch > Applikation`          | RIS application code (e.g. `"Vwgh"`, `"Justiz"`)            |
-| `authority`            | `Technisch > Organ`                | Issuing authority / court name                              |
-| `published`            | `Allgemein > Veroeffentlicht`      | Publication date                                            |
-| `modified`             | `Allgemein > Geaendert`            | Last modification date                                      |
-| `document_url`         | `Allgemein > DokumentUrl`          | RIS web page URL for the document                           |
-| `document_type`        | `Dokumenttyp`                      | Document type (`"Rechtssatz"`, `"Entscheidungstext"`, etc.) |
-| `case_number`          | `Geschaeftszahl`                   | Business / case number                                      |
-| `norms`                | `Normen`                           | Referenced legal norms (list-column)                        |
-| `decision_date`        | `Entscheidungsdatum`               | Decision date                                               |
-| `keywords`             | `Schlagworte`                      | Keywords / index terms                                      |
-| `ecli`                 | `EuropeanCaseLawIdentifier`        | ECLI identifier                                             |
-| `full_decision_url`    | `GesamteEntscheidungUrl`           | URL to the full decision page                               |
-| `legal_principles_url` | `RechtssaetzeUrl`                  | URL to the legal principles page                            |
-| `decision_text_url`    | `EntscheidungstextUrl`             | URL to the decision text                                    |
-| `content_urls`         | `Dokumentliste > ContentReference` | Content download URLs (list-column)                         |
-| `app_metadata`         | —                                  | Package-generated metadata (list-column)                    |
+| Column | German source field | Description |
+|----|----|----|
+| `id` | `Technisch > ID` | Unique RIS document identifier |
+| `application` | `Technisch > Applikation` | RIS application code (e.g. `"Vwgh"`, `"Justiz"`) |
+| `authority` | `Technisch > Organ` | Issuing authority / court name |
+| `published` | `Allgemein > Veroeffentlicht` | Publication date |
+| `modified` | `Allgemein > Geaendert` | Last modification date |
+| `document_url` | `Allgemein > DokumentUrl` | RIS web page URL for the document |
+| `document_type` | `Dokumenttyp` | Document type (`"Rechtssatz"`, `"Entscheidungstext"`, etc.) |
+| `case_number` | `Geschaeftszahl` | Business / case number |
+| `norms` | `Normen` | Referenced legal norms (list-column) |
+| `decision_date` | `Entscheidungsdatum` | Decision date |
+| `keywords` | `Schlagworte` | Keywords / index terms |
+| `ecli` | `EuropeanCaseLawIdentifier` | ECLI identifier |
+| `full_decision_url` | `GesamteEntscheidungUrl` | URL to the full decision page |
+| `legal_principles_url` | `RechtssaetzeUrl` | URL to the legal principles page |
+| `decision_text_url` | `EntscheidungstextUrl` | URL to the decision text |
+| `content_urls` | `Dokumentliste > ContentReference` | Content download URLs (list-column) |
+| `app_metadata` | — | Package-generated metadata (list-column) |
 
 ### VwGH (Administrative Court)
 
-| Column                                | Description                                 |
-|---------------------------------------|---------------------------------------------|
-| `vwgh_decision_type`                  | Decision type (Beschluss, Erkenntnis, etc.) |
-| `vwgh_court`                          | Court name                                  |
-| `vwgh_indices`                        | Legal index entries (list-column)           |
-| `vwgh_collection_number`              | Official collection number (VwSlg)          |
-| `vwgh_document_number_type`           | Document number type code                   |
-| `vwgh_primary_legal_principle_number` | Primary legal principle number              |
-| `vwgh_legal_principle_number`         | Legal principle number                      |
-| `vwgh_primary_principle_reference`    | Reference to the primary legal principle    |
-| `vwgh_legal_principle_chain_url`      | URL to the legal principle chain            |
-| `vwgh_note`                           | Editorial notes (Beachte)                   |
-| `vwgh_court_decisions`                | Related court decisions (list-column)       |
+| Column | Description |
+|----|----|
+| `vwgh_decision_type` | Decision type (Beschluss, Erkenntnis, etc.) |
+| `vwgh_court` | Court name |
+| `vwgh_indices` | Legal index entries (list-column) |
+| `vwgh_collection_number` | Official collection number (VwSlg) |
+| `vwgh_document_number_type` | Document number type code |
+| `vwgh_primary_legal_principle_number` | Primary legal principle number |
+| `vwgh_legal_principle_number` | Legal principle number |
+| `vwgh_primary_principle_reference` | Reference to the primary legal principle |
+| `vwgh_legal_principle_chain_url` | URL to the legal principle chain |
+| `vwgh_note` | Editorial notes (Beachte) |
+| `vwgh_court_decisions` | Related court decisions (list-column) |
 
 ### VfGH (Constitutional Court)
 
-| Column                               | Description                                      |
-|--------------------------------------|--------------------------------------------------|
-| `vfgh_decision_type`                 | Decision type (Beschluss, Erkenntnis, Vergleich) |
-| `vfgh_court`                         | Court name                                       |
-| `vfgh_indices`                       | Legal index entries (list-column)                |
-| `vfgh_collection_number`             | Official collection number (VfSlg)               |
-| `vfgh_headnote`                      | Headnote / guiding principle                     |
-| `vfgh_decision_texts`                | Linked decision texts (list-column)              |
-| `vfgh_decision_text_case_number`     | Case number of linked decision text              |
-| `vfgh_decision_text_document_type`   | Document type of linked text                     |
-| `vfgh_decision_text_court`           | Court of linked decision text                    |
-| `vfgh_decision_text_decision_date`   | Decision date of linked text                     |
-| `vfgh_decision_text_document_url`    | URL of linked decision text                      |
-| `vfgh_decision_text_document_number` | Document number of linked text                   |
-| `vfgh_decision_text_decision_type`   | Decision type of linked text                     |
+| Column | Description |
+|----|----|
+| `vfgh_decision_type` | Decision type (Beschluss, Erkenntnis, Vergleich) |
+| `vfgh_court` | Court name |
+| `vfgh_indices` | Legal index entries (list-column) |
+| `vfgh_collection_number` | Official collection number (VfSlg) |
+| `vfgh_headnote` | Headnote / guiding principle |
+| `vfgh_decision_texts` | Linked decision texts (list-column) |
+| `vfgh_decision_text_case_number` | Case number of linked decision text |
+| `vfgh_decision_text_document_type` | Document type of linked text |
+| `vfgh_decision_text_court` | Court of linked decision text |
+| `vfgh_decision_text_decision_date` | Decision date of linked text |
+| `vfgh_decision_text_document_url` | URL of linked decision text |
+| `vfgh_decision_text_document_number` | Document number of linked text |
+| `vfgh_decision_text_decision_type` | Decision type of linked text |
 
 ### BVwG (Federal Administrative Court)
 
@@ -271,24 +281,24 @@ These columns appear across most or all court applications.
 
 ### Justiz (Ordinary Courts: OGH, OLG, LG, BG)
 
-| Column                               | Description                           |
-|--------------------------------------|---------------------------------------|
-| `justiz_decision_type`               | Decision type                         |
-| `justiz_court`                       | Court name                            |
-| `justiz_legal_areas`                 | Legal areas (list-column)             |
-| `justiz_specialist_areas`            | Specialist areas (list-column)        |
-| `justiz_text_numbers`                | Text numbers (list-column)            |
-| `justiz_legal_principle_numbers`     | Legal principle numbers (list-column) |
-| `justiz_citation`                    | Citation / reference                  |
-| `justiz_note`                        | Editorial note                        |
-| `justiz_decision_texts`              | Linked decision texts (list-column)   |
-| `justiz_decision_text_case_number`   | Case number of linked text            |
-| `justiz_decision_text_document_type` | Document type of linked text          |
-| `justiz_decision_text_court`         | Court of linked text                  |
-| `justiz_decision_text_decision_type` | Decision type of linked text          |
-| `justiz_decision_text_decision_date` | Decision date of linked text          |
-| `justiz_decision_text_note`          | Note on linked text                   |
-| `justiz_decision_text_document_url`  | URL of linked text                    |
+| Column | Description |
+|----|----|
+| `justiz_decision_type` | Decision type |
+| `justiz_court` | Court name |
+| `justiz_legal_areas` | Legal areas (list-column) |
+| `justiz_specialist_areas` | Specialist areas (list-column) |
+| `justiz_text_numbers` | Text numbers (list-column) |
+| `justiz_legal_principle_numbers` | Legal principle numbers (list-column) |
+| `justiz_citation` | Citation / reference |
+| `justiz_note` | Editorial note |
+| `justiz_decision_texts` | Linked decision texts (list-column) |
+| `justiz_decision_text_case_number` | Case number of linked text |
+| `justiz_decision_text_document_type` | Document type of linked text |
+| `justiz_decision_text_court` | Court of linked text |
+| `justiz_decision_text_decision_type` | Decision type of linked text |
+| `justiz_decision_text_decision_date` | Decision date of linked text |
+| `justiz_decision_text_note` | Note on linked text |
+| `justiz_decision_text_document_url` | URL of linked text |
 
 ### DSK / DSB (Data Protection Authority)
 
