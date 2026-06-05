@@ -1,6 +1,6 @@
 # Articles
 
-### All vignettes
+### Getting started
 
 - [Getting started with
-  risAT](https://werkstattcodes.github.io/risAT/articles/risAT.md):
+  risAT](https://werkstattcodes.github.io/risAT/articles/getting-started.md):
