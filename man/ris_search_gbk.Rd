@@ -36,16 +36,23 @@ ris_search_gbk(
 Gbk accepts: \code{"Undefined"}, \code{"Einzelfallpruefungsergebnis"},
 \code{"Gutachten"}.}
 
-\item{commission}{Optional commission filter (\code{Kommission}), e.g.
-\code{"Bundes-Gleichbehandlungskommission"} or
-\code{"Gleichbehandlungskommission"}.}
+\item{commission}{Optional commission filter (\code{Kommission}). Accepted
+values: \code{"Bundes-Gleichbehandlungskommission"} (federal public service)
+or \code{"Gleichbehandlungskommission"} (private sector). Short aliases
+\code{"bundesgbk"}/\code{"bgbk"} and \code{"gbk"}, and English aliases \code{"federal"}/
+\code{"private_sector"} are also accepted (case-insensitive).}
 
-\item{senate}{Optional senate filter (\code{Senat}), e.g. \code{"Senat I"},
-\code{"Senat II"}, \code{"Senat III"}.}
+\item{senate}{Optional senate filter (\code{Senat}). Accepted values:
+\code{"Senat I"}, \code{"Senat II"}, \code{"Senat III"}. Roman numerals (\code{"I"},
+\code{"II"}, \code{"III"}) and digits (\code{"1"}, \code{"2"}, \code{"3"}) are also accepted.}
 
 \item{discrimination_ground}{Optional discrimination ground
-(\code{Diskriminierungsgrund}), e.g. \code{"Geschlecht"}, \code{"Ethnische Zugehörigkeit"},
-\code{"Religion"}, \code{"Weltanschauung"}, \code{"Alter"}, \code{"Sexuelle Orientierung"}.}
+(\code{Diskriminierungsgrund}). Accepted values: \code{"Geschlecht"},
+\code{"Ethnische Zugehörigkeit"}, \code{"Religion"}, \code{"Weltanschauung"},
+\code{"Alter"}, \code{"Sexuelle Orientierung"}, \code{"Behinderung"},
+\code{"Mehrfachdiskriminierung"}. English aliases (\code{"gender"}, \code{"age"},
+\code{"disability"}, \code{"ethnicity"}, \code{"sexual_orientation"}, etc.) are
+also accepted (case-insensitive).}
 
 \item{in_ris_since}{Optional RIS recency filter (\code{ImRisSeit}).
 Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"},

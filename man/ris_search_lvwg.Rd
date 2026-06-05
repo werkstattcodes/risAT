@@ -40,8 +40,12 @@ LVwG accepts: \code{"Undefined"}, \code{"Beschluss"}, \code{"Erkenntnis"},
 \item{index_term}{Optional index term (\code{Index}).}
 
 \item{federal_state}{Optional federal state (\code{Bundesland}) to restrict
-results to a single LVwG, e.g. \code{"Wien"}, \code{"Steiermark"},
-\code{"Niederösterreich"}.}
+results to a single LVwG. Accepts the German name of any of the nine
+Austrian Bundesländer: \code{"Burgenland"}, \code{"Kärnten"},
+\code{"Niederösterreich"}, \code{"Oberösterreich"}, \code{"Salzburg"},
+\code{"Steiermark"}, \code{"Tirol"}, \code{"Vorarlberg"}, \code{"Wien"}. Common English
+aliases (\code{"Vienna"}, \code{"Styria"}, \code{"Carinthia"}, etc.) are also accepted
+(case-insensitive).}
 
 \item{in_ris_since}{Optional RIS recency filter (\code{ImRisSeit}).
 Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"},

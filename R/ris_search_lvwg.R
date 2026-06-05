@@ -31,8 +31,12 @@
 #'   LVwG accepts: `"Undefined"`, `"Beschluss"`, `"Erkenntnis"`,
 #'   `"Bescheid"`.
 #' @param federal_state Optional federal state (`Bundesland`) to restrict
-#'   results to a single LVwG, e.g. `"Wien"`, `"Steiermark"`,
-#'   `"Niederösterreich"`.
+#'   results to a single LVwG. Accepts the German name of any of the nine
+#'   Austrian Bundesländer: `"Burgenland"`, `"Kärnten"`,
+#'   `"Niederösterreich"`, `"Oberösterreich"`, `"Salzburg"`,
+#'   `"Steiermark"`, `"Tirol"`, `"Vorarlberg"`, `"Wien"`. Common English
+#'   aliases (`"Vienna"`, `"Styria"`, `"Carinthia"`, etc.) are also accepted
+#'   (case-insensitive).
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
@@ -74,7 +78,7 @@ ris_search_lvwg <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
-  checkmate::assert_string(federal_state, null.ok = TRUE, .var.name = "federal_state")
+  federal_state <- ris_normalize_federal_state(federal_state)
 
   ris_search_case_law(
     application = "Lvwg",

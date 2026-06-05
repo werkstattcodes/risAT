@@ -777,6 +777,187 @@ ris_normalize_sort_direction <- function(x) {
   allowed[[idx]]
 }
 
+# -- Federal state normalization -----------------------------------------------
+# The Bundesland parameter restricts LVwG (and Uvs) results to a single
+# Austrian state.  There are exactly 9 Bundesländer; we accept both the German
+# names and common English aliases.
+ris_normalize_federal_state <- function(x) {
+  if (is.null(x) || identical(x, "")) {
+    return(NULL)
+  }
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    rlang::abort("`federal_state` must be a single string.")
+  }
+
+  lookup <- c(
+    burgenland                = "Burgenland",
+    "k\u00e4rnten"           = "K\u00e4rnten",
+    kaernten                  = "K\u00e4rnten",
+    carinthia                 = "K\u00e4rnten",
+    "nieder\u00f6sterreich"  = "Nieder\u00f6sterreich",
+    niederoesterreich         = "Nieder\u00f6sterreich",
+    loweraustria              = "Nieder\u00f6sterreich",
+    "ober\u00f6sterreich"    = "Ober\u00f6sterreich",
+    oberoesterreich           = "Ober\u00f6sterreich",
+    upperaustria              = "Ober\u00f6sterreich",
+    salzburg                  = "Salzburg",
+    steiermark                = "Steiermark",
+    styria                    = "Steiermark",
+    tirol                     = "Tirol",
+    tyrol                     = "Tirol",
+    vorarlberg                = "Vorarlberg",
+    wien                      = "Wien",
+    vienna                    = "Wien"
+  )
+
+  key <- ris_normalize_key(x)
+  if (!key %in% names(lookup)) {
+    rlang::abort(paste0(
+      "`federal_state` is invalid. Use one of: ",
+      paste(
+        c(
+          "Burgenland", "K\u00e4rnten", "Nieder\u00f6sterreich",
+          "Ober\u00f6sterreich", "Salzburg", "Steiermark",
+          "Tirol", "Vorarlberg", "Wien"
+        ),
+        collapse = ", "
+      ),
+      ". English aliases (e.g. 'Vienna', 'Styria') are also accepted."
+    ))
+  }
+
+  unname(lookup[[key]])
+}
+
+# -- GBK commission normalization ----------------------------------------------
+# The Gbk application covers two distinct commissions.  We accept the full
+# German names and short aliases.
+ris_normalize_gbk_commission <- function(x) {
+  if (is.null(x) || identical(x, "")) {
+    return(NULL)
+  }
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    rlang::abort("`commission` must be a single string.")
+  }
+
+  lookup <- c(
+    # Full names (normalized)
+    bundesgleichbehandlungskommission             = "Bundes-Gleichbehandlungskommission",
+    gleichbehandlungskommission                   = "Gleichbehandlungskommission",
+    # Short aliases
+    bundesgbk                                     = "Bundes-Gleichbehandlungskommission",
+    bgbk                                          = "Bundes-Gleichbehandlungskommission",
+    gbk                                           = "Gleichbehandlungskommission",
+    # English aliases
+    federalequaltreatmentcommission               = "Bundes-Gleichbehandlungskommission",
+    privatesectorequaltreatmentcommission         = "Gleichbehandlungskommission",
+    privatesector                                 = "Gleichbehandlungskommission",
+    federal                                       = "Bundes-Gleichbehandlungskommission"
+  )
+
+  key <- ris_normalize_key(x)
+  if (!key %in% names(lookup)) {
+    rlang::abort(paste0(
+      "`commission` is invalid. Use one of: ",
+      "'Bundes-Gleichbehandlungskommission' (federal public service) or ",
+      "'Gleichbehandlungskommission' (private sector). ",
+      "Short aliases 'bundesgbk'/'bgbk' and 'gbk' are also accepted."
+    ))
+  }
+
+  unname(lookup[[key]])
+}
+
+# -- GBK senate normalization --------------------------------------------------
+# The Bundes-GBK has Senat I and II; the private-sector GBK has Senat I, II,
+# and III.  We accept the full names, Roman numerals, and Arabic digits.
+ris_normalize_gbk_senate <- function(x) {
+  if (is.null(x) || identical(x, "")) {
+    return(NULL)
+  }
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    rlang::abort("`senate` must be a single string.")
+  }
+
+  lookup <- c(
+    senati   = "Senat I",
+    senatii  = "Senat II",
+    senatiii = "Senat III",
+    i        = "Senat I",
+    ii       = "Senat II",
+    iii      = "Senat III",
+    `1`      = "Senat I",
+    `2`      = "Senat II",
+    `3`      = "Senat III"
+  )
+
+  key <- ris_normalize_key(x)
+  if (!key %in% names(lookup)) {
+    rlang::abort(
+      "`senate` is invalid. Use 'Senat I', 'Senat II', or 'Senat III' (or 'I'/'II'/'III' or '1'/'2'/'3')."
+    )
+  }
+
+  unname(lookup[[key]])
+}
+
+# -- GBK discrimination ground normalization -----------------------------------
+# The discrimination grounds are defined in the Gleichbehandlungsgesetz (GlBG)
+# and the Bundes-Gleichbehandlungsgesetz (B-GlBG).  We accept the German API
+# values and common English aliases.
+ris_normalize_gbk_discrimination_ground <- function(x) {
+  if (is.null(x) || identical(x, "")) {
+    return(NULL)
+  }
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    rlang::abort("`discrimination_ground` must be a single string.")
+  }
+
+  lookup <- c(
+    # German canonical values
+    geschlecht                        = "Geschlecht",
+    "ethnische zugeh\u00f6rigkeit"   = "Ethnische Zugeh\u00f6rigkeit",
+    "ethnischezugeh\u00f6rigkeit"    = "Ethnische Zugeh\u00f6rigkeit",
+    ethnischezugehorigkeit            = "Ethnische Zugeh\u00f6rigkeit",
+    religion                          = "Religion",
+    weltanschauung                    = "Weltanschauung",
+    alter                             = "Alter",
+    "sexuelle orientierung"           = "Sexuelle Orientierung",
+    sexuelleorientierung              = "Sexuelle Orientierung",
+    behinderung                       = "Behinderung",
+    mehrfachdiskriminierung           = "Mehrfachdiskriminierung",
+    # English aliases
+    gender                            = "Geschlecht",
+    sex                               = "Geschlecht",
+    ethnicity                         = "Ethnische Zugeh\u00f6rigkeit",
+    ethnicorigin                      = "Ethnische Zugeh\u00f6rigkeit",
+    worldview                         = "Weltanschauung",
+    age                               = "Alter",
+    sexualorientation                 = "Sexuelle Orientierung",
+    disability                        = "Behinderung",
+    multiplediscrimination            = "Mehrfachdiskriminierung",
+    multiple                          = "Mehrfachdiskriminierung"
+  )
+
+  key <- ris_normalize_key(x)
+  if (!key %in% names(lookup)) {
+    rlang::abort(paste0(
+      "`discrimination_ground` is invalid. Use one of: ",
+      paste(
+        c(
+          "Geschlecht", "Ethnische Zugeh\u00f6rigkeit", "Religion",
+          "Weltanschauung", "Alter", "Sexuelle Orientierung",
+          "Behinderung", "Mehrfachdiskriminierung"
+        ),
+        collapse = ", "
+      ),
+      ". English aliases (e.g. 'gender', 'age', 'disability') are also accepted."
+    ))
+  }
+
+  unname(lookup[[key]])
+}
+
 # -- Per-page to API enum conversion -------------------------------------------
 # The API uses English word names for page sizes rather than numeric values.
 # This maps the integer page size to the DokumenteProSeite enum string.

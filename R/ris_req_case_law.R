@@ -211,6 +211,13 @@ ris_req_case_law <- function(
   # Translate the user-facing application name (which may be an English alias
   # like "constitutional_court") into the canonical RIS code (e.g. "Vfgh").
   application_code <- ris_case_law_application_to_code(application)
+
+  # Normalize court-specific enum parameters.  These accept flexible input
+  # (English aliases, case variants) and return the exact API-expected string.
+  federal_state         <- ris_normalize_federal_state(federal_state)
+  commission            <- ris_normalize_gbk_commission(commission)
+  senate                <- ris_normalize_gbk_senate(senate)
+  discrimination_ground <- ris_normalize_gbk_discrimination_ground(discrimination_ground)
   per_page <- 100L
 
   # Normalize decision_type based on which court application was selected.

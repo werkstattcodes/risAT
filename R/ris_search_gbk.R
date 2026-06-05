@@ -41,14 +41,21 @@
 #' @param decision_type Optional decision type (`Entscheidungsart`).
 #'   Gbk accepts: `"Undefined"`, `"Einzelfallpruefungsergebnis"`,
 #'   `"Gutachten"`.
-#' @param commission Optional commission filter (`Kommission`), e.g.
-#'   `"Bundes-Gleichbehandlungskommission"` or
-#'   `"Gleichbehandlungskommission"`.
-#' @param senate Optional senate filter (`Senat`), e.g. `"Senat I"`,
-#'   `"Senat II"`, `"Senat III"`.
+#' @param commission Optional commission filter (`Kommission`). Accepted
+#'   values: `"Bundes-Gleichbehandlungskommission"` (federal public service)
+#'   or `"Gleichbehandlungskommission"` (private sector). Short aliases
+#'   `"bundesgbk"`/`"bgbk"` and `"gbk"`, and English aliases `"federal"`/
+#'   `"private_sector"` are also accepted (case-insensitive).
+#' @param senate Optional senate filter (`Senat`). Accepted values:
+#'   `"Senat I"`, `"Senat II"`, `"Senat III"`. Roman numerals (`"I"`,
+#'   `"II"`, `"III"`) and digits (`"1"`, `"2"`, `"3"`) are also accepted.
 #' @param discrimination_ground Optional discrimination ground
-#'   (`Diskriminierungsgrund`), e.g. `"Geschlecht"`, `"Ethnische Zugehörigkeit"`,
-#'   `"Religion"`, `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`.
+#'   (`Diskriminierungsgrund`). Accepted values: `"Geschlecht"`,
+#'   `"Ethnische Zugehörigkeit"`, `"Religion"`, `"Weltanschauung"`,
+#'   `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`,
+#'   `"Mehrfachdiskriminierung"`. English aliases (`"gender"`, `"age"`,
+#'   `"disability"`, `"ethnicity"`, `"sexual_orientation"`, etc.) are
+#'   also accepted (case-insensitive).
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
@@ -91,9 +98,9 @@ ris_search_gbk <- function(
     echo = FALSE,
     base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
-  checkmate::assert_string(commission, null.ok = TRUE, .var.name = "commission")
-  checkmate::assert_string(senate, null.ok = TRUE, .var.name = "senate")
-  checkmate::assert_string(discrimination_ground, null.ok = TRUE, .var.name = "discrimination_ground")
+  commission           <- ris_normalize_gbk_commission(commission)
+  senate               <- ris_normalize_gbk_senate(senate)
+  discrimination_ground <- ris_normalize_gbk_discrimination_ground(discrimination_ground)
 
   ris_search_case_law(
     application = "Gbk",
