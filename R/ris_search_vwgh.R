@@ -88,19 +88,19 @@
 #' }
 #' @export
 ris_search_vwgh <- function(
-    query = NULL,
-    business_number = NULL,
-    norm = NULL,
-    decision_date_from = NULL,
-    decision_date_to = NULL,
-    decision_type = NULL,
-    index_term = NULL,
-    collection_number = NULL,
-    in_ris_since = NULL,
-    search_decision_text = TRUE,
-    search_legal_principles = TRUE,
-    echo = FALSE,
-    base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  query = NULL,
+  business_number = NULL,
+  norm = NULL,
+  decision_date_from = NULL,
+  decision_date_to = NULL,
+  decision_type = NULL,
+  index_term = NULL,
+  collection_number = NULL,
+  in_ris_since = NULL,
+  search_decision_text = TRUE,
+  search_legal_principles = TRUE,
+  echo = FALSE,
+  base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
   # Delegate to the generic case law search with application fixed to "Vwgh".
   ris_search_case_law(

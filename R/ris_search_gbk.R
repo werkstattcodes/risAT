@@ -85,22 +85,24 @@
 #' }
 #' @export
 ris_search_gbk <- function(
-    query = NULL,
-    business_number = NULL,
-    norm = NULL,
-    decision_date_from = NULL,
-    decision_date_to = NULL,
-    decision_type = NULL,
-    commission = NULL,
-    senate = NULL,
-    discrimination_ground = NULL,
-    in_ris_since = NULL,
-    echo = FALSE,
-    base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  query = NULL,
+  business_number = NULL,
+  norm = NULL,
+  decision_date_from = NULL,
+  decision_date_to = NULL,
+  decision_type = NULL,
+  commission = NULL,
+  senate = NULL,
+  discrimination_ground = NULL,
+  in_ris_since = NULL,
+  echo = FALSE,
+  base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
-  commission           <- ris_normalize_gbk_commission(commission)
-  senate               <- ris_normalize_gbk_senate(senate)
-  discrimination_ground <- ris_normalize_gbk_discrimination_ground(discrimination_ground)
+  commission <- ris_normalize_gbk_commission(commission)
+  senate <- ris_normalize_gbk_senate(senate)
+  discrimination_ground <- ris_normalize_gbk_discrimination_ground(
+    discrimination_ground
+  )
 
   ris_search_case_law(
     application = "Gbk",

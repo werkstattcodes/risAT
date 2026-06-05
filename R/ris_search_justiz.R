@@ -94,32 +94,44 @@
 #' }
 #' @export
 ris_search_justiz <- function(
-    query = NULL,
-    business_number = NULL,
-    norm = NULL,
-    decision_date_from = NULL,
-    decision_date_to = NULL,
-    decision_type = NULL,
-    index_term = NULL,
-    legal_area = NULL,
-    specialist_area = NULL,
-    court = NULL,
-    legal_principle_number = NULL,
-    legal_assessment = NULL,
-    ruling = NULL,
-    citation = NULL,
-    changed_since_period = NULL,
-    in_ris_since = NULL,
-    search_decision_text = TRUE,
-    search_legal_principles = TRUE,
-    echo = FALSE,
-    base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  query = NULL,
+  business_number = NULL,
+  norm = NULL,
+  decision_date_from = NULL,
+  decision_date_to = NULL,
+  decision_type = NULL,
+  index_term = NULL,
+  legal_area = NULL,
+  specialist_area = NULL,
+  court = NULL,
+  legal_principle_number = NULL,
+  legal_assessment = NULL,
+  ruling = NULL,
+  citation = NULL,
+  changed_since_period = NULL,
+  in_ris_since = NULL,
+  search_decision_text = TRUE,
+  search_legal_principles = TRUE,
+  echo = FALSE,
+  base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
   checkmate::assert_string(legal_area, null.ok = TRUE, .var.name = "legal_area")
-  checkmate::assert_string(specialist_area, null.ok = TRUE, .var.name = "specialist_area")
+  checkmate::assert_string(
+    specialist_area,
+    null.ok = TRUE,
+    .var.name = "specialist_area"
+  )
   checkmate::assert_string(court, null.ok = TRUE, .var.name = "court")
-  checkmate::assert_string(legal_principle_number, null.ok = TRUE, .var.name = "legal_principle_number")
-  checkmate::assert_string(legal_assessment, null.ok = TRUE, .var.name = "legal_assessment")
+  checkmate::assert_string(
+    legal_principle_number,
+    null.ok = TRUE,
+    .var.name = "legal_principle_number"
+  )
+  checkmate::assert_string(
+    legal_assessment,
+    null.ok = TRUE,
+    .var.name = "legal_assessment"
+  )
   checkmate::assert_string(ruling, null.ok = TRUE, .var.name = "ruling")
   checkmate::assert_string(citation, null.ok = TRUE, .var.name = "citation")
 

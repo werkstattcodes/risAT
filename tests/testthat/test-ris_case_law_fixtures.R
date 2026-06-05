@@ -71,7 +71,10 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   expect_equal(out$judikatur_vfgh_index[[2]], list("07/01", "07/02"))
   expect_equal(out$app_metadata[[1]]$request$seitennummer, 1L)
   expect_equal(out$app_metadata[[2]]$request$seitennummer, 2L)
-  expect_equal(attr(out, "ris_search_url"), attr(req, "ris_meta")$website_urls$search_url)
+  expect_equal(
+    attr(out, "ris_search_url"),
+    attr(req, "ris_meta")$website_urls$search_url
+  )
 })
 
 test_that("ris_perform_case_law returns structured empty tibble for empty fixture", {

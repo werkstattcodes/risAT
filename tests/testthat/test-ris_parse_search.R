@@ -28,8 +28,14 @@ test_that("ris_parse_search returns tibble with required list-columns", {
                     ContentType = "MainDocument",
                     Urls = list(
                       ContentUrl = list(
-                        list(DataType = "Html", Url = "https://example.org/doc/1/html"),
-                        list(DataType = "Pdf", Url = "https://example.org/doc/1/pdf")
+                        list(
+                          DataType = "Html",
+                          Url = "https://example.org/doc/1/html"
+                        ),
+                        list(
+                          DataType = "Pdf",
+                          Url = "https://example.org/doc/1/pdf"
+                        )
                       )
                     )
                   )

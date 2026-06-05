@@ -17,7 +17,6 @@
 # sensitivity, aliases, or whitespace variations.
 # ============================================================================
 
-
 # ============================================================================
 # Section 1: Website URL builder
 # ============================================================================
@@ -39,28 +38,28 @@
 # for the RIS website.  These are attached as metadata to the output tibble
 # and optionally printed when echo = TRUE.
 ris_build_case_law_website_urls <- function(
-    application_code,
-    query = NULL,
-    business_number = NULL,
-    norm = NULL,
-    decision_date_from = NULL,
-    decision_date_to = NULL,
-    decision_type = NULL,
-    index_term = NULL,
-    collection_number = NULL,
-    in_ris_since = NULL,
-    search_decision_text = NULL,
-    search_legal_principles = NULL,
-    per_page = 20L,
-    # -- Application-specific parameters --
-    federal_state = NULL,
-    court = NULL,
-    legal_area = NULL,
-    specialist_area = NULL,
-    deciding_authority = NULL,
-    commission = NULL,
-    senate = NULL,
-    discrimination_ground = NULL
+  application_code,
+  query = NULL,
+  business_number = NULL,
+  norm = NULL,
+  decision_date_from = NULL,
+  decision_date_to = NULL,
+  decision_type = NULL,
+  index_term = NULL,
+  collection_number = NULL,
+  in_ris_since = NULL,
+  search_decision_text = NULL,
+  search_legal_principles = NULL,
+  per_page = 20L,
+  # -- Application-specific parameters --
+  federal_state = NULL,
+  court = NULL,
+  legal_area = NULL,
+  specialist_area = NULL,
+  deciding_authority = NULL,
+  commission = NULL,
+  senate = NULL,
+  discrimination_ground = NULL
 ) {
   # The application landing page (e.g. https://www.ris.bka.gv.at/Vfgh/)
   app_url <- paste0("https://www.ris.bka.gv.at/", application_code, "/")
@@ -171,41 +170,41 @@ ris_url_encode_query <- function(params) {
 # dates/intervals/booleans, and strip NULL/empty values.  The result is a
 # named list ready to be spliced into httr2::req_url_query().
 ris_build_case_law_params <- function(
-    application_code,
-    query = NULL,
-    business_number = NULL,
-    norm = NULL,
-    decision_date_from = NULL,
-    decision_date_to = NULL,
-    decision_type = NULL,
-    index_term = NULL,
-    collection_number = NULL,
-    title = NULL,
-    document_kind = NULL,
-    publication_organ = NULL,
-    legal_area = NULL,
-    specialist_area = NULL,
-    court = NULL,
-    legal_principle_number = NULL,
-    legal_assessment = NULL,
-    ruling = NULL,
-    citation = NULL,
-    changed_since_period = NULL,
-    federal_state = NULL,
-    deciding_authority = NULL,
-    commission = NULL,
-    senate = NULL,
-    discrimination_ground = NULL,
-    author = NULL,
-    short_title = NULL,
-    domain = NULL,
-    in_ris_since = NULL,
-    sort_by = NULL,
-    sort_direction = NULL,
-    search_decision_text = NULL,
-    search_legal_principles = NULL,
-    page = 1L,
-    per_page = 20L
+  application_code,
+  query = NULL,
+  business_number = NULL,
+  norm = NULL,
+  decision_date_from = NULL,
+  decision_date_to = NULL,
+  decision_type = NULL,
+  index_term = NULL,
+  collection_number = NULL,
+  title = NULL,
+  document_kind = NULL,
+  publication_organ = NULL,
+  legal_area = NULL,
+  specialist_area = NULL,
+  court = NULL,
+  legal_principle_number = NULL,
+  legal_assessment = NULL,
+  ruling = NULL,
+  citation = NULL,
+  changed_since_period = NULL,
+  federal_state = NULL,
+  deciding_authority = NULL,
+  commission = NULL,
+  senate = NULL,
+  discrimination_ground = NULL,
+  author = NULL,
+  short_title = NULL,
+  domain = NULL,
+  in_ris_since = NULL,
+  sort_by = NULL,
+  sort_direction = NULL,
+  search_decision_text = NULL,
+  search_legal_principles = NULL,
+  page = 1L,
+  per_page = 20L
 ) {
   params <- list(
     # -- Core parameters (all applications) --
@@ -221,25 +220,25 @@ ris_build_case_law_params <- function(
     # -- Application-specific parameters --
     # These are only meaningful for certain Judikatur applications but the API
     # silently ignores parameters that don't apply, so we include them all.
-    Titel = title,                          # Normenliste
-    Typ = document_kind,                    # Normenliste
-    Kundmachungsorgan = publication_organ,  # Normenliste
-    Rechtsgebiet = legal_area,              # Justiz
-    Fachgebiet = specialist_area,           # Justiz
-    Gericht = court,                        # Justiz
+    Titel = title, # Normenliste
+    Typ = document_kind, # Normenliste
+    Kundmachungsorgan = publication_organ, # Normenliste
+    Rechtsgebiet = legal_area, # Justiz
+    Fachgebiet = specialist_area, # Justiz
+    Gericht = court, # Justiz
     Rechtssatznummer = legal_principle_number, # Justiz
-    RechtlicheBeurteilung = legal_assessment,  # Justiz
-    Spruch = ruling,                        # Justiz, Ubas
-    Fundstelle = citation,                  # Justiz
+    RechtlicheBeurteilung = legal_assessment, # Justiz
+    Spruch = ruling, # Justiz, Ubas
+    Fundstelle = citation, # Justiz
     AenderungenSeitPeriode = ris_normalize_named_interval(changed_since_period), # Justiz
-    Bundesland = federal_state,             # Lvwg, Uvs
+    Bundesland = federal_state, # Lvwg, Uvs
     EntscheidendeBehoerde = deciding_authority, # Dsk, Dok, Pvak, Verg
-    Kommission = commission,                # Gbk
-    Senat = senate,                         # Gbk
+    Kommission = commission, # Gbk
+    Senat = senate, # Gbk
     Diskriminierungsgrund = discrimination_ground, # Gbk
-    Verfasser = author,                     # Ubas
-    Kurzbezeichnung = short_title,          # Umse
-    Bereich = domain,                       # Bks
+    Verfasser = author, # Ubas
+    Kurzbezeichnung = short_title, # Umse
+    Bereich = domain, # Bks
     # -- Sorting, filtering, and pagination --
     ImRisSeit = ris_normalize_named_interval(in_ris_since),
     SortierungSortDirection = ris_normalize_sort_direction(sort_direction),
@@ -250,8 +249,12 @@ ris_build_case_law_params <- function(
     # the parent prefix (e.g. DokumenttypSucheInRechtssaetzen, not just
     # SucheInRechtssaetzen).  Without the prefix, the API silently ignores
     # the flags.
-    DokumenttypSucheInEntscheidungstexten = ris_bool_to_true_or_null(search_decision_text),
-    DokumenttypSucheInRechtssaetzen = ris_bool_to_true_or_null(search_legal_principles),
+    DokumenttypSucheInEntscheidungstexten = ris_bool_to_true_or_null(
+      search_decision_text
+    ),
+    DokumenttypSucheInRechtssaetzen = ris_bool_to_true_or_null(
+      search_legal_principles
+    ),
     Seitennummer = as.integer(page),
     # The API uses English word names for page sizes: "Ten", "Twenty", etc.
     DokumenteProSeite = ris_per_page_to_api_value(as.integer(per_page))
@@ -286,14 +289,32 @@ ris_build_case_law_params <- function(
 # administrative and judicial bodies, from the Constitutional Court (Vfgh)
 # to specialized bodies like the Equal Treatment Commission (Gbk).
 ris_case_law_application_to_code <- function(application) {
-  if (!is.character(application) || length(application) != 1L || is.na(application)) {
+  if (
+    !is.character(application) ||
+      length(application) != 1L ||
+      is.na(application)
+  ) {
     rlang::abort("`application` must be a single string.")
   }
 
   # The official RIS application codes, in their canonical casing.
   canonical_codes <- c(
-    "Vfgh", "Vwgh", "Normenliste", "Justiz", "Bvwg", "Lvwg", "Dsk", "Dok",
-    "Pvak", "Gbk", "Uvs", "AsylGH", "Ubas", "Umse", "Bks", "Verg"
+    "Vfgh",
+    "Vwgh",
+    "Normenliste",
+    "Justiz",
+    "Bvwg",
+    "Lvwg",
+    "Dsk",
+    "Dok",
+    "Pvak",
+    "Gbk",
+    "Uvs",
+    "AsylGH",
+    "Ubas",
+    "Umse",
+    "Bks",
+    "Verg"
   )
 
   # English aliases for international users who may not know the German
@@ -369,7 +390,10 @@ ris_normalize_key <- function(x) {
 # The decision_type parameter has different allowed values depending on the
 # court application.  VfGH and VwGH each have a specific set of valid types;
 # other applications accept any string (the API validates it server-side).
-ris_normalize_case_law_decision_type <- function(application_code, decision_type) {
+ris_normalize_case_law_decision_type <- function(
+  application_code,
+  decision_type
+) {
   if (is.null(decision_type) || identical(decision_type, "")) {
     return(NULL)
   }
@@ -529,7 +553,10 @@ ris_normalize_justiz_decision_type <- function(x) {
     "Zur\u00fcckweisung aus anderen Gr\u00fcnden",
     "Verst\u00e4rkter Senat"
   )
-  lookup <- stats::setNames(canonical, vapply(canonical, ris_normalize_key, character(1)))
+  lookup <- stats::setNames(
+    canonical,
+    vapply(canonical, ris_normalize_key, character(1))
+  )
 
   key <- ris_normalize_key(x)
   checkmate::assert_choice(
@@ -559,7 +586,10 @@ ris_normalize_dsk_decision_type <- function(x) {
     "BescheidIFG",
     "Verfahrensschriftsaetze"
   )
-  lookup <- stats::setNames(canonical, vapply(canonical, ris_normalize_key, character(1)))
+  lookup <- stats::setNames(
+    canonical,
+    vapply(canonical, ris_normalize_key, character(1))
+  )
 
   key <- ris_normalize_key(x)
   checkmate::assert_choice(
@@ -629,9 +659,9 @@ ris_normalize_court_sort_by <- function(x) {
 #   4. Both FALSE:
 #      -> error (at least one must be TRUE, otherwise no results would return)
 ris_normalize_document_type_flags <- function(
-    application_code,
-    search_decision_text = NULL,
-    search_legal_principles = NULL
+  application_code,
+  search_decision_text = NULL,
+  search_legal_principles = NULL
 ) {
   supports <- ris_case_law_supports_document_type(application_code)
 
@@ -643,9 +673,14 @@ ris_normalize_document_type_flags <- function(
   provided <- purrr::keep(flags, ~ !is.null(.x))
 
   if (length(provided) > 0L) {
-    valid <- purrr::map_lgl(provided, ~ is.logical(.x) && length(.x) == 1L && !is.na(.x))
+    valid <- purrr::map_lgl(
+      provided,
+      ~ is.logical(.x) && length(.x) == 1L && !is.na(.x)
+    )
     if (!all(valid)) {
-      rlang::abort("`search_decision_text` and `search_legal_principles` must be TRUE or FALSE.")
+      rlang::abort(
+        "`search_decision_text` and `search_legal_principles` must be TRUE or FALSE."
+      )
     }
   }
 
@@ -665,12 +700,22 @@ ris_normalize_document_type_flags <- function(
   }
 
   # If only one flag was provided, default the other to FALSE.
-  search_decision_text <- if (is.null(search_decision_text)) FALSE else search_decision_text
-  search_legal_principles <- if (is.null(search_legal_principles)) FALSE else search_legal_principles
+  search_decision_text <- if (is.null(search_decision_text)) {
+    FALSE
+  } else {
+    search_decision_text
+  }
+  search_legal_principles <- if (is.null(search_legal_principles)) {
+    FALSE
+  } else {
+    search_legal_principles
+  }
 
   # Guard: at least one must be TRUE, otherwise the API returns no results.
   if (!isTRUE(search_decision_text) && !isTRUE(search_legal_principles)) {
-    rlang::abort("At least one of `search_decision_text` or `search_legal_principles` must be TRUE.")
+    rlang::abort(
+      "At least one of `search_decision_text` or `search_legal_principles` must be TRUE."
+    )
   }
 
   list(
@@ -744,10 +789,19 @@ ris_normalize_named_interval <- function(x) {
       "Interval value is invalid. Use one of: ",
       paste(
         c(
-          "Undefined", "EinerWoche", "ZweiWochen", "EinemMonat",
-          "DreiMonaten", "SechsMonaten", "EinemJahr",
-          "one_week", "two_weeks", "one_month", "three_months",
-          "six_months", "one_year"
+          "Undefined",
+          "EinerWoche",
+          "ZweiWochen",
+          "EinemMonat",
+          "DreiMonaten",
+          "SechsMonaten",
+          "EinemJahr",
+          "one_week",
+          "two_weeks",
+          "one_month",
+          "three_months",
+          "six_months",
+          "one_year"
         ),
         collapse = ", "
       ),
@@ -790,24 +844,24 @@ ris_normalize_federal_state <- function(x) {
   }
 
   lookup <- c(
-    burgenland                = "Burgenland",
-    "k\u00e4rnten"           = "K\u00e4rnten",
-    kaernten                  = "K\u00e4rnten",
-    carinthia                 = "K\u00e4rnten",
-    "nieder\u00f6sterreich"  = "Nieder\u00f6sterreich",
-    niederoesterreich         = "Nieder\u00f6sterreich",
-    loweraustria              = "Nieder\u00f6sterreich",
-    "ober\u00f6sterreich"    = "Ober\u00f6sterreich",
-    oberoesterreich           = "Ober\u00f6sterreich",
-    upperaustria              = "Ober\u00f6sterreich",
-    salzburg                  = "Salzburg",
-    steiermark                = "Steiermark",
-    styria                    = "Steiermark",
-    tirol                     = "Tirol",
-    tyrol                     = "Tirol",
-    vorarlberg                = "Vorarlberg",
-    wien                      = "Wien",
-    vienna                    = "Wien"
+    burgenland = "Burgenland",
+    "k\u00e4rnten" = "K\u00e4rnten",
+    kaernten = "K\u00e4rnten",
+    carinthia = "K\u00e4rnten",
+    "nieder\u00f6sterreich" = "Nieder\u00f6sterreich",
+    niederoesterreich = "Nieder\u00f6sterreich",
+    loweraustria = "Nieder\u00f6sterreich",
+    "ober\u00f6sterreich" = "Ober\u00f6sterreich",
+    oberoesterreich = "Ober\u00f6sterreich",
+    upperaustria = "Ober\u00f6sterreich",
+    salzburg = "Salzburg",
+    steiermark = "Steiermark",
+    styria = "Steiermark",
+    tirol = "Tirol",
+    tyrol = "Tirol",
+    vorarlberg = "Vorarlberg",
+    wien = "Wien",
+    vienna = "Wien"
   )
 
   key <- ris_normalize_key(x)
@@ -816,9 +870,15 @@ ris_normalize_federal_state <- function(x) {
       "`federal_state` is invalid. Use one of: ",
       paste(
         c(
-          "Burgenland", "K\u00e4rnten", "Nieder\u00f6sterreich",
-          "Ober\u00f6sterreich", "Salzburg", "Steiermark",
-          "Tirol", "Vorarlberg", "Wien"
+          "Burgenland",
+          "K\u00e4rnten",
+          "Nieder\u00f6sterreich",
+          "Ober\u00f6sterreich",
+          "Salzburg",
+          "Steiermark",
+          "Tirol",
+          "Vorarlberg",
+          "Wien"
         ),
         collapse = ", "
       ),
@@ -842,17 +902,17 @@ ris_normalize_gbk_commission <- function(x) {
 
   lookup <- c(
     # Full names (normalized)
-    bundesgleichbehandlungskommission             = "Bundes-Gleichbehandlungskommission",
-    gleichbehandlungskommission                   = "Gleichbehandlungskommission",
+    bundesgleichbehandlungskommission = "Bundes-Gleichbehandlungskommission",
+    gleichbehandlungskommission = "Gleichbehandlungskommission",
     # Short aliases
-    bundesgbk                                     = "Bundes-Gleichbehandlungskommission",
-    bgbk                                          = "Bundes-Gleichbehandlungskommission",
-    gbk                                           = "Gleichbehandlungskommission",
+    bundesgbk = "Bundes-Gleichbehandlungskommission",
+    bgbk = "Bundes-Gleichbehandlungskommission",
+    gbk = "Gleichbehandlungskommission",
     # English aliases
-    federalequaltreatmentcommission               = "Bundes-Gleichbehandlungskommission",
-    privatesectorequaltreatmentcommission         = "Gleichbehandlungskommission",
-    privatesector                                 = "Gleichbehandlungskommission",
-    federal                                       = "Bundes-Gleichbehandlungskommission"
+    federalequaltreatmentcommission = "Bundes-Gleichbehandlungskommission",
+    privatesectorequaltreatmentcommission = "Gleichbehandlungskommission",
+    privatesector = "Gleichbehandlungskommission",
+    federal = "Bundes-Gleichbehandlungskommission"
   )
 
   key <- ris_normalize_key(x)
@@ -880,15 +940,15 @@ ris_normalize_gbk_senate <- function(x) {
   }
 
   lookup <- c(
-    senati   = "Senat I",
-    senatii  = "Senat II",
+    senati = "Senat I",
+    senatii = "Senat II",
     senatiii = "Senat III",
-    i        = "Senat I",
-    ii       = "Senat II",
-    iii      = "Senat III",
-    `1`      = "Senat I",
-    `2`      = "Senat II",
-    `3`      = "Senat III"
+    i = "Senat I",
+    ii = "Senat II",
+    iii = "Senat III",
+    `1` = "Senat I",
+    `2` = "Senat II",
+    `3` = "Senat III"
   )
 
   key <- ris_normalize_key(x)
@@ -915,28 +975,28 @@ ris_normalize_gbk_discrimination_ground <- function(x) {
 
   lookup <- c(
     # German canonical values
-    geschlecht                        = "Geschlecht",
-    "ethnische zugeh\u00f6rigkeit"   = "Ethnische Zugeh\u00f6rigkeit",
-    "ethnischezugeh\u00f6rigkeit"    = "Ethnische Zugeh\u00f6rigkeit",
-    ethnischezugehorigkeit            = "Ethnische Zugeh\u00f6rigkeit",
-    religion                          = "Religion",
-    weltanschauung                    = "Weltanschauung",
-    alter                             = "Alter",
-    "sexuelle orientierung"           = "Sexuelle Orientierung",
-    sexuelleorientierung              = "Sexuelle Orientierung",
-    behinderung                       = "Behinderung",
-    mehrfachdiskriminierung           = "Mehrfachdiskriminierung",
+    geschlecht = "Geschlecht",
+    "ethnische zugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
+    "ethnischezugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
+    ethnischezugehorigkeit = "Ethnische Zugeh\u00f6rigkeit",
+    religion = "Religion",
+    weltanschauung = "Weltanschauung",
+    alter = "Alter",
+    "sexuelle orientierung" = "Sexuelle Orientierung",
+    sexuelleorientierung = "Sexuelle Orientierung",
+    behinderung = "Behinderung",
+    mehrfachdiskriminierung = "Mehrfachdiskriminierung",
     # English aliases
-    gender                            = "Geschlecht",
-    sex                               = "Geschlecht",
-    ethnicity                         = "Ethnische Zugeh\u00f6rigkeit",
-    ethnicorigin                      = "Ethnische Zugeh\u00f6rigkeit",
-    worldview                         = "Weltanschauung",
-    age                               = "Alter",
-    sexualorientation                 = "Sexuelle Orientierung",
-    disability                        = "Behinderung",
-    multiplediscrimination            = "Mehrfachdiskriminierung",
-    multiple                          = "Mehrfachdiskriminierung"
+    gender = "Geschlecht",
+    sex = "Geschlecht",
+    ethnicity = "Ethnische Zugeh\u00f6rigkeit",
+    ethnicorigin = "Ethnische Zugeh\u00f6rigkeit",
+    worldview = "Weltanschauung",
+    age = "Alter",
+    sexualorientation = "Sexuelle Orientierung",
+    disability = "Behinderung",
+    multiplediscrimination = "Mehrfachdiskriminierung",
+    multiple = "Mehrfachdiskriminierung"
   )
 
   key <- ris_normalize_key(x)
@@ -945,9 +1005,14 @@ ris_normalize_gbk_discrimination_ground <- function(x) {
       "`discrimination_ground` is invalid. Use one of: ",
       paste(
         c(
-          "Geschlecht", "Ethnische Zugeh\u00f6rigkeit", "Religion",
-          "Weltanschauung", "Alter", "Sexuelle Orientierung",
-          "Behinderung", "Mehrfachdiskriminierung"
+          "Geschlecht",
+          "Ethnische Zugeh\u00f6rigkeit",
+          "Religion",
+          "Weltanschauung",
+          "Alter",
+          "Sexuelle Orientierung",
+          "Behinderung",
+          "Mehrfachdiskriminierung"
         ),
         collapse = ", "
       ),
