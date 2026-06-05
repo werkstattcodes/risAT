@@ -11,6 +11,12 @@ navbar:
     left: [intro, articles, reference, news]
     right: [search, github, lightswitch]
 
+articles:
+  - title: "Getting started"
+    navbar: ~
+    contents:
+      - articles/getting-started
+
 reference:
   - title: "Search Functions — Generic"
     desc: "Search across all Judikatur applications with a single function."
