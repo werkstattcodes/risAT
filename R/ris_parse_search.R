@@ -10,6 +10,7 @@
 #'
 #' @return A tibble parsed from one RIS response payload.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#' @importFrom rlang %||%
 #' @export
 #'
 #' @examples
@@ -71,7 +72,7 @@ ris_parse_search <- function(
 
   rows <- purrr::map(
     document_refs,
-    ~ ris_reference_to_tibble_row(.x, response_meta)
+    \(doc) ris_reference_to_tibble_row(doc, response_meta)
   )
 
   ris_bind_rows_harmonized(rows)
@@ -337,10 +338,6 @@ ris_to_snake_case <- function(x) {
     stringr::str_to_lower() |>
     stringr::str_replace_all("[^a-z0-9]+", "_") |>
     stringr::str_replace_all("^_+|_+$", "")
-}
-
-`%||%` <- function(x, y) {
-  if (is.null(x)) y else x
 }
 
 # ============================================================================

@@ -55,7 +55,7 @@ test_that("ris_parse_search returns tibble with required list-columns", {
   expect_true("content_urls" %in% names(out))
   expect_true("app_metadata" %in% names(out))
   expect_type(out$content_urls[[1]], "character")
-  expect_equal(length(out$content_urls[[1]]), 2L)
+  expect_length(out$content_urls[[1]], 2)
   expect_type(out$app_metadata[[1]], "list")
   expect_true("id" %in% names(out))
   expect_true("document_url" %in% names(out))

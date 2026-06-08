@@ -242,7 +242,7 @@ ris_build_case_law_params <- function(
     # -- Sorting, filtering, and pagination --
     ImRisSeit = ris_normalize_named_interval(in_ris_since),
     SortierungSortDirection = ris_normalize_sort_direction(sort_direction),
-    SortierungSortedByColumn = sort_by,
+    SortierungSortedByColumn = ris_normalize_case_law_sort_by(application_code, sort_by),
     # The API expects "true" (lowercase string) for these boolean flags, or
     # the parameter should be absent entirely (not "false").
     # These are compound parameters under "Dokumenttyp" — the API requires

@@ -1,3 +1,4 @@
+importFrom(rlang,"%||%")
 export(ris_parse_search)
 export(ris_perform_case_law)
 export(ris_req_case_law)
