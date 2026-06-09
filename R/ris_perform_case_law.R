@@ -228,8 +228,7 @@ ris_bind_case_law_pages <- function(page_results) {
 # and returns the updated request; otherwise it returns NULL to stop iteration.
 #
 # max_reqs = Inf means we fetch *all* pages (the RIS API may return hundreds
-# for broad queries).  progress = FALSE suppresses httr2's built-in progress
-# bar since we may add our own later.
+# for broad queries).
 ris_iterate_case_law_pages <- function(req) {
   httr2::req_perform_iterative(
     req = req,
@@ -260,27 +259,33 @@ ris_iterate_case_law_pages <- function(req) {
 #   - total_hits:  total number of matching documents
 #
 # We calculate total_pages = ceil(total_hits / page_size) and check whether
-# the current page_number has reached it.  Various edge cases (NA values,
-# zero hits, page_size < 1) all return NULL to stop pagination.
+# the current page_number has reached it.  Various edge cases (missing
+# metadata, NA values, zero hits, page_size < 1) all return NULL to stop
+# pagination.  The metadata fields may be NULL or zero-length when the API
+# omits them, so each value is checked for length 1 before is.na().
 ris_next_case_law_page <- function(root) {
   page_info <- ris_extract_page_info(root)
   total_hits <- ris_extract_hits_count(root)
 
-  if (
-    is.na(page_info$page_number) ||
-      is.na(page_info$page_size) ||
-      page_info$page_size < 1L
-  ) {
+  page_number <- page_info$page_number
+  page_size <- page_info$page_size
+
+  is_valid_scalar <- function(x) length(x) == 1L && !is.na(x)
+
+  if (!is_valid_scalar(page_number) || !is_valid_scalar(page_size)) {
     return(NULL)
   }
-  if (is.na(total_hits) || total_hits <= 0L) {
+  if (page_size < 1L) {
+    return(NULL)
+  }
+  if (!is_valid_scalar(total_hits) || total_hits <= 0L) {
     return(NULL)
   }
 
-  total_pages <- as.integer(max(1L, ceiling(total_hits / page_info$page_size)))
-  if (page_info$page_number >= total_pages) {
+  total_pages <- as.integer(max(1L, ceiling(total_hits / page_size)))
+  if (page_number >= total_pages) {
     return(NULL)
   }
 
-  as.integer(page_info$page_number + 1L)
+  as.integer(page_number + 1L)
 }

@@ -24,8 +24,10 @@ Imports:
     httr2,
     purrr,
     rlang,
+    stats,
     stringr,
-    tibble
+    tibble,
+    utils
 Suggests:
     ggplot2,
     jsonlite,
@@ -39,3 +41,4 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.1

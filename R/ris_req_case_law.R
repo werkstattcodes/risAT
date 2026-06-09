@@ -85,7 +85,9 @@
 #'     `"Empfehlung"`, `"BescheidIFG"`,
 #'     `"Verfahrensschriftsaetze"`.
 #'
-#'   Other applications accept free-text or have no decision type filter.
+#'   Values for VfGH, VwGH, BVwG, LVwG, Justiz, Dsk, and Gbk are validated
+#'   client-side. Values for all other applications (including AsylGH and
+#'   Ubas) are passed to the API as-is and validated server-side only.
 #' @param index_term Optional index term (`Index`).
 #' @param collection_number Optional collection number (`Sammlungsnummer`).
 #' @param title Optional title (`Titel`), used for `Normenliste`.
@@ -365,8 +367,12 @@ ris_req_case_law <- function(
   # -- Step 4: Construct the httr2 request object -----------------------------
   # We target the /Judikatur endpoint and splice all non-NULL params into the
   # URL query string.  req_retry(max_tries = 3) adds resilience against
-  # transient network errors.
+  # transient network errors.  A package-identifying user agent is set as a
+  # courtesy to the public OGD service.
   req <- httr2::request(paste0(base_url, "/Judikatur")) |>
+    httr2::req_user_agent(
+      "risAT R package (https://github.com/werkstattcodes/risAT)"
+    ) |>
     httr2::req_url_query(!!!params) |>
     httr2::req_retry(max_tries = 3)
 

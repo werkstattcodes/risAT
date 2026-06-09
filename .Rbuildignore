@@ -3,6 +3,8 @@
 ^_pkgdown\.yml$
 ^AGENTS\.md$
 ^background_docs$
+^_internal$
+\.Rhistory$
 ^\.github$
 ^\.claude$
 ^CLAUDE\.md$

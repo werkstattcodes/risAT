@@ -292,6 +292,53 @@ test_that("next page calculation for iterative pagination is correct", {
   expect_null(risAT:::ris_next_case_law_page(root_empty))
 })
 
+test_that("next page calculation handles missing or malformed Hits metadata", {
+  # No Hits element at all.
+  root_no_hits <- list(OgdDocumentResults = list())
+  expect_null(risAT:::ris_next_case_law_page(root_no_hits))
+
+  # Hits present but without page attributes.
+  root_no_page_info <- list(
+    OgdDocumentResults = list(
+      Hits = list(`#text` = "25")
+    )
+  )
+  expect_null(risAT:::ris_next_case_law_page(root_no_page_info))
+
+  # Hits serialized as a bare scalar count.
+  root_scalar_hits <- list(
+    OgdDocumentResults = list(Hits = "25")
+  )
+  expect_null(risAT:::ris_next_case_law_page(root_scalar_hits))
+
+  # Non-numeric page metadata.
+  root_garbled <- list(
+    OgdDocumentResults = list(
+      Hits = list(
+        pageNumber = "abc",
+        pageSize = "10",
+        `#text` = "25"
+      )
+    )
+  )
+  expect_null(risAT:::ris_next_case_law_page(root_garbled))
+})
+
+test_that("hits count extraction handles scalar and list forms", {
+  root_scalar <- list(OgdDocumentResults = list(Hits = "42"))
+  expect_equal(risAT:::ris_extract_hits_count(root_scalar), 42L)
+
+  root_list <- list(
+    OgdDocumentResults = list(
+      Hits = list(pageNumber = "1", pageSize = "10", `#text` = "42")
+    )
+  )
+  expect_equal(risAT:::ris_extract_hits_count(root_list), 42L)
+
+  root_missing <- list(OgdDocumentResults = list())
+  expect_true(is.na(risAT:::ris_extract_hits_count(root_missing)))
+})
+
 # ---- ris_req_case_law / ris_perform_case_law split --------------------------
 
 test_that("ris_req_case_law returns an httr2_request with ris_meta", {

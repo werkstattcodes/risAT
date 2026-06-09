@@ -134,7 +134,9 @@ ris_parse_search()          Parses JSON response list → flat tidy tibble
 
 ## Output schema
 
-All search functions return a `tibble` with:
+All search functions return a `tibble`. The exact column set varies by
+application and by which metadata fields the API returns; common columns
+include:
 
 | Column | Type | Description |
 |---|---|---|
@@ -143,15 +145,20 @@ All search functions return a `tibble` with:
 | `court` | character | Court name |
 | `decision_date` | Date | Date of the decision |
 | `case_number` | character | Geschäftszahl |
-| `decision_type` | character | Type of decision |
 | `title` | character | Document title |
-| `ris_url` | character | Link to RIS web page |
+| `document_url` | character | Link to the RIS web page of the document |
+| `published` / `modified` | character | RIS publication/modification dates |
 | `content_urls` | list-column | Character vector of download URLs (XML, HTML, RTF, PDF) |
-| `app_metadata` | list-column | Application-specific nested metadata |
-| `page` | integer | Source page number |
-| `per_page` | integer | Page size used |
+| `app_metadata` | list-column | Nested metadata incl. response and request provenance |
 
-Result tibbles carry attributes: `total_hits`, `page_number`, `page_size`.
+Application-specific fields are prefixed with the application name (e.g.
+`vwgh_decision_type`, `gbk_senate`). German metadata fields without an
+English mapping are kept as snake_case German names. Page number, page
+size, and total hit count are recorded per row in
+`app_metadata$response` / `app_metadata$request`.
+
+Result tibbles carry attributes: `ris_app_url`, `ris_search_url` (the
+equivalent RIS website URLs).
 
 ---
 
@@ -179,7 +186,7 @@ All exported functions must have complete roxygen2 documentation:
 #' @return Description of the return value.
 #' @examples
 #' \dontrun{
-#'   ris_search_vwgh(query = "Baurecht", per_page = 10)
+#'   ris_search_vwgh(query = "Baurecht")
 #' }
 #' @export
 ```
@@ -206,7 +213,7 @@ All exported functions must have complete roxygen2 documentation:
 
 - **Respect rate limits** — the RIS OGD API is a public service; do not hammer it with parallel or rapid sequential requests
 - **OGD netiquette** — follow the terms of the RIS OGD API; do not attempt to bulk-download the entire database
-- **Pagination** — the package handles multi-page results automatically via `httr2::req_perform_iterative()`; callers should use `max_pages` to cap results during development and testing
+- **Pagination** — the package handles multi-page results automatically via `httr2::req_perform_iterative()` and always fetches all pages in scope; narrow searches (e.g. with date ranges or specific filters) during development and testing to keep the number of requests small
 
 ---
 
