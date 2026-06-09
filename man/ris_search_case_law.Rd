@@ -106,7 +106,9 @@ Allowed values depend on \code{application}:
 \code{"Verfahrensschriftsaetze"}.
 }
 
-Other applications accept free-text or have no decision type filter.}
+Values for VfGH, VwGH, BVwG, LVwG, Justiz, Dsk, and Gbk are validated
+client-side. Values for all other applications (including AsylGH and
+Ubas) are passed to the API as-is and validated server-side only.}
 
 \item{index_term}{Optional index term (\code{Index}).}
 
