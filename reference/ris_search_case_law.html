@@ -152,7 +152,9 @@ Allowed values depend on <code>application</code>:</p><ul><li><p><strong>VfGH</s
 <code>"BescheidRegistrierung"</code>, <code>"BescheidSonstiger"</code>,
 <code>"Empfehlung"</code>, <code>"BescheidIFG"</code>,
 <code>"Verfahrensschriftsaetze"</code>.</p></li>
-</ul><p>Other applications accept free-text or have no decision type filter.</p></dd>
+</ul><p>Values for VfGH, VwGH, BVwG, LVwG, Justiz, Dsk, and Gbk are validated
+client-side. Values for all other applications (including AsylGH and
+Ubas) are passed to the API as-is and validated server-side only.</p></dd>
 
 
 <dt id="arg-index-term">index_term<a class="anchor" aria-label="anchor" href="#arg-index-term"></a></dt>

@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   articles/getting-started: getting-started.html
   risAT: risAT.html
-last_built: 2026-06-08T08:05Z
+last_built: 2026-06-09T21:46Z
 urls:
   reference: https://werkstattcodes.github.io/risAT/reference
   article: https://werkstattcodes.github.io/risAT/articles

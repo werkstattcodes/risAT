@@ -45,6 +45,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="risat-0009000">risAT 0.0.0.9000<a class="anchor" aria-label="anchor" href="#risat-0009000"></a></h2>
 <ul><li>Initial development version.</li>
+<li>
+<code>decision_date</code> (and <code>court</code>/<code>title</code> from the general metadata block) are now returned as dedicated columns; <code>decision_date</code> is parsed to <code>Date</code>.</li>
+<li>Requests now identify the package via a <code>User-Agent</code> header.</li>
+<li>Fixed pagination errors when the API response lacks <code>Hits</code> page metadata or serializes <code>Hits</code> as a bare scalar count; such responses now stop pagination gracefully instead of erroring.</li>
 <li>Added <code>/Judikatur</code> search and parsing helpers for RIS OGD API v2.6.</li>
 <li>Updated documentation for finalized behavior:
 <ul><li>

@@ -133,7 +133,9 @@ ris_search_case_law(
     `"BescheidRegistrierung"`, `"BescheidSonstiger"`, `"Empfehlung"`,
     `"BescheidIFG"`, `"Verfahrensschriftsaetze"`.
 
-  Other applications accept free-text or have no decision type filter.
+  Values for VfGH, VwGH, BVwG, LVwG, Justiz, Dsk, and Gbk are validated
+  client-side. Values for all other applications (including AsylGH and
+  Ubas) are passed to the API as-is and validated server-side only.
 
 - index_term:
 
