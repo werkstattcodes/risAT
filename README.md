@@ -8,7 +8,8 @@
 The risAT package provides a tidyverse-friendly interface to the Austrian
 [RIS](https://www.ris.bka.gv.at/) (Rechtsinformationssystem) Open Government
 Data REST API v2.6. It covers the `/Judikatur` endpoint (case law /
-jurisprudence) across all supported court applications and is designed for
+jurisprudence) across all supported court applications and the `/Bundesrecht`
+endpoint for consolidated federal law (`BrKons`), and is designed for
 reproducible legal research.
 
 Please note that the package is **in a development stage**. Upcoming changes
@@ -37,6 +38,23 @@ You can install risAT from [GitHub](https://github.com/werkstattcodes/risAT) wit
 pak::pak("werkstattcodes/risAT")
 ```
 
+## RIS coverage
+
+The RIS website is organised into several content areas, each backed by one or
+more API "applications". The table below shows which of them risAT currently
+supports. Status legend: ✅ implemented · 🔜 planned · — not yet supported.
+
+| RIS area | Applications | risAT |
+|---|---|---|
+| **Judikatur** (case law) | VfGH, VwGH, Justiz, BVwG, LVwG, Normenliste, DSK, DOK, PVAK, GBK, UVS, AsylGH, UBAS, UMSE, BKS, VERG | ✅ implemented |
+| **Bundesrecht** – consolidated (`BrKons`) | Federal law in consolidated form | ✅ implemented |
+| **Bundesrecht** – gazettes (`BgblAuth`, `BgblPdf`, `BgblAlt`) | Federal Law Gazettes (1848–present) | 🔜 planned |
+| **Bundesrecht** – drafts (`Begut`, `RegV`, `Erv`) | Consultation drafts, government bills, Austrian laws in English | 🔜 planned |
+| **Landesrecht** (`LrKons`, `LgblAuth`, `Lgbl`, `LgblNO`, `Vbl`) | State law (consolidated) and state gazettes | 🔜 planned |
+| **Kundmachungen & Erlässe** (`Upts`, `Erlaesse`, `Avsv`, …) | Other notices and ministerial decrees (`/Sonstige`) | 🔜 planned |
+| **Gemeinden** (`Gr`, `GrA`) | Municipal law and notices | — |
+| **Bezirke** (`Bvb`) | District authority notices | — |
+
 ## Available court applications and functions
 
 The RIS Judikatur endpoint covers multiple court applications. risAT provides
@@ -56,13 +74,19 @@ accepts any application code:
 | PVAK / PVAB (staff representation) | `ris_search_pvak()` | |
 | GBK (equal treatment commissions) | `ris_search_gbk()` | No doc-type flags |
 
+### Federal law (Bundesrecht)
+
+| Application | Function | Notes |
+|---|---|---|
+| Consolidated federal law (BrKons) | `ris_search_bundesrecht()` | Title/full-text/index search, version (`Fassung`) and in-/out-of-force date filters |
+
 Lower-level building blocks for advanced use:
 
-| Step | Function |
-|---|---|
-| Build request | `ris_req_case_law()` |
-| Execute request (with pagination) | `ris_perform_case_law()` |
-| Parse response | `ris_parse_search()` |
+| Step | Judikatur | Bundesrecht |
+|---|---|---|
+| Build request | `ris_req_case_law()` | `ris_req_bundesrecht()` |
+| Execute request (with pagination) | `ris_perform_case_law()` | `ris_perform_bundesrecht()` |
+| Parse response | `ris_parse_search()` | `ris_parse_bundesrecht()` |
 
 ## Minimal example
 
@@ -95,6 +119,12 @@ results_all <- ris_search_case_law(
   application = "data_protection",
   query = "Videoüberwachung"
 )
+
+# Consolidated federal law (Bundesrecht): look up a law by its short title
+results_abgb <- ris_search_bundesrecht(title = "ABGB")
+
+# The consolidated text as it stood on a given date (point-in-time version)
+results_mrg <- ris_search_bundesrecht(query = "Mietzins", version_date = "2020-01-01")
 ```
 
 ## Output
