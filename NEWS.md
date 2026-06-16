@@ -2,6 +2,12 @@
 
 - Initial development version.
 - Added `/Judikatur` search and parsing helpers for RIS OGD API v2.6.
+- Added `/Bundesrecht` support for consolidated federal law (application
+  `BrKons`): `ris_search_bundesrecht()`, plus the `ris_req_bundesrecht()` /
+  `ris_perform_bundesrecht()` request/perform pair and `ris_parse_bundesrecht()`.
+  Supports title, full-text, index, type, law-number, promulgation organ, and
+  version filters (point-in-time `version_date` or entry-into-force / expiry
+  date ranges), section narrowing, and sorting.
 - Updated documentation for finalized behavior:
   - `ris_search_vfgh()` defaults to Rechtssätze (RS).
   - Search functions always iterate over all pages in scope.
