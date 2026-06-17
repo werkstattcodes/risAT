@@ -39,7 +39,7 @@ reference:
   - title: "Search Functions — Bundesrecht"
     desc: "Search consolidated federal law (Bundesrecht in konsolidierter Fassung, BrKons)."
     contents:
-      - ris_search_bundesrecht
+      - ris_search_federal
 
   - title: "Request Building"
     contents:

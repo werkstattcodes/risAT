@@ -30,7 +30,7 @@ R/                          # Source code
   ris_req_bundesrecht.R     # Build httr2 request (BrKons / consolidated federal law)
   ris_perform_bundesrecht.R # Execute Bundesrecht request with pagination
   ris_parse_bundesrecht.R   # Parse Bundesrecht response → tidy tibble
-  ris_search_bundesrecht.R  # Bundesrecht search wrapper
+  ris_search_federal.R      # Bundesrecht (federal law) search wrapper
 man/                        # Auto-generated roxygen2 documentation (do not edit)
 tests/testthat/             # testthat unit tests
   test-ris_parse_search.R
@@ -247,7 +247,7 @@ The `background_docs/` directory and `AGENTS.md` are excluded from the built pac
   convenience wrappers: VfGH, VwGH, Justiz (OGH, OLG, LG, BG), BVwG, LVwG,
   DSK/DSB, DOK, PVAK, GBK.
 - **Bundesrecht** (`/Bundesrecht`, application `BrKons`): consolidated federal
-  law via `ris_search_bundesrecht()` (and the `ris_req_bundesrecht()` /
+  law via `ris_search_federal()` (and the `ris_req_bundesrecht()` /
   `ris_perform_bundesrecht()` / `ris_parse_bundesrecht()` building blocks).
   Bundesrecht reuses the generic response-envelope walkers and pagination
   helpers from the Judikatur side (the envelope shape is identical); only the

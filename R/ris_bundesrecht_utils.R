@@ -3,7 +3,7 @@
 # ============================================================================
 #
 # Internal (non-exported) utilities used by ris_req_bundesrecht(),
-# ris_perform_bundesrecht(), and ris_search_bundesrecht().  These mirror the
+# ris_perform_bundesrecht(), and ris_search_federal().  These mirror the
 # Judikatur helpers in ris_case_law_utils.R but target the consolidated federal
 # law application "BrKons" served from the /Bundesrecht endpoint.
 #

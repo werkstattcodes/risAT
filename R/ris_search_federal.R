@@ -1,5 +1,5 @@
 # ============================================================================
-# ris_search_bundesrecht.R — One-call convenience wrapper for federal law search
+# ris_search_federal.R — One-call convenience wrapper for federal law search
 # ============================================================================
 #
 # Combines the two-step req/perform pattern into a single call:
@@ -34,19 +34,19 @@
 #' @examples
 #' \dontrun{
 #' # Look up a law by its (short) title
-#' ris_search_bundesrecht(title = "ABGB")
+#' ris_search_federal(title = "ABGB")
 #'
 #' # Full-text search with the consolidated text as it stood on a given date
-#' ris_search_bundesrecht(query = "Mietzins", version_date = "2020-01-01")
+#' ris_search_federal(query = "Mietzins", version_date = "2020-01-01")
 #'
 #' # Norms that entered into force within a date range, echoing the browser URL
-#' ris_search_bundesrecht(
+#' ris_search_federal(
 #'   effective_from = "2024-01-01",
 #'   effective_to = "2024-12-31",
 #'   echo = TRUE
 #' )
 #' }
-ris_search_bundesrecht <- function(
+ris_search_federal <- function(
   query = NULL,
   title = NULL,
   index = NULL,

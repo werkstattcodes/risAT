@@ -364,7 +364,7 @@ cat(results$app_metadata[[1]]$response$page_size, "\n")
 # Federal law: how often has a law been amended?
 
 Beyond case law, risAT also covers consolidated federal law
-(*Bundesrecht in konsolidierter Fassung*) through `ris_search_bundesrecht()`.
+(*Bundesrecht in konsolidierter Fassung*) through `ris_search_federal()`.
 Here each row is one consolidated *version* of a provision, and the `amendments`
 column records the amending Federal Law Gazettes (*Bundesgesetzblätter*, "BGBl.").
 We can use that to answer a common question: **how often has a law been
@@ -373,7 +373,7 @@ amended?**
 We'll use the *Ökostromgesetz 2012* (Green Electricity Act) as an example:
 
 ```{r bundesrecht-search}
-oekostrom <- ris_search_bundesrecht(title = "Ökostromgesetz 2012")
+oekostrom <- ris_search_federal(title = "Ökostromgesetz 2012")
 nrow(oekostrom)
 ```
 

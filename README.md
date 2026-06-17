@@ -78,7 +78,7 @@ accepts any application code:
 
 | Application | Function | Notes |
 |---|---|---|
-| Consolidated federal law (BrKons) | `ris_search_bundesrecht()` | Title/full-text/index search, version (`Fassung`) and in-/out-of-force date filters |
+| Consolidated federal law (BrKons) | `ris_search_federal()` | Title/full-text/index search, version (`Fassung`) and in-/out-of-force date filters |
 
 Lower-level building blocks for advanced use:
 
@@ -121,10 +121,10 @@ results_all <- ris_search_case_law(
 )
 
 # Consolidated federal law (Bundesrecht): look up a law by its short title
-results_abgb <- ris_search_bundesrecht(title = "ABGB")
+results_abgb <- ris_search_federal(title = "ABGB")
 
 # The consolidated text as it stood on a given date (point-in-time version)
-results_mrg <- ris_search_bundesrecht(query = "Mietzins", version_date = "2020-01-01")
+results_mrg <- ris_search_federal(query = "Mietzins", version_date = "2020-01-01")
 ```
 
 ## Output
