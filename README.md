@@ -84,9 +84,9 @@ Lower-level building blocks for advanced use:
 
 | Step | Judikatur | Bundesrecht |
 |---|---|---|
-| Build request | `ris_req_case_law()` | `ris_req_bundesrecht()` |
-| Execute request (with pagination) | `ris_perform_case_law()` | `ris_perform_bundesrecht()` |
-| Parse response | `ris_parse_search()` | `ris_parse_bundesrecht()` |
+| Build request | `ris_req_case_law()` | `ris_req_federal()` |
+| Execute request (with pagination) | `ris_perform_case_law()` | `ris_perform_federal()` |
+| Parse response | `ris_parse_search()` | `ris_parse_federal()` |
 
 ## Minimal example
 

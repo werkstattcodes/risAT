@@ -5,7 +5,7 @@
 # ============================================================================
 
 test_that("english args map to documented German BrKons parameters", {
-  params <- risAT:::ris_build_bundesrecht_params(
+  params <- risAT:::ris_build_federal_params(
     query = "Mietzins",
     title = "ABGB",
     index = "20/01",
@@ -38,13 +38,13 @@ test_that("english args map to documented German BrKons parameters", {
 })
 
 test_that("Fassung version_date maps to dotted FassungVom param", {
-  params <- risAT:::ris_build_bundesrecht_params(version_date = "2020-01-01")
+  params <- risAT:::ris_build_federal_params(version_date = "2020-01-01")
   expect_equal(params[["Fassung.FassungVom"]], "2020-01-01")
   expect_false("Fassung.VonInkrafttretensdatum" %in% names(params))
 })
 
 test_that("Fassung date ranges map to dotted Inkrafttreten/Ausserkrafttreten params", {
-  params <- risAT:::ris_build_bundesrecht_params(
+  params <- risAT:::ris_build_federal_params(
     effective_from = "2024-01-01",
     effective_to = "2024-12-31",
     expiry_from = "2025-01-01",
@@ -57,7 +57,7 @@ test_that("Fassung date ranges map to dotted Inkrafttreten/Ausserkrafttreten par
 })
 
 test_that("Abschnitt range maps to dotted params with normalized Typ", {
-  params <- risAT:::ris_build_bundesrecht_params(
+  params <- risAT:::ris_build_federal_params(
     section_from = "1",
     section_to = "10",
     section_type = "paragraph"
@@ -68,7 +68,7 @@ test_that("Abschnitt range maps to dotted params with normalized Typ", {
 })
 
 test_that("NULL/empty params are dropped from the query list", {
-  params <- risAT:::ris_build_bundesrecht_params(title = "ABGB")
+  params <- risAT:::ris_build_federal_params(title = "ABGB")
   expect_false("Suchworte" %in% names(params))
   expect_false("Fassung.FassungVom" %in% names(params))
   expect_false("Index" %in% names(params))
@@ -91,33 +91,33 @@ test_that("ris_normalize_abschnitt_typ errors on invalid value", {
   )
 })
 
-test_that("ris_normalize_bundesrecht_sort_column accepts values and aliases", {
+test_that("ris_normalize_federal_sort_column accepts values and aliases", {
   expect_equal(
-    risAT:::ris_normalize_bundesrecht_sort_column("Inkrafttretensdatum"),
+    risAT:::ris_normalize_federal_sort_column("Inkrafttretensdatum"),
     "Inkrafttretensdatum"
   )
   expect_equal(
-    risAT:::ris_normalize_bundesrecht_sort_column("effective_date"),
+    risAT:::ris_normalize_federal_sort_column("effective_date"),
     "Inkrafttretensdatum"
   )
   expect_equal(
-    risAT:::ris_normalize_bundesrecht_sort_column("expiry_date"),
+    risAT:::ris_normalize_federal_sort_column("expiry_date"),
     "Ausserkrafttretensdatum"
   )
-  expect_null(risAT:::ris_normalize_bundesrecht_sort_column(NULL))
+  expect_null(risAT:::ris_normalize_federal_sort_column(NULL))
 })
 
-test_that("ris_normalize_bundesrecht_sort_column errors on invalid value", {
+test_that("ris_normalize_federal_sort_column errors on invalid value", {
   expect_snapshot(
-    risAT:::ris_normalize_bundesrecht_sort_column("Datum"),
+    risAT:::ris_normalize_federal_sort_column("Datum"),
     error = TRUE
   )
 })
 
-# ---- ris_req_bundesrecht ----------------------------------------------------
+# ---- ris_req_federal ----------------------------------------------------
 
-test_that("ris_req_bundesrecht returns an httr2_request with ris_meta", {
-  req <- ris_req_bundesrecht(title = "ABGB")
+test_that("ris_req_federal returns an httr2_request with ris_meta", {
+  req <- ris_req_federal(title = "ABGB")
 
   expect_s3_class(req, "httr2_request")
 
@@ -129,8 +129,8 @@ test_that("ris_req_bundesrecht returns an httr2_request with ris_meta", {
   expect_match(meta$website_urls$app_url, "Bundesrecht")
 })
 
-test_that("ris_req_bundesrecht encodes query params (incl. dotted) in the URL", {
-  req <- ris_req_bundesrecht(
+test_that("ris_req_federal encodes query params (incl. dotted) in the URL", {
+  req <- ris_req_federal(
     title = "ABGB",
     version_date = "2020-01-01"
   )
@@ -142,9 +142,9 @@ test_that("ris_req_bundesrecht encodes query params (incl. dotted) in the URL", 
   expect_match(url, "DokumenteProSeite=OneHundred")
 })
 
-test_that("ris_req_bundesrecht rejects version_date combined with a date range", {
+test_that("ris_req_federal rejects version_date combined with a date range", {
   expect_snapshot(
-    ris_req_bundesrecht(
+    ris_req_federal(
       version_date = "2020-01-01",
       effective_from = "2019-01-01"
     ),
@@ -152,33 +152,33 @@ test_that("ris_req_bundesrecht rejects version_date combined with a date range",
   )
 })
 
-test_that("ris_req_bundesrecht defaults Abschnitt.Typ to Alle when range given", {
-  req <- ris_req_bundesrecht(section_from = "1", section_to = "5")
+test_that("ris_req_federal defaults Abschnitt.Typ to Alle when range given", {
+  req <- ris_req_federal(section_from = "1", section_to = "5")
   expect_match(req$url, "Abschnitt\\.Typ=Alle")
 })
 
-test_that("ris_req_bundesrecht rejects malformed date strings", {
+test_that("ris_req_federal rejects malformed date strings", {
   expect_snapshot(
-    ris_req_bundesrecht(version_date = "01.01.2020"),
+    ris_req_federal(version_date = "01.01.2020"),
     error = TRUE
   )
   expect_snapshot(
-    ris_req_bundesrecht(effective_from = "2020/01/01"),
-    error = TRUE
-  )
-})
-
-test_that("ris_req_bundesrecht rejects non-string params", {
-  expect_snapshot(
-    ris_req_bundesrecht(title = 123),
+    ris_req_federal(effective_from = "2020/01/01"),
     error = TRUE
   )
 })
 
-test_that("ris_perform_bundesrecht rejects requests without ris_meta", {
+test_that("ris_req_federal rejects non-string params", {
+  expect_snapshot(
+    ris_req_federal(title = 123),
+    error = TRUE
+  )
+})
+
+test_that("ris_perform_federal rejects requests without ris_meta", {
   plain_req <- httr2::request("https://example.org")
   expect_snapshot(
-    ris_perform_bundesrecht(plain_req),
+    ris_perform_federal(plain_req),
     error = TRUE
   )
 })
@@ -186,7 +186,7 @@ test_that("ris_perform_bundesrecht rejects requests without ris_meta", {
 # ---- website URL builder ----------------------------------------------------
 
 test_that("website URL helper builds expected RIS Bundesnormen URL", {
-  urls <- risAT:::ris_build_bundesrecht_website_urls(
+  urls <- risAT:::ris_build_federal_website_urls(
     title = "ABGB",
     version_date = "2020-01-01",
     in_ris_since = "one_month",

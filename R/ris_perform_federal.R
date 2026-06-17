@@ -1,27 +1,27 @@
 # ============================================================================
-# ris_perform_bundesrecht.R — Execute a RIS Bundesrecht request and parse results
+# ris_perform_federal.R — Execute a RIS Bundesrecht request and parse results
 # ============================================================================
 #
 # Second step of the req/perform pattern for consolidated federal law:
 #
-#   1. ris_req_bundesrecht()     — build an httr2_request  (ris_req_bundesrecht.R)
-#   2. ris_perform_bundesrecht() — execute & parse          (this file)
+#   1. ris_req_federal()     — build an httr2_request  (ris_req_federal.R)
+#   2. ris_perform_federal() — execute & parse          (this file)
 #
 # Because the /Bundesrecht response uses the same paginated envelope as
 # /Judikatur, this reuses the generic, application-agnostic pagination helpers
 # from ris_perform_case_law.R (ris_iterate_case_law_pages(),
 # ris_next_case_law_page(), ris_bind_case_law_pages()).  Only the per-page
-# parser (ris_parse_bundesrecht()) and request provenance differ.
+# parser (ris_parse_federal()) and request provenance differ.
 # ============================================================================
 
 #' Perform a RIS Bundesrecht Search
 #'
-#' Execute a request built by [ris_req_bundesrecht()] and return parsed results.
+#' Execute a request built by [ris_req_federal()] and return parsed results.
 #' All available pages are fetched iteratively using
 #' `httr2::req_perform_iterative()`.
 #'
 #' @param req An `httr2_request` object, typically built with
-#'   [ris_req_bundesrecht()].
+#'   [ris_req_federal()].
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   and the number of returned rows.
 #'
@@ -31,17 +31,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' req <- ris_req_bundesrecht(title = "ABGB")
-#' results <- ris_perform_bundesrecht(req)
+#' req <- ris_req_federal(title = "ABGB")
+#' results <- ris_perform_federal(req)
 #' }
-ris_perform_bundesrecht <- function(req, echo = FALSE) {
+ris_perform_federal <- function(req, echo = FALSE) {
   checkmate::assert_flag(echo, .var.name = "echo")
 
   # -- Step 1: Extract metadata from the request ------------------------------
   meta <- attr(req, "ris_meta")
   if (is.null(meta)) {
     rlang::abort(
-      "`req` must be built with `ris_req_bundesrecht()` (missing `ris_meta` attribute)."
+      "`req` must be built with `ris_req_federal()` (missing `ris_meta` attribute)."
     )
   }
 
@@ -64,7 +64,7 @@ ris_perform_bundesrecht <- function(req, echo = FALSE) {
   page_results <- purrr::imap(
     responses,
     function(resp, idx) {
-      page_tbl <- ris_parse_bundesrecht(
+      page_tbl <- ris_parse_federal(
         resp,
         requested_page = as.integer(idx),
         requested_per_page = per_page

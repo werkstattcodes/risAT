@@ -1,26 +1,26 @@
 # ============================================================================
-# ris_req_bundesrecht.R — Build (but do not execute) a RIS Bundesrecht request
+# ris_req_federal.R — Build (but do not execute) a RIS Bundesrecht request
 # ============================================================================
 #
 # First step of the two-step req/perform pattern for the consolidated federal
 # law endpoint:
 #
-#   1. ris_req_bundesrecht()     — build an httr2_request (this file)
-#   2. ris_perform_bundesrecht() — execute the request and parse the response
+#   1. ris_req_federal()     — build an httr2_request (this file)
+#   2. ris_perform_federal() — execute the request and parse the response
 #
 # The RIS OGD REST API v2.6 serves consolidated federal law ("Bundesrecht in
 # konsolidierter Fassung", application code "BrKons") from the /Bundesrecht
 # endpoint.  Unlike the Judikatur endpoint, BrKons uses a few complex query
 # parameters (Fassung, Abschnitt, Sortierung) whose sub-fields are joined to
 # the parameter name with a "." separator.  The mapping and normalization of
-# these parameters live in ris_bundesrecht_utils.R.
+# these parameters live in ris_federal_utils.R.
 # ============================================================================
 
 #' Build a RIS Bundesrecht API Request
 #'
 #' Construct an `httr2_request` object for the Austrian RIS OGD REST API v2.6
 #' `/Bundesrecht` endpoint, application **BrKons** (consolidated federal law).
-#' The request is **not executed**; call [ris_perform_bundesrecht()] to send it
+#' The request is **not executed**; call [ris_perform_federal()] to send it
 #' and parse the results, or use [httr2::req_dry_run()] to inspect the URL.
 #'
 #' @param query Optional full-text query (`Suchworte`). Supports the RIS
@@ -68,22 +68,22 @@
 #'
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
 #'   containing the application code, page size, endpoint, and website URLs.
-#'   Pass this to [ris_perform_bundesrecht()] to execute the search.
+#'   Pass this to [ris_perform_federal()] to execute the search.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' # Build request, then inspect the URL without hitting the network
-#' req <- ris_req_bundesrecht(title = "ABGB")
+#' req <- ris_req_federal(title = "ABGB")
 #' httr2::req_dry_run(req)
 #'
 #' # The consolidated text as it stood on a given date
-#' req <- ris_req_bundesrecht(title = "MRG", version_date = "2020-01-01")
+#' req <- ris_req_federal(title = "MRG", version_date = "2020-01-01")
 #'
 #' # Execute
-#' results <- ris_perform_bundesrecht(req)
+#' results <- ris_perform_federal(req)
 #' }
-ris_req_bundesrecht <- function(
+ris_req_federal <- function(
   query = NULL,
   title = NULL,
   index = NULL,
@@ -165,7 +165,7 @@ ris_req_bundesrecht <- function(
   }
 
   # -- Step 2: Assemble API query parameters ----------------------------------
-  params <- ris_build_bundesrecht_params(
+  params <- ris_build_federal_params(
     query = query,
     title = title,
     index = index,
@@ -190,7 +190,7 @@ ris_req_bundesrecht <- function(
   )
 
   # -- Step 3: Build equivalent RIS website URLs ------------------------------
-  website_urls <- ris_build_bundesrecht_website_urls(
+  website_urls <- ris_build_federal_website_urls(
     query = query,
     title = title,
     index = index,

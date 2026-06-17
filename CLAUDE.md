@@ -26,17 +26,17 @@ R/                          # Source code
   ris_search_case_law.R     # Generic search wrapper (all applications)
   ris_search_vfgh.R         # VfGH court convenience wrapper
   ris_search_vwgh.R         # VwGH court convenience wrapper
-  ris_bundesrecht_utils.R   # Internal helpers for the Bundesrecht endpoint
-  ris_req_bundesrecht.R     # Build httr2 request (BrKons / consolidated federal law)
-  ris_perform_bundesrecht.R # Execute Bundesrecht request with pagination
-  ris_parse_bundesrecht.R   # Parse Bundesrecht response → tidy tibble
+  ris_federal_utils.R       # Internal helpers for the Bundesrecht endpoint
+  ris_req_federal.R         # Build httr2 request (BrKons / consolidated federal law)
+  ris_perform_federal.R     # Execute Bundesrecht request with pagination
+  ris_parse_federal.R       # Parse Bundesrecht response → tidy tibble
   ris_search_federal.R      # Bundesrecht (federal law) search wrapper
 man/                        # Auto-generated roxygen2 documentation (do not edit)
 tests/testthat/             # testthat unit tests
   test-ris_parse_search.R
   test-ris_search_validation.R
-  test-ris_bundesrecht_params.R
-  test-ris_parse_bundesrecht.R
+  test-ris_federal_params.R
+  test-ris_parse_federal.R
 background_docs/            # Reference PDFs and architecture notes (not shipped)
   architecture.md           # Component architecture with Mermaid diagram
 pkgdown/                    # Custom pkgdown website assets
@@ -247,8 +247,8 @@ The `background_docs/` directory and `AGENTS.md` are excluded from the built pac
   convenience wrappers: VfGH, VwGH, Justiz (OGH, OLG, LG, BG), BVwG, LVwG,
   DSK/DSB, DOK, PVAK, GBK.
 - **Bundesrecht** (`/Bundesrecht`, application `BrKons`): consolidated federal
-  law via `ris_search_federal()` (and the `ris_req_bundesrecht()` /
-  `ris_perform_bundesrecht()` / `ris_parse_bundesrecht()` building blocks).
+  law via `ris_search_federal()` (and the `ris_req_federal()` /
+  `ris_perform_federal()` / `ris_parse_federal()` building blocks).
   Bundesrecht reuses the generic response-envelope walkers and pagination
   helpers from the Judikatur side (the envelope shape is identical); only the
   request parameters, column-name map, and per-page parser differ.

@@ -1,5 +1,5 @@
 # ============================================================================
-# ris_parse_bundesrecht.R — Parse RIS Bundesrecht (BrKons) search responses
+# ris_parse_federal.R — Parse RIS Bundesrecht (BrKons) search responses
 # ============================================================================
 #
 # The /Bundesrecht endpoint returns the *same response envelope* as /Judikatur:
@@ -14,7 +14,7 @@
 # What is Bundesrecht-specific:
 #   - the metadata block is `Metadaten$Bundesrecht` (with a nested `BrKons`
 #     sub-block) instead of `Metadaten$Judikatur`;
-#   - the German -> English column name map (ris_bundesrecht_column_name_map);
+#   - the German -> English column name map (ris_federal_column_name_map);
 #   - app_metadata also carries the `bundesrecht` block.
 # ============================================================================
 
@@ -65,8 +65,8 @@
 #'     )
 #'   )
 #' )
-#' ris_parse_bundesrecht(payload)
-ris_parse_bundesrecht <- function(
+#' ris_parse_federal(payload)
+ris_parse_federal <- function(
   x,
   requested_page = NULL,
   requested_per_page = NULL
@@ -95,7 +95,7 @@ ris_parse_bundesrecht <- function(
 
   rows <- purrr::map(
     document_refs,
-    \(doc) ris_reference_to_bundesrecht_row(doc, response_meta)
+    \(doc) ris_reference_to_federal_row(doc, response_meta)
   )
 
   ris_bind_rows_harmonized(rows)
@@ -104,7 +104,7 @@ ris_parse_bundesrecht <- function(
 # Convert a single OgdDocumentReference into a one-row tibble.  Mirrors
 # ris_reference_to_tibble_row() but uses the Bundesrecht column map and keeps
 # the `bundesrecht` metadata block in app_metadata.
-ris_reference_to_bundesrecht_row <- function(reference, response_meta) {
+ris_reference_to_federal_row <- function(reference, response_meta) {
   data <- reference$Data %||% list()
   metadata <- data$Metadaten %||% list()
   metadata_flat <- ris_flatten_named_list(metadata)
@@ -125,7 +125,7 @@ ris_reference_to_bundesrecht_row <- function(reference, response_meta) {
   metadata_flat <- metadata_flat[!names(metadata_flat) %in% ris_columns_to_drop]
 
   # Translate German snake_case names to English.
-  names(metadata_flat) <- ris_translate_bundesrecht_column_names(
+  names(metadata_flat) <- ris_translate_federal_column_names(
     names(metadata_flat)
   )
 
@@ -151,7 +151,7 @@ ris_reference_to_bundesrecht_row <- function(reference, response_meta) {
 # Columns not in this map are returned as-is (snake_case), keeping the parser
 # robust to schema additions.
 
-ris_bundesrecht_column_name_map <- c(
+ris_federal_column_name_map <- c(
   # -- Common columns (shared with Judikatur) --
   technisch_id = "id",
   technisch_applikation = "application",
@@ -196,8 +196,8 @@ ris_bundesrecht_column_name_map <- c(
 # Rename columns using the Bundesrecht mapping and drop artifact columns.
 # Unknown columns keep their original snake_case name.  Reuses the shared
 # `ris_columns_to_drop` defined in ris_parse_search.R.
-ris_translate_bundesrecht_column_names <- function(nms) {
+ris_translate_federal_column_names <- function(nms) {
   nms <- nms[!nms %in% ris_columns_to_drop]
-  matched <- match(nms, names(ris_bundesrecht_column_name_map))
-  ifelse(is.na(matched), nms, ris_bundesrecht_column_name_map[matched])
+  matched <- match(nms, names(ris_federal_column_name_map))
+  ifelse(is.na(matched), nms, ris_federal_column_name_map[matched])
 }

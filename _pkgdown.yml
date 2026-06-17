@@ -45,13 +45,13 @@ reference:
     contents:
       - ris_req_case_law
       - ris_perform_case_law
-      - ris_req_bundesrecht
-      - ris_perform_bundesrecht
+      - ris_req_federal
+      - ris_perform_federal
 
   - title: "Parsers"
     contents:
       - ris_parse_search
-      - ris_parse_bundesrecht
+      - ris_parse_federal
 
 build:
   exclude:

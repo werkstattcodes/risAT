@@ -1,10 +1,10 @@
 # ============================================================================
-# Tests for ris_parse_bundesrecht(): parsing the BrKons response envelope into
+# Tests for ris_parse_federal(): parsing the BrKons response envelope into
 # a tidy tibble.  No live API calls — uses a fixture modelled on the real
 # /Bundesrecht response shape.
 # ============================================================================
 
-make_bundesrecht_payload <- function() {
+make_federal_payload <- function() {
   list(
     OgdSearchResult = list(
       status = "ok",
@@ -64,8 +64,8 @@ make_bundesrecht_payload <- function() {
   )
 }
 
-test_that("ris_parse_bundesrecht returns a tibble with required list-columns", {
-  out <- ris_parse_bundesrecht(make_bundesrecht_payload())
+test_that("ris_parse_federal returns a tibble with required list-columns", {
+  out <- ris_parse_federal(make_federal_payload())
 
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 1L)
@@ -76,8 +76,8 @@ test_that("ris_parse_bundesrecht returns a tibble with required list-columns", {
   expect_type(out$app_metadata[[1]], "list")
 })
 
-test_that("ris_parse_bundesrecht translates German metadata to English columns", {
-  out <- ris_parse_bundesrecht(make_bundesrecht_payload())
+test_that("ris_parse_federal translates German metadata to English columns", {
+  out <- ris_parse_federal(make_federal_payload())
 
   expect_equal(out$id[[1]], "NOR12345678")
   expect_equal(out$application[[1]], "BrKons")
@@ -92,8 +92,8 @@ test_that("ris_parse_bundesrecht translates German metadata to English columns",
   expect_equal(out$full_law_url[[1]], "https://example.org/law/1")
 })
 
-test_that("ris_parse_bundesrecht keeps the bundesrecht block in app_metadata", {
-  out <- ris_parse_bundesrecht(make_bundesrecht_payload())
+test_that("ris_parse_federal keeps the bundesrecht block in app_metadata", {
+  out <- ris_parse_federal(make_federal_payload())
   meta <- out$app_metadata[[1]]
   expect_true("bundesrecht" %in% names(meta))
   expect_equal(meta$bundesrecht$Kurztitel, "ABGB")
@@ -101,7 +101,7 @@ test_that("ris_parse_bundesrecht keeps the bundesrecht block in app_metadata", {
   expect_true("response" %in% names(meta))
 })
 
-test_that("ris_parse_bundesrecht handles empty results", {
+test_that("ris_parse_federal handles empty results", {
   payload <- list(
     OgdSearchResult = list(
       OgdDocumentResults = list(
@@ -109,13 +109,13 @@ test_that("ris_parse_bundesrecht handles empty results", {
       )
     )
   )
-  out <- ris_parse_bundesrecht(payload)
+  out <- ris_parse_federal(payload)
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 0L)
   expect_true(all(c("content_urls", "app_metadata") %in% names(out)))
 })
 
-test_that("ris_parse_bundesrecht tolerates missing optional fields", {
+test_that("ris_parse_federal tolerates missing optional fields", {
   payload <- list(
     OgdSearchResult = list(
       OgdDocumentResults = list(
@@ -133,14 +133,14 @@ test_that("ris_parse_bundesrecht tolerates missing optional fields", {
       )
     )
   )
-  out <- ris_parse_bundesrecht(payload)
+  out <- ris_parse_federal(payload)
   expect_equal(nrow(out), 1L)
   expect_equal(out$title[[1]], "Minimal Norm")
   # No Dokumentliste -> empty content_urls, not an error.
   expect_length(out$content_urls[[1]], 0)
 })
 
-test_that("ris_parse_bundesrecht raises for RIS API errors", {
+test_that("ris_parse_federal raises for RIS API errors", {
   payload <- list(
     OgdSearchResult = list(
       Error = list(
@@ -150,7 +150,7 @@ test_that("ris_parse_bundesrecht raises for RIS API errors", {
     )
   )
   expect_error(
-    ris_parse_bundesrecht(payload),
+    ris_parse_federal(payload),
     "RIS API error \\[BrKons\\]"
   )
 })

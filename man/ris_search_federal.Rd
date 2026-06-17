@@ -101,7 +101,7 @@ Includes list-columns \code{content_urls} and \code{app_metadata}.
 Query the Austrian RIS OGD REST API v2.6 \verb{/Bundesrecht} endpoint,
 application \strong{BrKons} ("Bundesrecht in konsolidierter Fassung",
 consolidated federal law). This is a convenience wrapper around
-\code{\link[=ris_req_bundesrecht]{ris_req_bundesrecht()}} and \code{\link[=ris_perform_bundesrecht]{ris_perform_bundesrecht()}}.
+\code{\link[=ris_req_federal]{ris_req_federal()}} and \code{\link[=ris_perform_federal]{ris_perform_federal()}}.
 }
 \details{
 Results are fetched iteratively across all pages in scope using

@@ -1,9 +1,9 @@
 # ============================================================================
-# ris_bundesrecht_utils.R — Shared internal helpers for the Bundesrecht endpoint
+# ris_federal_utils.R — Shared internal helpers for the Bundesrecht endpoint
 # ============================================================================
 #
-# Internal (non-exported) utilities used by ris_req_bundesrecht(),
-# ris_perform_bundesrecht(), and ris_search_federal().  These mirror the
+# Internal (non-exported) utilities used by ris_req_federal(),
+# ris_perform_federal(), and ris_search_federal().  These mirror the
 # Judikatur helpers in ris_case_law_utils.R but target the consolidated federal
 # law application "BrKons" served from the /Bundesrecht endpoint.
 #
@@ -40,7 +40,7 @@
 # Map R-friendly argument names to the German API parameter names, normalize
 # dates/intervals/enums, and strip NULL/empty values.  The result is a named
 # list ready to be spliced into httr2::req_url_query().
-ris_build_bundesrecht_params <- function(
+ris_build_federal_params <- function(
   query = NULL,
   title = NULL,
   index = NULL,
@@ -78,7 +78,7 @@ ris_build_bundesrecht_params <- function(
     # -- Complex "Fassung" (version) parameter --
     # Either a point-in-time version (FassungVom) OR entry-into-force /
     # expiry date ranges.  Mutual exclusivity is enforced upstream in
-    # ris_req_bundesrecht().
+    # ris_req_federal().
     `Fassung.FassungVom` = ris_normalize_date(version_date),
     `Fassung.VonInkrafttretensdatum` = ris_normalize_date(effective_from),
     `Fassung.BisInkrafttretensdatum` = ris_normalize_date(effective_to),
@@ -92,7 +92,7 @@ ris_build_bundesrecht_params <- function(
     # -- Filtering, sorting, and pagination --
     ImRisSeit = ris_normalize_named_interval(in_ris_since),
     `Sortierung.SortDirection` = ris_normalize_sort_direction(sort_direction),
-    `Sortierung.SortedByColumn` = ris_normalize_bundesrecht_sort_column(sort_by),
+    `Sortierung.SortedByColumn` = ris_normalize_federal_sort_column(sort_by),
     Seitennummer = as.integer(page),
     DokumenteProSeite = ris_per_page_to_api_value(as.integer(per_page))
   )
@@ -147,7 +147,7 @@ ris_normalize_abschnitt_typ <- function(x) {
 #
 # API values:  ArtikelParagraphAnlage, Kurzinformation,
 #              Inkrafttretensdatum, Ausserkrafttretensdatum
-ris_normalize_bundesrecht_sort_column <- function(x) {
+ris_normalize_federal_sort_column <- function(x) {
   if (is.null(x) || identical(x, "")) {
     return(NULL)
   }
@@ -188,7 +188,7 @@ ris_normalize_bundesrecht_sort_column <- function(x) {
 # uses the "Bundesnormen" Ergebnis.wxe query.  These URLs are supplementary
 # (printed when echo = TRUE and stored in app_metadata) so callers can
 # cross-check results in a browser.
-ris_build_bundesrecht_website_urls <- function(
+ris_build_federal_website_urls <- function(
   query = NULL,
   title = NULL,
   index = NULL,

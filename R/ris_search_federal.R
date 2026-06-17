@@ -3,8 +3,8 @@
 # ============================================================================
 #
 # Combines the two-step req/perform pattern into a single call:
-#   1. ris_req_bundesrecht(...)      — build the httr2 request
-#   2. ris_perform_bundesrecht(req)  — execute and parse
+#   1. ris_req_federal(...)      — build the httr2 request
+#   2. ris_perform_federal(req)  — execute and parse
 #
 # This is the recommended entry point for interactive/exploratory use; the
 # req/perform split is preferred for programmatic pipelines where users want to
@@ -16,12 +16,12 @@
 #' Query the Austrian RIS OGD REST API v2.6 `/Bundesrecht` endpoint,
 #' application **BrKons** ("Bundesrecht in konsolidierter Fassung",
 #' consolidated federal law). This is a convenience wrapper around
-#' [ris_req_bundesrecht()] and [ris_perform_bundesrecht()].
+#' [ris_req_federal()] and [ris_perform_federal()].
 #'
 #' Results are fetched iteratively across all pages in scope using
 #' `httr2::req_perform_iterative()`.
 #'
-#' @inheritParams ris_req_bundesrecht
+#' @inheritParams ris_req_federal
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   (`https://www.ris.bka.gv.at/Bundesrecht/` and the corresponding
 #'   `Ergebnis.wxe` query URL) and the number of returned rows, so users can
@@ -70,8 +70,8 @@ ris_search_federal <- function(
   base_url = "https://data.bka.gv.at/ris/api/v2.6"
 ) {
   # Build the httr2 request with all search parameters.  Validation and
-  # normalization happen inside ris_req_bundesrecht().
-  req <- ris_req_bundesrecht(
+  # normalization happen inside ris_req_federal().
+  req <- ris_req_federal(
     query = query,
     title = title,
     index = index,
@@ -95,5 +95,5 @@ ris_search_federal <- function(
   )
 
   # Execute the request and return the parsed tibble.
-  ris_perform_bundesrecht(req, echo = echo)
+  ris_perform_federal(req, echo = echo)
 }
