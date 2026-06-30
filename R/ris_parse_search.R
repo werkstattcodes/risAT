@@ -10,6 +10,7 @@
 #'
 #' @return A tibble parsed from one RIS response payload.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#'   The `decision_date` column, when present, is parsed to `Date`.
 #' @importFrom rlang %||%
 #' @export
 #'
@@ -75,7 +76,25 @@ ris_parse_search <- function(
     \(doc) ris_reference_to_tibble_row(doc, response_meta)
   )
 
-  ris_bind_rows_harmonized(rows)
+  out <- ris_bind_rows_harmonized(rows)
+  ris_parse_decision_date(out)
+}
+
+# Coerce the decision_date column to Date.  The API returns ISO 8601 strings
+# (YYYY-MM-DD); if parsing fails for any value, the column is left unchanged
+# rather than erroring (robust-parsing principle).
+ris_parse_decision_date <- function(tbl) {
+  if (!"decision_date" %in% names(tbl) || is.list(tbl$decision_date)) {
+    return(tbl)
+  }
+  parsed <- tryCatch(
+    as.Date(tbl$decision_date),
+    error = function(e) NULL
+  )
+  if (!is.null(parsed)) {
+    tbl$decision_date <- parsed
+  }
+  tbl
 }
 
 ris_as_payload <- function(x) {
@@ -131,7 +150,9 @@ ris_extract_document_references <- function(root) {
 
 ris_extract_page_info <- function(root) {
   hits <- root$OgdDocumentResults$Hits
-  if (is.null(hits)) {
+  # Hits may be absent, or a bare scalar count without page attributes
+  # (`$` would error on an atomic vector).
+  if (is.null(hits) || !is.list(hits)) {
     return(list(page_number = NULL, page_size = NULL))
   }
 
@@ -153,15 +174,20 @@ ris_extract_hits_count <- function(root) {
     return(NA_integer_)
   }
 
+  # The API may serialize Hits as a bare scalar count; check this before any
+  # `$` access, which errors on atomic vectors.
+  if (is.atomic(hits)) {
+    if (length(hits) == 1L) {
+      return(suppressWarnings(as.integer(hits)))
+    }
+    return(NA_integer_)
+  }
+
   candidates <- c(
     hits$Count %||% NULL,
     hits$value %||% NULL,
     hits$`#text` %||% NULL
   )
-
-  if (is.atomic(hits) && length(hits) == 1L) {
-    return(suppressWarnings(as.integer(hits)))
-  }
 
   value <- purrr::detect(candidates, ~ !is.null(.x))
   if (is.null(value)) {
@@ -191,8 +217,12 @@ ris_reference_to_tibble_row <- function(reference, response_meta) {
   # Drop XML serialization artifact columns before building the row.
   metadata_flat <- metadata_flat[!names(metadata_flat) %in% ris_columns_to_drop]
 
-  # Translate German snake_case names to English.
-  names(metadata_flat) <- ris_translate_column_names(names(metadata_flat))
+  # Translate German snake_case names to English.  make.unique() guards
+  # against two source fields translating to the same English name (e.g.
+  # Entscheidungsdatum appearing under both Allgemein and Judikatur).
+  names(metadata_flat) <- make.unique(
+    ris_translate_column_names(names(metadata_flat))
+  )
 
   row <- tibble::as_tibble_row(metadata_flat, .name_repair = "minimal")
   row$content_urls <- list(ris_extract_content_urls(data$Dokumentliste))
@@ -357,6 +387,9 @@ ris_column_name_map <- c(
   allgemein_veroeffentlicht = "published",
   allgemein_geaendert = "modified",
   allgemein_dokument_url = "document_url",
+  allgemein_titel = "title",
+  allgemein_gericht = "court",
+  allgemein_entscheidungsdatum = "decision_date",
   judikatur_dokumenttyp = "document_type",
   judikatur_geschaeftszahl_item = "case_number",
   judikatur_normen_item = "norms",

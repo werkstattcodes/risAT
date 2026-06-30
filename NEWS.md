@@ -1,6 +1,12 @@
 # risAT 0.0.0.9000
 
 - Initial development version.
+- `decision_date` (and `court`/`title` from the general metadata block) are
+  now returned as dedicated columns; `decision_date` is parsed to `Date`.
+- Requests now identify the package via a `User-Agent` header.
+- Fixed pagination errors when the API response lacks `Hits` page metadata
+  or serializes `Hits` as a bare scalar count; such responses now stop
+  pagination gracefully instead of erroring.
 - Added `/Judikatur` search and parsing helpers for RIS OGD API v2.6.
 - Added `/Bundesrecht` support for consolidated federal law (application
   `BrKons`): `ris_search_federal()`, plus the `ris_req_federal()` /

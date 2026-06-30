@@ -77,6 +77,17 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   )
 })
 
+test_that("ris_parse_search returns decision_date as Date", {
+  payload <- fixture_payload("case_law_one_page.json")
+  out <- ris_parse_search(payload)
+
+  expect_true("decision_date" %in% names(out))
+  expect_s3_class(out$decision_date, "Date")
+  expect_equal(out$decision_date[[1]], as.Date("2026-01-10"))
+  expect_equal(out$court[[1]], "VwGH")
+  expect_equal(out$title[[1]], "VwGH Entscheidung")
+})
+
 test_that("ris_perform_case_law returns structured empty tibble for empty fixture", {
   req <- ris_req_case_law(application = "Vwgh", query = "NoHitNeedle")
   empty_payload <- fixture_payload("case_law_empty.json")
