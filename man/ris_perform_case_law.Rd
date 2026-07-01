@@ -4,7 +4,7 @@
 \alias{ris_perform_case_law}
 \title{Perform a RIS Case Law Search}
 \usage{
-ris_perform_case_law(req, echo = FALSE)
+ris_perform_case_law(req, echo = FALSE, max_pages = Inf)
 }
 \arguments{
 \item{req}{An \code{httr2_request} object, typically built with
@@ -12,6 +12,12 @@ ris_perform_case_law(req, echo = FALSE)
 
 \item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
 and the number of returned rows.}
+
+\item{max_pages}{Maximum number of result pages to fetch (100 documents
+per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
+truncates the result set, a message says how to get the rest. Use this
+to keep broad exploratory queries from firing hundreds of requests at
+the public RIS API.}
 }
 \value{
 A tidy tibble with parsed search results.
@@ -19,8 +25,8 @@ Includes list-columns \code{content_urls} and \code{app_metadata}.
 }
 \description{
 Execute a request built by \code{\link[=ris_req_case_law]{ris_req_case_law()}} and return parsed results.
-All available pages are fetched iteratively using
-\code{httr2::req_perform_iterative()}.
+Pages are fetched iteratively using \code{httr2::req_perform_iterative()},
+up to \code{max_pages} pages.
 }
 \examples{
 \dontrun{
@@ -29,5 +35,8 @@ req <- ris_req_case_law(
   query = "Asyl"
 )
 results <- ris_perform_case_law(req)
+
+# Cap a broad query at the first 2 pages (200 documents)
+results <- ris_perform_case_law(req, max_pages = 2)
 }
 }

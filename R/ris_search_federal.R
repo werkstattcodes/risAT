@@ -22,6 +22,7 @@
 #' `httr2::req_perform_iterative()`.
 #'
 #' @inheritParams ris_req_federal
+#' @inheritParams ris_perform_case_law
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   (`https://www.ris.bka.gv.at/Bundesrecht/` and the corresponding
 #'   `Ergebnis.wxe` query URL) and the number of returned rows, so users can
@@ -67,7 +68,8 @@ ris_search_federal <- function(
   sort_by = NULL,
   sort_direction = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  max_pages = Inf,
+  base_url = ris_base_url()
 ) {
   # Build the httr2 request with all search parameters.  Validation and
   # normalization happen inside ris_req_federal().
@@ -95,5 +97,5 @@ ris_search_federal <- function(
   )
 
   # Execute the request and return the parsed tibble.
-  ris_perform_federal(req, echo = echo)
+  ris_perform_federal(req, echo = echo, max_pages = max_pages)
 }

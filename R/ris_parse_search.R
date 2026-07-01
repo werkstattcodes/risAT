@@ -63,12 +63,7 @@ ris_parse_search <- function(
   )
 
   if (length(document_refs) == 0L) {
-    return(
-      tibble::tibble(
-        content_urls = list(),
-        app_metadata = list()
-      )
-    )
+    return(ris_empty_result())
   }
 
   rows <- purrr::map(
@@ -77,24 +72,7 @@ ris_parse_search <- function(
   )
 
   out <- ris_bind_rows_harmonized(rows)
-  ris_parse_decision_date(out)
-}
-
-# Coerce the decision_date column to Date.  The API returns ISO 8601 strings
-# (YYYY-MM-DD); if parsing fails for any value, the column is left unchanged
-# rather than erroring (robust-parsing principle).
-ris_parse_decision_date <- function(tbl) {
-  if (!"decision_date" %in% names(tbl) || is.list(tbl$decision_date)) {
-    return(tbl)
-  }
-  parsed <- tryCatch(
-    as.Date(tbl$decision_date),
-    error = function(e) NULL
-  )
-  if (!is.null(parsed)) {
-    tbl$decision_date <- parsed
-  }
-  tbl
+  ris_parse_date_columns(out, "decision_date")
 }
 
 ris_as_payload <- function(x) {
@@ -104,7 +82,10 @@ ris_as_payload <- function(x) {
   if (is.list(x)) {
     return(x)
   }
-  rlang::abort("`x` must be an `httr2_response` or a list.")
+  rlang::abort(
+    "`x` must be an `httr2_response` or a list.",
+    class = "risat_invalid_argument"
+  )
 }
 
 ris_extract_root <- function(payload) {
@@ -122,7 +103,10 @@ ris_stop_on_api_error <- function(root) {
 
   application <- err$Applikation %||% "Unknown"
   message <- err$Message %||% "Unknown RIS API error."
-  rlang::abort(paste0("RIS API error [", application, "]: ", message))
+  rlang::abort(
+    paste0("RIS API error [", application, "]: ", message),
+    class = "risat_api_error"
+  )
 }
 
 ris_extract_document_references <- function(root) {

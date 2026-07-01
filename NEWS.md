@@ -1,6 +1,28 @@
 # risAT 0.0.0.9000
 
 - Initial development version.
+- All requests are now throttled client-side (30 requests per minute) as a
+  courtesy to the public RIS OGD API.
+- New `max_pages` argument on all search and perform functions caps the number
+  of result pages fetched (default `Inf` = all pages); a message explains how
+  to fetch the rest when a result set is truncated.
+- `ris_req_case_law()` and `ris_search_case_law()` gained `sort_by` and
+  `sort_direction` arguments (previously hard-coded to date descending, which
+  remains the default).
+- New `ris_base_url()` helper is the single source of the API base URL; it
+  can be overridden per session via `options(risAT.base_url = ...)`.
+- New accessors `ris_search_url()` and `ris_app_url()` retrieve the RIS
+  website URLs attached to search results.
+- Bundesrecht requests now send the same package-identifying `User-Agent`
+  header as Judikatur requests.
+- Empty search results now return a zero-row tibble with the guaranteed
+  common columns (`id`, `application`, `content_urls`, `app_metadata`),
+  matching the schema of non-empty results.
+- `ris_parse_federal()` parses `effective_date` and `expiry_date` to `Date`
+  and guards against duplicate column names after translation.
+- Validation errors now carry condition classes (`risat_invalid_argument`,
+  `risat_api_error`, `risat_truncated_results`) so they can be caught with
+  `tryCatch()`.
 - `decision_date` (and `court`/`title` from the general metadata block) are
   now returned as dedicated columns; `decision_date` is parsed to `Date`.
 - Requests now identify the package via a `User-Agent` header.

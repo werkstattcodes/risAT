@@ -96,7 +96,8 @@ ris_search_gbk <- function(
   discrimination_ground = NULL,
   in_ris_since = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  max_pages = Inf,
+  base_url = ris_base_url()
 ) {
   commission <- ris_normalize_gbk_commission(commission)
   senate <- ris_normalize_gbk_senate(senate)
@@ -117,6 +118,7 @@ ris_search_gbk <- function(
     discrimination_ground = discrimination_ground,
     in_ris_since = in_ris_since,
     echo = echo,
+    max_pages = max_pages,
     base_url = base_url
   )
 }

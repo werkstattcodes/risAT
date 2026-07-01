@@ -30,6 +30,8 @@
 #'
 #' @return A tibble parsed from one RIS Bundesrecht response payload.
 #'   Includes list-columns `content_urls` and `app_metadata`.
+#'   The `effective_date` and `expiry_date` columns, when present, are
+#'   parsed to `Date`.
 #' @importFrom rlang %||%
 #' @export
 #'
@@ -85,12 +87,7 @@ ris_parse_federal <- function(
   )
 
   if (length(document_refs) == 0L) {
-    return(
-      tibble::tibble(
-        content_urls = list(),
-        app_metadata = list()
-      )
-    )
+    return(ris_empty_result())
   }
 
   rows <- purrr::map(
@@ -98,7 +95,8 @@ ris_parse_federal <- function(
     \(doc) ris_reference_to_federal_row(doc, response_meta)
   )
 
-  ris_bind_rows_harmonized(rows)
+  out <- ris_bind_rows_harmonized(rows)
+  ris_parse_date_columns(out, c("effective_date", "expiry_date"))
 }
 
 # Convert a single OgdDocumentReference into a one-row tibble.  Mirrors
@@ -124,9 +122,12 @@ ris_reference_to_federal_row <- function(reference, response_meta) {
   # Drop XML serialization artifact columns before building the row.
   metadata_flat <- metadata_flat[!names(metadata_flat) %in% ris_columns_to_drop]
 
-  # Translate German snake_case names to English.
-  names(metadata_flat) <- ris_translate_federal_column_names(
-    names(metadata_flat)
+  # Translate German snake_case names to English.  make.unique() guards
+  # against two source fields translating to the same English name (e.g.
+  # Indizes serialized with and without an Item wrapper both map to
+  # "indices").
+  names(metadata_flat) <- make.unique(
+    ris_translate_federal_column_names(names(metadata_flat))
   )
 
   row <- tibble::as_tibble_row(metadata_flat, .name_repair = "minimal")

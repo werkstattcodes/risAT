@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Search helpers for Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.
+Search and parse Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API \url{https://data.bka.gv.at/ris/api/v2.6/} provided by the Austrian Federal Chancellery. Supports case law from all Judikatur applications and consolidated federal law, returning tidy tibbles for reproducible legal research.
 }
 \details{
 risAT uses a two-step request pattern:
@@ -31,6 +31,11 @@ court-specific wrappers
 }
 \author{
 \strong{Maintainer}: Roland Schmidt \email{rs2903@gmail.com}
+
+Authors:
+\itemize{
+  \item Roland Schmidt \email{rs2903@gmail.com}
+}
 
 }
 \keyword{internal}

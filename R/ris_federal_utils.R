@@ -113,13 +113,6 @@ ris_build_federal_params <- function(
 # API values:  Alle, Artikel, Paragraph, Anlage
 # Aliases:     all, article, paragraph, annex
 ris_normalize_abschnitt_typ <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`section_type` must be a single string.")
-  }
-
   lookup <- c(
     alle = "Alle",
     artikel = "Artikel",
@@ -130,16 +123,16 @@ ris_normalize_abschnitt_typ <- function(x) {
     annex = "Anlage"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "section_type",
+    invalid_message = paste0(
       "`section_type` is invalid. Use one of: ",
       "'Alle', 'Artikel', 'Paragraph', 'Anlage' ",
       "(English aliases 'all', 'article', 'paragraph', 'annex' are also accepted)."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 # -- Sort column normalization -------------------------------------------------
@@ -148,13 +141,6 @@ ris_normalize_abschnitt_typ <- function(x) {
 # API values:  ArtikelParagraphAnlage, Kurzinformation,
 #              Inkrafttretensdatum, Ausserkrafttretensdatum
 ris_normalize_federal_sort_column <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`sort_by` must be a single string.")
-  }
-
   lookup <- c(
     artikelparagraphanlage = "ArtikelParagraphAnlage",
     kurzinformation = "Kurzinformation",
@@ -167,16 +153,16 @@ ris_normalize_federal_sort_column <- function(x) {
     expirydate = "Ausserkrafttretensdatum"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "sort_by",
+    invalid_message = paste0(
       "`sort_by` is invalid. Use one of: ",
       "'ArtikelParagraphAnlage', 'Kurzinformation', ",
       "'Inkrafttretensdatum', 'Ausserkrafttretensdatum'."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 

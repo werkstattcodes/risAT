@@ -17,13 +17,14 @@
 #' Perform a RIS Bundesrecht Search
 #'
 #' Execute a request built by [ris_req_federal()] and return parsed results.
-#' All available pages are fetched iteratively using
-#' `httr2::req_perform_iterative()`.
+#' Pages are fetched iteratively using `httr2::req_perform_iterative()`,
+#' up to `max_pages` pages.
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_federal()].
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   and the number of returned rows.
+#' @inheritParams ris_perform_case_law
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
@@ -34,8 +35,9 @@
 #' req <- ris_req_federal(title = "ABGB")
 #' results <- ris_perform_federal(req)
 #' }
-ris_perform_federal <- function(req, echo = FALSE) {
+ris_perform_federal <- function(req, echo = FALSE, max_pages = Inf) {
   checkmate::assert_flag(echo, .var.name = "echo")
+  max_pages <- ris_normalize_max_pages(max_pages)
 
   # -- Step 1: Extract metadata from the request ------------------------------
   meta <- attr(req, "ris_meta")
@@ -55,10 +57,11 @@ ris_perform_federal <- function(req, echo = FALSE) {
     message("Equivalent RIS search URL: ", website_urls$search_url)
   }
 
-  # -- Step 2: Fetch all pages iteratively ------------------------------------
+  # -- Step 2: Fetch pages iteratively ----------------------------------------
   # Reuses the generic iterator: it only inspects OgdDocumentResults$Hits,
   # which is identical across RIS applications.
-  responses <- ris_iterate_case_law_pages(req)
+  responses <- ris_iterate_case_law_pages(req, max_pages = max_pages)
+  ris_inform_if_truncated(responses, max_pages)
 
   # -- Step 3: Parse each page response into a tibble -------------------------
   page_results <- purrr::imap(
@@ -81,13 +84,11 @@ ris_perform_federal <- function(req, echo = FALSE) {
   out <- ris_bind_case_law_pages(page_results)
 
   # -- Step 5: Handle empty results -------------------------------------------
+  # Zero-row tibble with the guaranteed column structure (id, application,
+  # content_urls, app_metadata) so downstream code sees the same schema as
+  # for non-empty results.
   if (nrow(out) == 0L) {
-    empty_out <- tibble::tibble(
-      content_urls = list(),
-      app_metadata = list()
-    )
-    attr(empty_out, "ris_app_url") <- website_urls$app_url
-    attr(empty_out, "ris_search_url") <- website_urls$search_url
+    empty_out <- ris_empty_result(website_urls)
     if (isTRUE(echo)) {
       message("Rows returned: 0")
     }

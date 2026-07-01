@@ -16,6 +16,8 @@ ris_parse_federal(x, requested_page = NULL, requested_per_page = NULL)
 \value{
 A tibble parsed from one RIS Bundesrecht response payload.
 Includes list-columns \code{content_urls} and \code{app_metadata}.
+The \code{effective_date} and \code{expiry_date} columns, when present, are
+parsed to \code{Date}.
 }
 \description{
 Parse a RIS OGD REST API \verb{/Bundesrecht} (BrKons, consolidated federal law)

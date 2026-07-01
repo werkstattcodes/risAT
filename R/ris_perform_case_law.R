@@ -21,13 +21,18 @@
 #' Perform a RIS Case Law Search
 #'
 #' Execute a request built by [ris_req_case_law()] and return parsed results.
-#' All available pages are fetched iteratively using
-#' `httr2::req_perform_iterative()`.
+#' Pages are fetched iteratively using `httr2::req_perform_iterative()`,
+#' up to `max_pages` pages.
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_case_law()].
 #' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
 #'   and the number of returned rows.
+#' @param max_pages Maximum number of result pages to fetch (100 documents
+#'   per page). Defaults to `Inf` (fetch all pages in scope). When the limit
+#'   truncates the result set, a message says how to get the rest. Use this
+#'   to keep broad exploratory queries from firing hundreds of requests at
+#'   the public RIS API.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-columns `content_urls` and `app_metadata`.
@@ -40,9 +45,13 @@
 #'   query = "Asyl"
 #' )
 #' results <- ris_perform_case_law(req)
+#'
+#' # Cap a broad query at the first 2 pages (200 documents)
+#' results <- ris_perform_case_law(req, max_pages = 2)
 #' }
-ris_perform_case_law <- function(req, echo = FALSE) {
+ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
   checkmate::assert_flag(echo, .var.name = "echo")
+  max_pages <- ris_normalize_max_pages(max_pages)
 
   # -- Step 1: Extract metadata from the request ------------------------------
   # ris_req_case_law() attaches an "ris_meta" attribute containing the
@@ -66,11 +75,13 @@ ris_perform_case_law <- function(req, echo = FALSE) {
     message("Equivalent RIS search URL: ", website_urls$search_url)
   }
 
-  # -- Step 2: Fetch all pages iteratively ------------------------------------
+  # -- Step 2: Fetch pages iteratively ----------------------------------------
   # ris_iterate_case_law_pages() wraps httr2::req_perform_iterative() and
   # automatically follows pagination by inspecting each response's page
-  # metadata.  It returns a list of httr2_response objects, one per page.
-  responses <- ris_iterate_case_law_pages(req)
+  # metadata.  It returns a list of httr2_response objects, one per page,
+  # stopping after max_pages pages.
+  responses <- ris_iterate_case_law_pages(req, max_pages = max_pages)
+  ris_inform_if_truncated(responses, max_pages)
 
   # -- Step 3: Parse each page response into a tibble -------------------------
   # ris_parse_search() (from ris_parse_search.R) handles the JSON-to-tibble
@@ -99,16 +110,12 @@ ris_perform_case_law <- function(req, echo = FALSE) {
   out <- ris_bind_case_law_pages(page_results)
 
   # -- Step 5: Handle empty results -------------------------------------------
-  # Return a zero-row tibble with the expected column structure rather than
-  # an unstructured empty tibble.  This ensures downstream code that expects
-  # specific columns (content_urls, app_metadata) won't break.
+  # Return a zero-row tibble with the guaranteed column structure (id,
+  # application, content_urls, app_metadata) rather than an unstructured
+  # empty tibble, so downstream code sees the same schema as for non-empty
+  # results.
   if (nrow(out) == 0L) {
-    empty_out <- tibble::tibble(
-      content_urls = list(),
-      app_metadata = list()
-    )
-    attr(empty_out, "ris_app_url") <- website_urls$app_url
-    attr(empty_out, "ris_search_url") <- website_urls$search_url
+    empty_out <- ris_empty_result(website_urls)
     if (isTRUE(echo)) {
       message("Rows returned: 0")
     }
@@ -227,9 +234,9 @@ ris_bind_case_law_pages <- function(page_results) {
 # page exists.  If so, it modifies the request's `Seitennummer` parameter
 # and returns the updated request; otherwise it returns NULL to stop iteration.
 #
-# max_reqs = Inf means we fetch *all* pages (the RIS API may return hundreds
-# for broad queries).
-ris_iterate_case_law_pages <- function(req) {
+# max_pages caps the number of requests; the default Inf fetches *all* pages
+# (the RIS API may return hundreds for broad queries).
+ris_iterate_case_law_pages <- function(req, max_pages = Inf) {
   httr2::req_perform_iterative(
     req = req,
     next_req = function(resp, req) {
@@ -244,7 +251,7 @@ ris_iterate_case_law_pages <- function(req) {
 
       httr2::req_url_query(req, Seitennummer = as.integer(next_page))
     },
-    max_reqs = Inf,
+    max_reqs = max_pages,
     progress = TRUE
   )
 }

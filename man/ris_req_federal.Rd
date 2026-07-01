@@ -24,7 +24,7 @@ ris_req_federal(
   in_ris_since = NULL,
   sort_by = NULL,
   sort_direction = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 }
 \arguments{
@@ -85,7 +85,8 @@ values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}, \code{"Ein
 \item{sort_direction}{Optional sort direction (\code{Sortierung.SortDirection}):
 \code{"Ascending"} or \code{"Descending"}.}
 
-\item{base_url}{API base URL.}
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 An \code{httr2_request} object with an additional \code{"ris_meta"} attribute

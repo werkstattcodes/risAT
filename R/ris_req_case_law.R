@@ -126,7 +126,16 @@
 #'   (`SucheInEntscheidungstexten`).
 #' @param search_legal_principles Optional flag for legal principles search
 #'   (`SucheInRechtssaetzen`).
-#' @param base_url API base URL.
+#' @param sort_by Sort column (`SortierungSortedByColumn`). Defaults to
+#'   `"Datum"` (decision date). For VfGH and VwGH the value is validated
+#'   client-side against `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"`
+#'   (English aliases `"business_number"`/`"case_number"`, `"decision_date"`,
+#'   `"decision_type"`, `"document_type"`); other applications pass the value
+#'   to the API as-is.
+#' @param sort_direction Sort direction (`SortierungSortDirection`):
+#'   `"Ascending"` or `"Descending"` (default).
+#' @param base_url API base URL. Defaults to [ris_base_url()], which can be
+#'   overridden for a session via `options(risAT.base_url = ...)`.
 #'
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
 #'   containing the application code and website URLs. Pass this to
@@ -177,7 +186,9 @@ ris_req_case_law <- function(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  sort_by = "Datum",
+  sort_direction = "Descending",
+  base_url = ris_base_url()
 ) {
   # -- Step 0: Assert input types -----------------------------------------------
   checkmate::assert_string(query, null.ok = TRUE, .var.name = "query")
@@ -328,8 +339,8 @@ ris_req_case_law <- function(
     short_title = short_title,
     domain = domain,
     in_ris_since = in_ris_since,
-    sort_by = "Datum",
-    sort_direction = "Descending",
+    sort_by = sort_by,
+    sort_direction = sort_direction,
     search_decision_text = document_type_flags$search_decision_text,
     search_legal_principles = document_type_flags$search_legal_principles,
     page = 1L,
@@ -366,15 +377,11 @@ ris_req_case_law <- function(
 
   # -- Step 4: Construct the httr2 request object -----------------------------
   # We target the /Judikatur endpoint and splice all non-NULL params into the
-  # URL query string.  req_retry(max_tries = 3) adds resilience against
-  # transient network errors.  A package-identifying user agent is set as a
-  # courtesy to the public OGD service.
-  req <- httr2::request(paste0(base_url, "/Judikatur")) |>
-    httr2::req_user_agent(
-      "risAT R package (https://github.com/werkstattcodes/risAT)"
-    ) |>
-    httr2::req_url_query(!!!params) |>
-    httr2::req_retry(max_tries = 3)
+  # URL query string.  ris_base_request() applies the shared request policy:
+  # package-identifying user agent, retries against transient network errors,
+  # and client-side throttling as a courtesy to the public OGD service.
+  req <- ris_base_request(base_url, "/Judikatur") |>
+    httr2::req_url_query(!!!params)
 
   # Attach metadata as a custom attribute on the request object.  This is the
   # bridge between the req and perform steps: ris_perform_case_law() reads

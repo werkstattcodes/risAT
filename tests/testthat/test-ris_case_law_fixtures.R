@@ -35,7 +35,7 @@ test_that("ris_perform_case_law parses one-page fixture with stable list-columns
   payload <- fixture_payload("case_law_one_page.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(payload),
+    ris_iterate_case_law_pages = function(req, max_pages) list(payload),
     ris_perform_case_law(req)
   )
 
@@ -59,7 +59,7 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   page2 <- fixture_payload("case_law_multi_page_page2.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(page1, page2),
+    ris_iterate_case_law_pages = function(req, max_pages) list(page1, page2),
     ris_perform_case_law(req)
   )
 
@@ -93,13 +93,15 @@ test_that("ris_perform_case_law returns structured empty tibble for empty fixtur
   empty_payload <- fixture_payload("case_law_empty.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(empty_payload),
+    ris_iterate_case_law_pages = function(req, max_pages) list(empty_payload),
     ris_perform_case_law(req)
   )
 
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 0L)
-  expect_named(out, c("content_urls", "app_metadata"))
+  expect_named(out, c("id", "application", "content_urls", "app_metadata"))
+  expect_type(out$id, "character")
+  expect_type(out$application, "character")
   expect_true(is.list(out$content_urls))
   expect_true(is.list(out$app_metadata))
 })
@@ -110,10 +112,10 @@ test_that("ris_perform_case_law surfaces API error payloads", {
 
   expect_error(
     testthat::with_mocked_bindings(
-      ris_iterate_case_law_pages = function(req) list(err_payload),
+      ris_iterate_case_law_pages = function(req, max_pages) list(err_payload),
       ris_perform_case_law(req)
     ),
-    "RIS API error \\[Vwgh\\]"
+    class = "risat_api_error"
   )
 })
 
@@ -122,12 +124,12 @@ test_that("wrapper smoke tests call perform path for VwGH and VfGH", {
   vfgh_payload <- fixture_payload("case_law_multi_page_page1.json")
 
   vwgh_out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(vwgh_payload),
+    ris_iterate_case_law_pages = function(req, max_pages) list(vwgh_payload),
     ris_search_vwgh(query = "Asyl")
   )
 
   vfgh_out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(vfgh_payload),
+    ris_iterate_case_law_pages = function(req, max_pages) list(vfgh_payload),
     ris_search_vfgh(query = "Grundrecht")
   )
 

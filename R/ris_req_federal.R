@@ -64,7 +64,8 @@
 #'   `"Ausserkrafttretensdatum"`.
 #' @param sort_direction Optional sort direction (`Sortierung.SortDirection`):
 #'   `"Ascending"` or `"Descending"`.
-#' @param base_url API base URL.
+#' @param base_url API base URL. Defaults to [ris_base_url()], which can be
+#'   overridden for a session via `options(risAT.base_url = ...)`.
 #'
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
 #'   containing the application code, page size, endpoint, and website URLs.
@@ -103,7 +104,7 @@ ris_req_federal <- function(
   in_ris_since = NULL,
   sort_by = NULL,
   sort_direction = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   # -- Step 0: Assert input types ---------------------------------------------
   checkmate::assert_string(query, null.ok = TRUE, .var.name = "query")
@@ -152,10 +153,13 @@ ris_req_federal <- function(
     !is.null(expiry_from) ||
     !is.null(expiry_to)
   if (!is.null(version_date) && has_range) {
-    rlang::abort(paste0(
-      "`version_date` (point-in-time version) cannot be combined with ",
-      "`effective_*` / `expiry_*` date ranges. Use one or the other."
-    ))
+    rlang::abort(
+      paste0(
+        "`version_date` (point-in-time version) cannot be combined with ",
+        "`effective_*` / `expiry_*` date ranges. Use one or the other."
+      ),
+      class = "risat_invalid_argument"
+    )
   }
 
   # Abschnitt.Typ is mandatory whenever a section range is supplied.  Default
@@ -208,11 +212,11 @@ ris_req_federal <- function(
   )
 
   # -- Step 4: Construct the httr2 request object -----------------------------
-  # Query-parameter names containing "." (e.g. "Fassung.FassungVom") are valid
-  # and are spliced verbatim into the URL.
-  req <- httr2::request(paste0(base_url, "/Bundesrecht")) |>
-    httr2::req_url_query(!!!params) |>
-    httr2::req_retry(max_tries = 3)
+  # ris_base_request() applies the shared request policy (user agent, retry,
+  # throttling).  Query-parameter names containing "." (e.g.
+  # "Fassung.FassungVom") are valid and are spliced verbatim into the URL.
+  req <- ris_base_request(base_url, "/Bundesrecht") |>
+    httr2::req_url_query(!!!params)
 
   # Bridge metadata between the req and perform steps.
   attr(req, "ris_meta") <- list(

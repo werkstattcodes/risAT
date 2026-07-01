@@ -17,7 +17,8 @@ ris_search_lvwg(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  max_pages = Inf,
+  base_url = ris_base_url()
 )
 }
 \arguments{
@@ -64,7 +65,14 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
 double-check the result set in the browser.}
 
-\item{base_url}{API base URL.}
+\item{max_pages}{Maximum number of result pages to fetch (100 documents
+per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
+truncates the result set, a message says how to get the rest. Use this
+to keep broad exploratory queries from firing hundreds of requests at
+the public RIS API.}
+
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.

@@ -36,7 +36,9 @@ ris_req_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  sort_by = "Datum",
+  sort_direction = "Descending",
+  base_url = ris_base_url()
 )
 }
 \arguments{
@@ -171,7 +173,18 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \item{search_legal_principles}{Optional flag for legal principles search
 (\code{SucheInRechtssaetzen}).}
 
-\item{base_url}{API base URL.}
+\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). Defaults to
+\code{"Datum"} (decision date). For VfGH and VwGH the value is validated
+client-side against \code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"}
+(English aliases \code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
+\code{"decision_type"}, \code{"document_type"}); other applications pass the value
+to the API as-is.}
+
+\item{sort_direction}{Sort direction (\code{SortierungSortDirection}):
+\code{"Ascending"} or \code{"Descending"} (default).}
+
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 An \code{httr2_request} object with an additional \code{"ris_meta"} attribute

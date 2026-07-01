@@ -53,6 +53,12 @@ reference:
       - ris_parse_search
       - ris_parse_federal
 
+  - title: "Utilities"
+    desc: "API base URL and RIS website URL accessors."
+    contents:
+      - ris_base_url
+      - ris_search_url
+
 build:
   exclude:
     - AGENTS.md

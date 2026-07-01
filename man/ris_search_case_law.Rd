@@ -36,8 +36,11 @@ ris_search_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
+  sort_by = "Datum",
+  sort_direction = "Descending",
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  max_pages = Inf,
+  base_url = ris_base_url()
 )
 }
 \arguments{
@@ -172,12 +175,29 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \item{search_legal_principles}{Optional flag for legal principles search
 (\code{SucheInRechtssaetzen}).}
 
+\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). Defaults to
+\code{"Datum"} (decision date). For VfGH and VwGH the value is validated
+client-side against \code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"}
+(English aliases \code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
+\code{"decision_type"}, \code{"document_type"}); other applications pass the value
+to the API as-is.}
+
+\item{sort_direction}{Sort direction (\code{SortierungSortDirection}):
+\code{"Ascending"} or \code{"Descending"} (default).}
+
 \item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
 (\verb{https://www.ris.bka.gv.at/<Applikation>/} and the corresponding
 \code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
 double-check the result set in the browser.}
 
-\item{base_url}{API base URL.}
+\item{max_pages}{Maximum number of result pages to fetch (100 documents
+per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
+truncates the result set, a message says how to get the rest. Use this
+to keep broad exploratory queries from firing hundreds of requests at
+the public RIS API.}
+
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.

@@ -86,7 +86,7 @@ test_that("ris_parse_federal translates German metadata to English columns", {
   expect_equal(out$eli[[1]], "eli/at/jgs/1811/946")
   expect_equal(out$type[[1]], "BG")
   expect_equal(out$promulgation_organ[[1]], "JGS Nr.")
-  expect_equal(out$effective_date[[1]], "1812-01-01")
+  expect_equal(out$effective_date[[1]], as.Date("1812-01-01"))
   expect_equal(out$law_number[[1]], "10001622")
   expect_equal(out$abbreviation[[1]], "ABGB")
   expect_equal(out$full_law_url[[1]], "https://example.org/law/1")
