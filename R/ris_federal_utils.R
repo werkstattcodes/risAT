@@ -172,7 +172,7 @@ ris_normalize_federal_sort_column <- function(x) {
 # Build the application landing page and a best-effort equivalent search URL
 # on the RIS website (www.ris.bka.gv.at).  The consolidated federal law search
 # uses the "Bundesnormen" Ergebnis.wxe query.  These URLs are supplementary
-# (printed when echo = TRUE and stored in app_metadata) so callers can
+# (printed when echo = TRUE and attached as result attributes) so callers can
 # cross-check results in a browser.
 ris_build_federal_website_urls <- function(
   query = NULL,

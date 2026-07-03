@@ -15,7 +15,7 @@
 #   - the metadata block is `Metadaten$Bundesrecht` (with a nested `BrKons`
 #     sub-block) instead of `Metadaten$Judikatur`;
 #   - the German -> English column name map (ris_federal_column_name_map);
-#   - app_metadata also carries the `bundesrecht` block.
+#   - internal app metadata also carries the `bundesrecht` block.
 # ============================================================================
 
 #' Parse RIS Bundesrecht Search Responses
@@ -29,7 +29,7 @@
 #' @param requested_per_page Optional requested page size for metadata fallback.
 #'
 #' @return A tibble parsed from one RIS Bundesrecht response payload.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'   The `effective_date` and `expiry_date` columns, when present, are
 #'   parsed to `Date`.
 #' @importFrom rlang %||%
@@ -73,6 +73,19 @@ ris_parse_federal <- function(
   requested_page = NULL,
   requested_per_page = NULL
 ) {
+  ris_parse_federal_internal(
+    x,
+    requested_page = requested_page,
+    requested_per_page = requested_per_page
+  ) |>
+    ris_drop_app_metadata()
+}
+
+ris_parse_federal_internal <- function(
+  x,
+  requested_page = NULL,
+  requested_per_page = NULL
+) {
   payload <- ris_as_payload(x)
   root <- ris_extract_root(payload)
   ris_stop_on_api_error(root)
@@ -101,7 +114,7 @@ ris_parse_federal <- function(
 
 # Convert a single OgdDocumentReference into a one-row tibble.  Mirrors
 # ris_reference_to_tibble_row() but uses the Bundesrecht column map and keeps
-# the `bundesrecht` metadata block in app_metadata.
+# the `bundesrecht` metadata block in internal app metadata.
 ris_reference_to_federal_row <- function(reference, response_meta) {
   data <- reference$Data %||% list()
   metadata <- data$Metadaten %||% list()

@@ -15,7 +15,7 @@ ris_parse_search(x, requested_page = NULL, requested_per_page = NULL)
 }
 \value{
 A tibble parsed from one RIS response payload.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 The \code{decision_date} column, when present, is parsed to \code{Date}.
 }
 \description{

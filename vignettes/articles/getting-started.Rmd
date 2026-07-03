@@ -68,7 +68,6 @@ frequently used columns are:
 | `decision_date` | Date of the decision |
 | `document_type` | `Rechtssatz` or `Text` (full decision) |
 | `content_urls` | List-column of download links |
-| `app_metadata` | List-column of court-specific and response metadata |
 
 # Filtering results
 
@@ -320,45 +319,20 @@ pdf_urls <- results |>
 pdf_urls
 ```
 
-## `app_metadata` — court-specific fields and response context
+## RIS website URLs
 
-Court-specific fields and pagination context are nested in `app_metadata`.
-Use `tidyr::unnest_wider()` to bring them to the top level:
+Search results carry the equivalent RIS website URLs as attributes. Use
+`ris_app_url()` and `ris_search_url()` to retrieve them before applying dplyr
+operations that may drop custom attributes:
 
 ```{r app-metadata}
-library(tidyr)
-
-results |>
-  select(id, case_number, app_metadata) |>
-  unnest_wider(app_metadata) |>
-  glimpse()
+ris_app_url(results)
+ris_search_url(results)
 ```
 
 ```{r app-metadata-out, echo=FALSE, eval=TRUE}
-library(tidyr)
-
-results |>
-  select(id, case_number, app_metadata) |>
-  unnest_wider(app_metadata) |>
-  glimpse()
-```
-
-The `response` sub-list contains pagination context (total hits, page number)
-and `request` records the exact API parameters sent:
-
-```{r pagination-meta}
-# Total hits reported by the API
-results$app_metadata[[1]]$response$hits
-
-# Page context
-results$app_metadata[[1]]$response$page_number
-results$app_metadata[[1]]$response$page_size
-```
-
-```{r pagination-meta-out, echo=FALSE, eval=TRUE}
-cat(results$app_metadata[[1]]$response$hits, "\n")
-cat(results$app_metadata[[1]]$response$page_number, "\n")
-cat(results$app_metadata[[1]]$response$page_size, "\n")
+cat(ris_app_url(results), "\n")
+cat(ris_search_url(results), "\n")
 ```
 
 # Federal law: how often has a law been amended?

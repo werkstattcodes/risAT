@@ -32,7 +32,7 @@
 #'   double-check the result set in the browser.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #' @export
 #'
 #' @examples

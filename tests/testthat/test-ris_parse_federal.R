@@ -64,16 +64,15 @@ make_federal_payload <- function() {
   )
 }
 
-test_that("ris_parse_federal returns a tibble with required list-columns", {
+test_that("ris_parse_federal returns a tibble with public list-columns", {
   out <- ris_parse_federal(make_federal_payload())
 
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 1L)
   expect_true("content_urls" %in% names(out))
-  expect_true("app_metadata" %in% names(out))
+  expect_false("app_metadata" %in% names(out))
   expect_type(out$content_urls[[1]], "character")
   expect_length(out$content_urls[[1]], 2)
-  expect_type(out$app_metadata[[1]], "list")
 })
 
 test_that("ris_parse_federal translates German metadata to English columns", {
@@ -92,8 +91,8 @@ test_that("ris_parse_federal translates German metadata to English columns", {
   expect_equal(out$full_law_url[[1]], "https://example.org/law/1")
 })
 
-test_that("ris_parse_federal keeps the bundesrecht block in app_metadata", {
-  out <- ris_parse_federal(make_federal_payload())
+test_that("ris_parse_federal keeps app metadata internal", {
+  out <- risAT:::ris_parse_federal_internal(make_federal_payload())
   meta <- out$app_metadata[[1]]
   expect_true("bundesrecht" %in% names(meta))
   expect_equal(meta$bundesrecht$Kurztitel, "ABGB")
@@ -112,7 +111,8 @@ test_that("ris_parse_federal handles empty results", {
   out <- ris_parse_federal(payload)
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 0L)
-  expect_true(all(c("content_urls", "app_metadata") %in% names(out)))
+  expect_true("content_urls" %in% names(out))
+  expect_false("app_metadata" %in% names(out))
 })
 
 test_that("ris_parse_federal tolerates missing optional fields", {
@@ -153,4 +153,22 @@ test_that("ris_parse_federal raises for RIS API errors", {
     ris_parse_federal(payload),
     "RIS API error \\[BrKons\\]"
   )
+})
+
+test_that("federal exported tibble outputs never include app_metadata", {
+  payload <- make_federal_payload()
+
+  outputs <- testthat::with_mocked_bindings(
+    ris_iterate_case_law_pages = function(req, max_pages) list(payload),
+    list(
+      parse = ris_parse_federal(payload),
+      perform = ris_perform_federal(ris_req_federal(title = "ABGB")),
+      search = ris_search_federal(title = "ABGB")
+    )
+  )
+
+  purrr::walk(outputs, \(out) {
+    expect_s3_class(out, "tbl_df")
+    expect_false("app_metadata" %in% names(out))
+  })
 })

@@ -71,7 +71,7 @@ overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 }
 \description{
 Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law()}} with

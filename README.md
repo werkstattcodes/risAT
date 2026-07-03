@@ -132,7 +132,7 @@ results_mrg <- ris_search_federal(query = "Mietzins", version_date = "2020-01-01
 
 Search functions automatically iterate through all RIS pages and return results
 as a tidy tibble with columns including `id`, `court`, `decision_date`,
-`case_number`, `content_urls` (list-column), and `app_metadata` (list-column).
+`case_number`, and `content_urls` (a list-column of download links).
 See the [reference documentation](https://werkstattcodes.github.io/risAT/reference/)
 for full details.
 

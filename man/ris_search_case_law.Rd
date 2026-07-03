@@ -201,7 +201,7 @@ overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 }
 \description{
 Query the Austrian RIS OGD REST API v2.6 endpoint \verb{/Judikatur}.

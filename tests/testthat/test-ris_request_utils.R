@@ -63,7 +63,7 @@ test_that("ris_perform_case_law paginates via httr2 and combines pages", {
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 2L)
   expect_equal(out$id, c("Vfgh-2026-0001", "Vfgh-2026-0002"))
-  expect_equal(out$app_metadata[[2]]$request$seitennummer, 2L)
+  expect_false("app_metadata" %in% names(out))
 })
 
 test_that("max_pages truncates pagination and informs the user", {
@@ -130,9 +130,10 @@ test_that("ris_search_url and ris_app_url read result attributes", {
 test_that("empty parse results carry the guaranteed column schema", {
   empty_payload <- fixture_payload("case_law_empty.json")
   out <- ris_parse_search(empty_payload)
-  expect_named(out, c("id", "application", "content_urls", "app_metadata"))
+  expect_named(out, c("id", "application", "content_urls"))
   expect_type(out$id, "character")
   expect_type(out$application, "character")
+  expect_false("app_metadata" %in% names(out))
 })
 
 # ── Date column parsing ──────────────────────────────────────────────────────

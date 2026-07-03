@@ -9,7 +9,7 @@
 #' @param requested_per_page Optional requested page size for metadata fallback.
 #'
 #' @return A tibble parsed from one RIS response payload.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'   The `decision_date` column, when present, is parsed to `Date`.
 #' @importFrom rlang %||%
 #' @export
@@ -45,6 +45,19 @@
 #' )
 #' ris_parse_search(payload)
 ris_parse_search <- function(
+  x,
+  requested_page = NULL,
+  requested_per_page = NULL
+) {
+  ris_parse_search_internal(
+    x,
+    requested_page = requested_page,
+    requested_per_page = requested_per_page
+  ) |>
+    ris_drop_app_metadata()
+}
+
+ris_parse_search_internal <- function(
   x,
   requested_page = NULL,
   requested_per_page = NULL

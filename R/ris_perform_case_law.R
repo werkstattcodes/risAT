@@ -35,7 +35,7 @@
 #'   the public RIS API.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #' @export
 #'
 #' @examples
@@ -90,7 +90,7 @@ ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
   page_results <- purrr::imap(
     responses,
     function(resp, idx) {
-      page_tbl <- ris_parse_search(
+      page_tbl <- ris_parse_search_internal(
         resp,
         requested_page = as.integer(idx),
         requested_per_page = per_page
@@ -110,10 +110,9 @@ ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
   out <- ris_bind_case_law_pages(page_results)
 
   # -- Step 5: Handle empty results -------------------------------------------
-  # Return a zero-row tibble with the guaranteed column structure (id,
-  # application, content_urls, app_metadata) rather than an unstructured
-  # empty tibble, so downstream code sees the same schema as for non-empty
-  # results.
+  # Return a zero-row tibble with the guaranteed public column structure rather
+  # than an unstructured empty tibble, so downstream code sees the same schema
+  # as for non-empty results.
   if (nrow(out) == 0L) {
     empty_out <- ris_empty_result(website_urls)
     if (isTRUE(echo)) {
@@ -157,7 +156,7 @@ ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
     message("Rows returned: ", nrow(out))
   }
 
-  out
+  ris_drop_app_metadata(out)
 }
 
 # ============================================================================

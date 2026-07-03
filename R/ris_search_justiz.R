@@ -56,7 +56,7 @@
 #'   (`AenderungenSeitPeriode`). Same interval keywords as `in_ris_since`.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
 #' @examples
 #' \dontrun{

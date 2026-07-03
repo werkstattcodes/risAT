@@ -39,7 +39,7 @@
 #'   (case-insensitive).
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
 #' @examples
 #' \dontrun{

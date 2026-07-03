@@ -50,22 +50,28 @@ ris_normalize_max_pages <- function(max_pages) {
   floor(max_pages)
 }
 
-# Type-stable zero-row result: guarantees the columns that every RIS search
-# result contains, so downstream code can rely on `out$id` etc. even when a
-# search returns no hits.  website_urls is NULL when called from the parsers
-# (which have no request context); the URL attributes are then omitted.
+# Type-stable zero-row result: guarantees the columns that every public RIS
+# search result contains, so downstream code can rely on `out$id` etc. even
+# when a search returns no hits.  website_urls is NULL when called from the
+# parsers (which have no request context); the URL attributes are then omitted.
 ris_empty_result <- function(website_urls = NULL) {
   out <- tibble::tibble(
     id = character(),
     application = character(),
-    content_urls = list(),
-    app_metadata = list()
+    content_urls = list()
   )
   if (!is.null(website_urls)) {
     attr(out, "ris_app_url") <- website_urls$app_url
     attr(out, "ris_search_url") <- website_urls$search_url
   }
   out
+}
+
+ris_drop_app_metadata <- function(tbl) {
+  if ("app_metadata" %in% names(tbl)) {
+    tbl$app_metadata <- NULL
+  }
+  tbl
 }
 
 # After pagination stopped at max_pages, check whether the API had more pages
@@ -105,9 +111,7 @@ ris_inform_if_truncated <- function(responses, max_pages) {
 #' retrieve them.
 #'
 #' Note that most dplyr operations (`filter()`, `mutate()`, ...) drop custom
-#' attributes, so call these accessors on the unmodified search result. The
-#' same URLs are also stored per row in `app_metadata$request`, which survives
-#' data wrangling.
+#' attributes, so call these accessors on the unmodified search result.
 #'
 #' @param x A tibble returned by a risAT search function such as
 #'   [ris_search_case_law()] or [ris_search_federal()].

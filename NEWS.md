@@ -16,7 +16,7 @@
 - Bundesrecht requests now send the same package-identifying `User-Agent`
   header as Judikatur requests.
 - Empty search results now return a zero-row tibble with the guaranteed
-  common columns (`id`, `application`, `content_urls`, `app_metadata`),
+  common columns (`id`, `application`, `content_urls`),
   matching the schema of non-empty results.
 - `ris_parse_federal()` parses `effective_date` and `expiry_date` to `Date`
   and guards against duplicate column names after translation.
@@ -39,7 +39,7 @@
 - Updated documentation for finalized behavior:
   - `ris_search_vfgh()` defaults to Rechtssätze (RS).
   - Search functions always iterate over all pages in scope.
-  - Result schema includes list-columns `content_urls` and `app_metadata`; pagination context is available in nested `app_metadata$response` and `app_metadata$request` metadata.
+  - Result schema includes the `content_urls` list-column; internal `app_metadata` is not returned by exported functions.
   - VfGH english aliases documented for `decision_type`, `sort_by`, and `in_ris_since`.
 - Fixed mixed column-type binding across multi-page responses.
 - `ris_search_gbk()` now normalizes `commission`, `senate`, and

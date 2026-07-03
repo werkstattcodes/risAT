@@ -21,7 +21,7 @@ the public RIS API.}
 }
 \value{
 A tidy tibble with parsed search results.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 }
 \description{
 Execute a request built by \code{\link[=ris_req_case_law]{ris_req_case_law()}} and return parsed results.

@@ -24,9 +24,7 @@ retrieve them.
 }
 \details{
 Note that most dplyr operations (\code{filter()}, \code{mutate()}, ...) drop custom
-attributes, so call these accessors on the unmodified search result. The
-same URLs are also stored per row in \code{app_metadata$request}, which survives
-data wrangling.
+attributes, so call these accessors on the unmodified search result.
 }
 \examples{
 \dontrun{

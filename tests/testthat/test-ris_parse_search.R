@@ -1,4 +1,4 @@
-test_that("ris_parse_search returns tibble with required list-columns", {
+test_that("ris_parse_search returns tibble with public list-columns", {
   payload <- list(
     OgdSearchResult = list(
       status = "ok",
@@ -53,10 +53,9 @@ test_that("ris_parse_search returns tibble with required list-columns", {
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 1L)
   expect_true("content_urls" %in% names(out))
-  expect_true("app_metadata" %in% names(out))
+  expect_false("app_metadata" %in% names(out))
   expect_type(out$content_urls[[1]], "character")
   expect_length(out$content_urls[[1]], 2)
-  expect_type(out$app_metadata[[1]], "list")
   expect_true("id" %in% names(out))
   expect_true("document_url" %in% names(out))
   expect_equal(out$id[[1]], "TEST-001")
