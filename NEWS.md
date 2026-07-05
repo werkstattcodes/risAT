@@ -1,6 +1,13 @@
 # risAT 0.0.0.9000
 
 - Initial development version.
+- Fixed API schema-validation errors for the GBK filters: `senate`, the
+  federal `commission`, and the multi-word `discrimination_ground` values
+  ("Ethnische Zugehörigkeit", "Sexuelle Orientierung") were sent in their
+  RIS-website display form; they are now mapped to the OGD API enum values
+  (`I`/`II`/`III`, `BundesGleichbehandlungskommission`,
+  `EthnischeZugehoerigkeit`, `SexuelleOrientierung`). Accepted user inputs
+  are unchanged, and the API enum spellings are now accepted as input too.
 - All requests are now throttled client-side (30 requests per minute) as a
   courtesy to the public RIS OGD API.
 - New `max_pages` argument on all search and perform functions caps the number

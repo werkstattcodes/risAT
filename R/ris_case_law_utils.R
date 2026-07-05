@@ -835,21 +835,22 @@ ris_normalize_federal_state <- function(x) {
 
 # -- GBK commission normalization ----------------------------------------------
 # The Gbk application covers two distinct commissions.  We accept the full
-# German names and short aliases.
+# German names and short aliases.  The API enum (GbkKommission) uses the
+# concatenated form without the hyphen ("BundesGleichbehandlungskommission").
 ris_normalize_gbk_commission <- function(x) {
   lookup <- c(
     # Full names (normalized)
-    bundesgleichbehandlungskommission = "Bundes-Gleichbehandlungskommission",
+    bundesgleichbehandlungskommission = "BundesGleichbehandlungskommission",
     gleichbehandlungskommission = "Gleichbehandlungskommission",
     # Short aliases
-    bundesgbk = "Bundes-Gleichbehandlungskommission",
-    bgbk = "Bundes-Gleichbehandlungskommission",
+    bundesgbk = "BundesGleichbehandlungskommission",
+    bgbk = "BundesGleichbehandlungskommission",
     gbk = "Gleichbehandlungskommission",
     # English aliases
-    federalequaltreatmentcommission = "Bundes-Gleichbehandlungskommission",
+    federalequaltreatmentcommission = "BundesGleichbehandlungskommission",
     privatesectorequaltreatmentcommission = "Gleichbehandlungskommission",
     privatesector = "Gleichbehandlungskommission",
-    federal = "Bundes-Gleichbehandlungskommission"
+    federal = "BundesGleichbehandlungskommission"
   )
 
   ris_match_lookup(
@@ -868,17 +869,18 @@ ris_normalize_gbk_commission <- function(x) {
 # -- GBK senate normalization --------------------------------------------------
 # The Bundes-GBK has Senat I and II; the private-sector GBK has Senat I, II,
 # and III.  We accept the full names, Roman numerals, and Arabic digits.
+# The API enum (GbkSenat) uses bare Roman numerals ("I", "II", "III").
 ris_normalize_gbk_senate <- function(x) {
   lookup <- c(
-    senati = "Senat I",
-    senatii = "Senat II",
-    senatiii = "Senat III",
-    i = "Senat I",
-    ii = "Senat II",
-    iii = "Senat III",
-    `1` = "Senat I",
-    `2` = "Senat II",
-    `3` = "Senat III"
+    senati = "I",
+    senatii = "II",
+    senatiii = "III",
+    i = "I",
+    ii = "II",
+    iii = "III",
+    `1` = "I",
+    `2` = "II",
+    `3` = "III"
   )
 
   ris_match_lookup(
@@ -891,30 +893,33 @@ ris_normalize_gbk_senate <- function(x) {
 
 # -- GBK discrimination ground normalization -----------------------------------
 # The discrimination grounds are defined in the Gleichbehandlungsgesetz (GlBG)
-# and the Bundes-Gleichbehandlungsgesetz (B-GlBG).  We accept the German API
-# values and common English aliases.
+# and the Bundes-Gleichbehandlungsgesetz (B-GlBG).  We accept the human-readable
+# German forms and common English aliases.  The API enum
+# (GbkDiskriminierungsgrund) uses concatenated ASCII identifiers
+# ("EthnischeZugehoerigkeit", "SexuelleOrientierung").
 ris_normalize_gbk_discrimination_ground <- function(x) {
   lookup <- c(
     # German canonical values
     geschlecht = "Geschlecht",
-    "ethnische zugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
-    "ethnischezugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
-    ethnischezugehorigkeit = "Ethnische Zugeh\u00f6rigkeit",
+    "ethnische zugeh\u00f6rigkeit" = "EthnischeZugehoerigkeit",
+    "ethnischezugeh\u00f6rigkeit" = "EthnischeZugehoerigkeit",
+    ethnischezugehorigkeit = "EthnischeZugehoerigkeit",
+    ethnischezugehoerigkeit = "EthnischeZugehoerigkeit",
     religion = "Religion",
     weltanschauung = "Weltanschauung",
     alter = "Alter",
-    "sexuelle orientierung" = "Sexuelle Orientierung",
-    sexuelleorientierung = "Sexuelle Orientierung",
+    "sexuelle orientierung" = "SexuelleOrientierung",
+    sexuelleorientierung = "SexuelleOrientierung",
     behinderung = "Behinderung",
     mehrfachdiskriminierung = "Mehrfachdiskriminierung",
     # English aliases
     gender = "Geschlecht",
     sex = "Geschlecht",
-    ethnicity = "Ethnische Zugeh\u00f6rigkeit",
-    ethnicorigin = "Ethnische Zugeh\u00f6rigkeit",
+    ethnicity = "EthnischeZugehoerigkeit",
+    ethnicorigin = "EthnischeZugehoerigkeit",
     worldview = "Weltanschauung",
     age = "Alter",
-    sexualorientation = "Sexuelle Orientierung",
+    sexualorientation = "SexuelleOrientierung",
     disability = "Behinderung",
     multiplediscrimination = "Mehrfachdiskriminierung",
     multiple = "Mehrfachdiskriminierung"
