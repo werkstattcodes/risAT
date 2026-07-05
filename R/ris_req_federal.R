@@ -72,8 +72,7 @@
 #'   Pass this to [ris_perform_federal()] to execute the search.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Build request, then inspect the URL without hitting the network
 #' req <- ris_req_federal(title = "ABGB")
 #' httr2::req_dry_run(req)
@@ -83,7 +82,6 @@
 #'
 #' # Execute
 #' results <- ris_perform_federal(req)
-#' }
 ris_req_federal <- function(
   query = NULL,
   title = NULL,
@@ -128,16 +126,17 @@ ris_req_federal <- function(
     .var.name = "section_from"
   )
   checkmate::assert_string(section_to, null.ok = TRUE, .var.name = "section_to")
-  for (nm in c(
-    "signature_date",
-    "version_date",
-    "effective_from",
-    "effective_to",
-    "expiry_from",
-    "expiry_to"
-  )) {
+  date_args <- list(
+    signature_date = signature_date,
+    version_date = version_date,
+    effective_from = effective_from,
+    effective_to = effective_to,
+    expiry_from = expiry_from,
+    expiry_to = expiry_to
+  )
+  for (nm in names(date_args)) {
     checkmate::assert_string(
-      get(nm),
+      date_args[[nm]],
       null.ok = TRUE,
       pattern = "^\\d{4}-\\d{2}-\\d{2}$",
       .var.name = nm

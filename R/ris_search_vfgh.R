@@ -40,8 +40,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
 #' # The query field supports full-text operators: space/"und" = AND,
 #' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
@@ -95,7 +94,6 @@
 #'   business_number = "G 97/2021",
 #'   echo = TRUE
 #' )
-#' }
 #' @export
 ris_search_vfgh <- function(
   query = NULL,

@@ -212,7 +212,7 @@ unmodified result — most dplyr verbs drop attributes.
 - Prefer `purrr` functional style over base R loops where it improves clarity
 - Use the pipe `|>` (native R pipe) or `%>%` consistently with the existing file
 - Use `rlang::abort()` / `rlang::warn()` for errors and warnings (not `stop()` / `warning()`)
-- All errors and messages raised by the package carry condition classes, set via `class =` on `rlang::abort()` etc.: `risat_invalid_argument` (input validation), `risat_api_error` (errors from RIS API error payloads), `risat_truncated_results` (message when `max_pages` truncates a result set). New conditions should follow this pattern so callers can handle them structurally with `tryCatch()`.
+- All errors and messages raised by the package carry condition classes, set via `class =` on `rlang::abort()` etc.: `risat_invalid_argument` (input validation), `risat_api_error` (errors from RIS API error payloads), `risat_truncated_results` (message when `max_pages` truncates a result set), `risat_ignored_argument` (warning when provided arguments are ignored for the selected application). New conditions should follow this pattern so callers can handle them structurally with `tryCatch()`.
 - Use `checkmate` assertions for input validation at function entry points
 - Write descriptive, explicit variable names — avoid abbreviations unless widely established
 - Keep functions focused on a single responsibility
@@ -255,9 +255,9 @@ All exported functions must have complete roxygen2 documentation:
 
 ## API constraints
 
-- **Respect rate limits** — the RIS OGD API is a public service; every request goes through `ris_base_request()`, which applies client-side throttling (30 requests/minute) and retries — do not bypass it or add parallel/rapid sequential requests
-- **OGD netiquette** — follow the terms of the RIS OGD API; do not attempt to bulk-download the entire database
-- **Pagination** — the package handles multi-page results automatically via `httr2::req_perform_iterative()`; all search/perform functions accept `max_pages` (default `Inf` = fetch all pages), and a truncated result emits a classed `risat_truncated_results` message; narrow searches (e.g. with date ranges or specific filters) during development and testing to keep the number of requests small
+- **Respect rate limits** — the RIS OGD API is a public service; every request goes through `ris_base_request()`, which applies client-side throttling (30 requests/minute, i.e. ~2s/request) and retries — do not bypass it or add parallel/rapid sequential requests. This matches the officially documented pacing: the RIS OGD FAQ (`background_docs/ris-ogd-faq.pdf`, "Technische Rahmenbedingungen") asks clients to insert "kurze Pausen von etwa 1–2 Sekunden" between paginated page fetches — sequential, not parallel. There is no documented allowance for concurrent requests, so `httr2::req_perform_parallel()` is not an option here even though the throttle bucket would still cap it (see `background_docs/ris-ogd-faq.pdf` before ever proposing to loosen or parallelize this).
+- **OGD netiquette** — follow the terms of the RIS OGD API; do not attempt to bulk-download the entire database. The FAQ also asks that large/bulk fetches happen outside business hours (18:00–06:00) or on weekends, and that a genuine bulk-download need be announced in advance to `ris.it@bka.gv.at` so it isn't mistaken for a DDoS attack — flag this to the user rather than acting on it, since it requires contacting a third party.
+- **Pagination** — the package handles multi-page results automatically via `httr2::req_perform_iterative()`; all search/perform functions accept `max_pages` (default `Inf` = fetch all pages), and a truncated result emits a classed `risat_truncated_results` message; narrow searches (e.g. with date ranges or specific filters) during development and testing to keep the number of requests small. Slowness on broad full-text queries (e.g. `search_decision_text`/`search_legal_principles` over a wide date range) is expected — it comes from the mandated per-page pacing across many pages, not a client bug; narrowing the query or capping `max_pages` is the way to speed it up.
 
 ---
 

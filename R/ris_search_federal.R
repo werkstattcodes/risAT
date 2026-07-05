@@ -23,17 +23,12 @@
 #'
 #' @inheritParams ris_req_federal
 #' @inheritParams ris_perform_case_law
-#' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
-#'   (`https://www.ris.bka.gv.at/Bundesrecht/` and the corresponding
-#'   `Ergebnis.wxe` query URL) and the number of returned rows, so users can
-#'   double-check the result set in the browser.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Look up a law by its (short) title
 #' ris_search_federal(title = "ABGB")
 #'
@@ -46,7 +41,6 @@
 #'   effective_to = "2024-12-31",
 #'   echo = TRUE
 #' )
-#' }
 ris_search_federal <- function(
   query = NULL,
   title = NULL,

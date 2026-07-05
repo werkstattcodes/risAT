@@ -79,3 +79,71 @@ test_that("ris_parse_search raises for RIS API errors", {
     "RIS API error \\[Vwgh\\]"
   )
 })
+
+test_that("keywords are split into a list-column of terms", {
+  make_doc <- function(id, judikatur) {
+    list(
+      Data = list(
+        Metadaten = list(
+          Technisch = list(ID = id, Applikation = "Vfgh"),
+          Judikatur = judikatur
+        )
+      )
+    )
+  }
+  payload <- list(
+    OgdSearchResult = list(
+      OgdDocumentResults = list(
+        Hits = list(pageNumber = "1", pageSize = "20", `#text` = "2"),
+        OgdDocumentReference = list(
+          make_doc(
+            "KW-1",
+            list(
+              Schlagworte = "Klima, Umweltschutz, EU-Recht",
+              Normen = list(item = list("B-VG Art7", "StGG Art2"))
+            )
+          ),
+          # No Schlagworte: the keywords cell must be NA, not an error.
+          make_doc("KW-2", list(Normen = list(item = list("VfGG Abs1"))))
+        )
+      )
+    )
+  )
+
+  out <- ris_parse_search(payload)
+
+  expect_type(out$keywords, "list")
+  expect_equal(out$keywords[[1]], c("Klima", "Umweltschutz", "EU-Recht"))
+  expect_true(is.na(out$keywords[[2]]))
+
+  expect_type(out$norms, "list")
+  expect_equal(unlist(out$norms[[1]]), c("B-VG Art7", "StGG Art2"))
+  expect_equal(unlist(out$norms[[2]]), "VfGG Abs1")
+})
+
+test_that("norms stay a list-column when every document has a single norm", {
+  # When each document on a page carries exactly one norm, the API collapses
+  # the item array to a bare scalar; the column must still be list-typed.
+  payload <- list(
+    OgdSearchResult = list(
+      OgdDocumentResults = list(
+        Hits = list(pageNumber = "1", pageSize = "20", `#text` = "1"),
+        OgdDocumentReference = list(
+          list(
+            Data = list(
+              Metadaten = list(
+                Technisch = list(ID = "SN-1", Applikation = "Vfgh"),
+                Judikatur = list(Normen = list(item = "B-VG Art7"))
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+
+  out <- ris_parse_search(payload)
+
+  expect_type(out$norms, "list")
+  expect_equal(out$norms[[1]], "B-VG Art7")
+})

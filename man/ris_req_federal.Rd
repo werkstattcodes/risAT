@@ -100,7 +100,7 @@ The request is \strong{not executed}; call \code{\link[=ris_perform_federal]{ris
 and parse the results, or use \code{\link[httr2:req_dry_run]{httr2::req_dry_run()}} to inspect the URL.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Build request, then inspect the URL without hitting the network
 req <- ris_req_federal(title = "ABGB")
 httr2::req_dry_run(req)
@@ -110,5 +110,5 @@ req <- ris_req_federal(title = "MRG", version_date = "2020-01-01")
 
 # Execute
 results <- ris_perform_federal(req)
-}
+\dontshow{\}) # examplesIf}
 }

@@ -54,8 +54,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search across all data protection authority decisions
 #' ris_search_dsk(query = "Videoüberwachung")
 #'
@@ -76,7 +75,6 @@
 #'
 #' # Decisions added to RIS within the last six months
 #' ris_search_dsk(in_ris_since = "six_months")
-#' }
 #' @export
 ris_search_dsk <- function(
   query = NULL,

@@ -103,6 +103,120 @@ ris_inform_if_truncated <- function(responses, max_pages) {
   )
 }
 
+# Shared execution engine behind ris_perform_case_law() and
+# ris_perform_federal(): validate the request metadata, fetch all pages,
+# parse each with `page_parser`, combine, enrich request provenance in the
+# internal app metadata, and attach the website-URL attributes.  The two
+# public perform functions only differ in their page parser and in the name
+# of the request builder mentioned in error messages.
+#
+# `echo` and `max_pages` are assumed to be already validated by the public
+# perform functions, so assertion errors carry the name the user called.
+ris_perform_ris_search <- function(
+  req,
+  echo,
+  max_pages,
+  page_parser,
+  builder_name,
+  call = rlang::caller_env()
+) {
+  # The request builder attaches an "ris_meta" attribute containing the
+  # application code, page size, endpoint, and pre-built website URLs.  If it
+  # is missing, the request wasn't built by our constructor.  `call` points
+  # the error at the public perform function the user actually called.
+  meta <- attr(req, "ris_meta")
+  if (is.null(meta)) {
+    rlang::abort(
+      paste0(
+        "`req` must be built with `",
+        builder_name,
+        "()` (missing `ris_meta` attribute)."
+      ),
+      class = "risat_invalid_argument",
+      call = call
+    )
+  }
+
+  application_code <- meta$application_code
+  per_page <- meta$per_page
+  endpoint <- meta$endpoint %||% "/Judikatur"
+  website_urls <- meta$website_urls
+
+  # When echo = TRUE, print the RIS website URL so the user can open the
+  # same search in a browser to cross-check the results.
+  if (isTRUE(echo)) {
+    message("Equivalent RIS search URL: ", website_urls$search_url)
+  }
+
+  # Fetch pages iteratively, following pagination via the response metadata.
+  responses <- ris_iterate_case_law_pages(req, max_pages = max_pages)
+  ris_inform_if_truncated(responses, max_pages)
+
+  # Parse each page, tag rows with their page number, and drop empty pages.
+  page_results <- purrr::imap(
+    responses,
+    function(resp, idx) {
+      page_tbl <- page_parser(
+        resp,
+        requested_page = as.integer(idx),
+        requested_per_page = per_page
+      )
+      if (nrow(page_tbl) == 0L) {
+        return(NULL)
+      }
+      page_tbl$.page_idx <- as.integer(idx)
+      page_tbl
+    }
+  )
+
+  out <- ris_bind_case_law_pages(page_results)
+
+  # Return a zero-row tibble with the guaranteed public column structure
+  # rather than an unstructured empty tibble, so downstream code sees the
+  # same schema as for non-empty results.
+  if (nrow(out) == 0L) {
+    empty_out <- ris_empty_result(website_urls)
+    if (isTRUE(echo)) {
+      message("Rows returned: 0")
+    }
+    return(empty_out)
+  }
+
+  # Append a `request` sub-list to each row's app_metadata so users can trace
+  # which endpoint, application, page, and RIS URLs produced each row.
+  out$app_metadata <- purrr::map2(
+    out$app_metadata,
+    out$.page_idx,
+    \(meta_entry, page_idx) c(
+      meta_entry,
+      list(
+        request = list(
+          endpoint = endpoint,
+          application = application_code,
+          seitennummer = as.integer(page_idx),
+          dokumente_pro_seite = ris_per_page_to_api_value(per_page),
+          ris_app_url = website_urls$app_url,
+          ris_search_url = website_urls$search_url
+        )
+      )
+    )
+  )
+
+  # Drop the temporary page index column used for app_metadata enrichment.
+  out$.page_idx <- NULL
+
+  # Attach RIS URLs as attributes for the ris_app_url()/ris_search_url()
+  # accessors.
+  attr(out, "ris_app_url") <- website_urls$app_url
+  attr(out, "ris_search_url") <- website_urls$search_url
+
+  if (isTRUE(echo)) {
+    message("Rows returned: ", nrow(out))
+  }
+
+  ris_drop_app_metadata(out)
+}
+
 #' Get the RIS Website URLs of a Search Result
 #'
 #' Every tibble returned by the risAT search functions carries the equivalent
@@ -119,12 +233,10 @@ ris_inform_if_truncated <- function(responses, max_pages) {
 #' @return A single string (the URL), or `NULL` if the attribute is absent.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' results <- ris_search_vwgh(business_number = "Ra 2021/01/0001")
 #' ris_search_url(results)
 #' ris_app_url(results)
-#' }
 ris_search_url <- function(x) {
   attr(x, "ris_search_url", exact = TRUE)
 }

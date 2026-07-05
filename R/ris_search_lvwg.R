@@ -41,8 +41,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search across all nine LVwG
 #' ris_search_lvwg(query = "Baubewilligung")
 #'
@@ -61,7 +60,6 @@
 #'
 #' # Decisions added to RIS within the last month
 #' ris_search_lvwg(in_ris_since = "one_month", federal_state = "Tirol")
-#' }
 #' @export
 ris_search_lvwg <- function(
   query = NULL,

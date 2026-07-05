@@ -27,9 +27,9 @@ Note that most dplyr operations (\code{filter()}, \code{mutate()}, ...) drop cus
 attributes, so call these accessors on the unmodified search result.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 results <- ris_search_vwgh(business_number = "Ra 2021/01/0001")
 ris_search_url(results)
 ris_app_url(results)
-}
+\dontshow{\}) # examplesIf}
 }

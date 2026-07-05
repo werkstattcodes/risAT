@@ -10,8 +10,10 @@ ris_perform_federal(req, echo = FALSE, max_pages = Inf)
 \item{req}{An \code{httr2_request} object, typically built with
 \code{\link[=ris_req_federal]{ris_req_federal()}}.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-and the number of returned rows.}
+\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
+URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
+number of returned rows, so the result set can be double-checked in the
+browser.}
 
 \item{max_pages}{Maximum number of result pages to fetch (100 documents
 per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
@@ -29,8 +31,8 @@ Pages are fetched iteratively using \code{httr2::req_perform_iterative()},
 up to \code{max_pages} pages.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 req <- ris_req_federal(title = "ABGB")
 results <- ris_perform_federal(req)
-}
+\dontshow{\}) # examplesIf}
 }

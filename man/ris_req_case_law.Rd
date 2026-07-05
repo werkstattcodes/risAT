@@ -36,8 +36,8 @@ ris_req_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  sort_by = "Datum",
-  sort_direction = "Descending",
+  sort_by = NULL,
+  sort_direction = NULL,
   base_url = ris_base_url()
 )
 }
@@ -171,17 +171,26 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 (\code{SucheInEntscheidungstexten}).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
-(\code{SucheInRechtssaetzen}).}
+(\code{SucheInRechtssaetzen}). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. \code{search_decision_text = FALSE} searches legal principles only).
+Setting both to \code{FALSE} is an error.}
 
-\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). Defaults to
-\code{"Datum"} (decision date). For VfGH and VwGH the value is validated
-client-side against \code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"}
-(English aliases \code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
-\code{"decision_type"}, \code{"document_type"}); other applications pass the value
-to the API as-is.}
+\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). When omitted,
+defaults to \code{"Datum"} (decision date) for all applications except
+\code{Normenliste}, whose only sortable column is \code{"Kurzinformation"} — there
+the sort parameters are omitted and the API default order applies. For
+VfGH and VwGH the value is validated client-side against
+\code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"} (English aliases
+\code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
+\code{"decision_type"}, \code{"document_type"}); for \code{Normenliste} against
+\code{"Kurzinformation"} (alias \code{"brief_info"}); other applications pass the
+value to the API as-is.}
 
 \item{sort_direction}{Sort direction (\code{SortierungSortDirection}):
-\code{"Ascending"} or \code{"Descending"} (default).}
+\code{"Ascending"} or \code{"Descending"}. Defaults to \code{"Descending"} whenever a
+sort column is in effect.}
 
 \item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
 overridden for a session via \code{options(risAT.base_url = ...)}.}
@@ -198,7 +207,7 @@ Construct an \code{httr2_request} object for the Austrian RIS OGD REST API v2.6
 \code{\link[httr2:req_dry_run]{httr2::req_dry_run()}} to inspect the URL.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Build request, then inspect the URL without hitting the network
 req <- ris_req_case_law(
   application = "constitutional_court",
@@ -208,5 +217,5 @@ httr2::req_dry_run(req)
 
 # Execute
 results <- ris_perform_case_law(req)
-}
+\dontshow{\}) # examplesIf}
 }

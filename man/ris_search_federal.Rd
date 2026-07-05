@@ -87,10 +87,10 @@ values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}, \code{"Ein
 \item{sort_direction}{Optional sort direction (\code{Sortierung.SortDirection}):
 \code{"Ascending"} or \code{"Descending"}.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-(\verb{https://www.ris.bka.gv.at/Bundesrecht/} and the corresponding
-\code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
-double-check the result set in the browser.}
+\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
+URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
+number of returned rows, so the result set can be double-checked in the
+browser.}
 
 \item{max_pages}{Maximum number of result pages to fetch (100 documents
 per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
@@ -116,7 +116,7 @@ Results are fetched iteratively across all pages in scope using
 \code{httr2::req_perform_iterative()}.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Look up a law by its (short) title
 ris_search_federal(title = "ABGB")
 
@@ -129,5 +129,5 @@ ris_search_federal(
   effective_to = "2024-12-31",
   echo = TRUE
 )
-}
+\dontshow{\}) # examplesIf}
 }

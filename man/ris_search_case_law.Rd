@@ -36,8 +36,8 @@ ris_search_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  sort_by = "Datum",
-  sort_direction = "Descending",
+  sort_by = NULL,
+  sort_direction = NULL,
   echo = FALSE,
   max_pages = Inf,
   base_url = ris_base_url()
@@ -173,22 +173,31 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 (\code{SucheInEntscheidungstexten}).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
-(\code{SucheInRechtssaetzen}).}
+(\code{SucheInRechtssaetzen}). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. \code{search_decision_text = FALSE} searches legal principles only).
+Setting both to \code{FALSE} is an error.}
 
-\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). Defaults to
-\code{"Datum"} (decision date). For VfGH and VwGH the value is validated
-client-side against \code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"}
-(English aliases \code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
-\code{"decision_type"}, \code{"document_type"}); other applications pass the value
-to the API as-is.}
+\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). When omitted,
+defaults to \code{"Datum"} (decision date) for all applications except
+\code{Normenliste}, whose only sortable column is \code{"Kurzinformation"} — there
+the sort parameters are omitted and the API default order applies. For
+VfGH and VwGH the value is validated client-side against
+\code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"} (English aliases
+\code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
+\code{"decision_type"}, \code{"document_type"}); for \code{Normenliste} against
+\code{"Kurzinformation"} (alias \code{"brief_info"}); other applications pass the
+value to the API as-is.}
 
 \item{sort_direction}{Sort direction (\code{SortierungSortDirection}):
-\code{"Ascending"} or \code{"Descending"} (default).}
+\code{"Ascending"} or \code{"Descending"}. Defaults to \code{"Descending"} whenever a
+sort column is in effect.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-(\verb{https://www.ris.bka.gv.at/<Applikation>/} and the corresponding
-\code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
-double-check the result set in the browser.}
+\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
+URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
+number of returned rows, so the result set can be double-checked in the
+browser.}
 
 \item{max_pages}{Maximum number of result pages to fetch (100 documents
 per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
@@ -213,10 +222,10 @@ Results are fetched iteratively across all pages in scope using
 \code{httr2::req_perform_iterative()}.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 ris_search_case_law(
   application = "federal_administrative_court",
   query = "Asyl"
 )
-}
+\dontshow{\}) # examplesIf}
 }

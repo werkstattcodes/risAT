@@ -33,8 +33,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Keyword search across both decision texts and Rechtssaetze (default).
 #' # The query field supports full-text operators: space/"und" = AND,
 #' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
@@ -85,7 +84,6 @@
 #'   business_number = "Ra 2021/01/0001",
 #'   echo = TRUE
 #' )
-#' }
 #' @export
 ris_search_vwgh <- function(
   query = NULL,

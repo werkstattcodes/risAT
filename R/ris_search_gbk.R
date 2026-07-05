@@ -60,8 +60,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search all equal treatment commission decisions
 #' ris_search_gbk(query = "Diskriminierung")
 #'
@@ -82,7 +81,6 @@
 #'   norm = "GlBG §17",
 #'   senate = "Senat I"
 #' )
-#' }
 #' @export
 ris_search_gbk <- function(
   query = NULL,

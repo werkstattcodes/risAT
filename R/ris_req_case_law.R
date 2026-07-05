@@ -125,15 +125,24 @@
 #' @param search_decision_text Optional flag for decision text search
 #'   (`SucheInEntscheidungstexten`).
 #' @param search_legal_principles Optional flag for legal principles search
-#'   (`SucheInRechtssaetzen`).
-#' @param sort_by Sort column (`SortierungSortedByColumn`). Defaults to
-#'   `"Datum"` (decision date). For VfGH and VwGH the value is validated
-#'   client-side against `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"`
-#'   (English aliases `"business_number"`/`"case_number"`, `"decision_date"`,
-#'   `"decision_type"`, `"document_type"`); other applications pass the value
-#'   to the API as-is.
+#'   (`SucheInRechtssaetzen`). When both flags are omitted, both document
+#'   types are searched. When only one flag is given, the other defaults to
+#'   its complement, so a single flag selects exactly one document type
+#'   (e.g. `search_decision_text = FALSE` searches legal principles only).
+#'   Setting both to `FALSE` is an error.
+#' @param sort_by Sort column (`SortierungSortedByColumn`). When omitted,
+#'   defaults to `"Datum"` (decision date) for all applications except
+#'   `Normenliste`, whose only sortable column is `"Kurzinformation"` — there
+#'   the sort parameters are omitted and the API default order applies. For
+#'   VfGH and VwGH the value is validated client-side against
+#'   `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"` (English aliases
+#'   `"business_number"`/`"case_number"`, `"decision_date"`,
+#'   `"decision_type"`, `"document_type"`); for `Normenliste` against
+#'   `"Kurzinformation"` (alias `"brief_info"`); other applications pass the
+#'   value to the API as-is.
 #' @param sort_direction Sort direction (`SortierungSortDirection`):
-#'   `"Ascending"` or `"Descending"` (default).
+#'   `"Ascending"` or `"Descending"`. Defaults to `"Descending"` whenever a
+#'   sort column is in effect.
 #' @param base_url API base URL. Defaults to [ris_base_url()], which can be
 #'   overridden for a session via `options(risAT.base_url = ...)`.
 #'
@@ -142,8 +151,7 @@
 #'   [ris_perform_case_law()] to execute the search.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Build request, then inspect the URL without hitting the network
 #' req <- ris_req_case_law(
 #'   application = "constitutional_court",
@@ -153,7 +161,6 @@
 #'
 #' # Execute
 #' results <- ris_perform_case_law(req)
-#' }
 ris_req_case_law <- function(
   application,
   query = NULL,
@@ -186,8 +193,8 @@ ris_req_case_law <- function(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  sort_by = "Datum",
-  sort_direction = "Descending",
+  sort_by = NULL,
+  sort_direction = NULL,
   base_url = ris_base_url()
 ) {
   # -- Step 0: Assert input types -----------------------------------------------
@@ -286,6 +293,23 @@ ris_req_case_law <- function(
     discrimination_ground
   )
   per_page <- 100L
+
+  # Resolve the default sort.  Most applications sort by decision date
+  # descending, but Normenliste has no Datum column (its only sortable
+  # column is Kurzinformation) — sending Datum there is rejected by the API
+  # schema, so the sort is omitted by default and the API order applies.
+  if (is.null(sort_by)) {
+    sort_by <- if (application_code == "Normenliste") {
+      # A direction without a column is invalid; anchor it to the only
+      # sortable Normenliste column when the user gave just a direction.
+      if (is.null(sort_direction)) NULL else "Kurzinformation"
+    } else {
+      "Datum"
+    }
+  }
+  if (!is.null(sort_by) && is.null(sort_direction)) {
+    sort_direction <- "Descending"
+  }
 
   # Normalize decision_type based on which court application was selected.
   # VwGH and VfGH have specific allowed enums; other applications pass through.

@@ -98,7 +98,7 @@ ris_build_federal_params <- function(
   )
 
   # Remove NULL and empty-string entries so they don't clutter the URL.
-  purrr::discard(params, ~ is.null(.x) || identical(.x, ""))
+  purrr::discard(params, \(x) is.null(x) || identical(x, ""))
 }
 
 

@@ -236,6 +236,51 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
   expect_equal(params$Kundmachungsorgan, "BGBl.")
 })
 
+test_that("a single document type flag defaults the other to its complement", {
+  # TRUE selects only that document type.
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_decision_text = TRUE
+  )
+  expect_true(flags$search_decision_text)
+  expect_false(flags$search_legal_principles)
+
+  # FALSE selects only the other document type (no error).
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_decision_text = FALSE
+  )
+  expect_false(flags$search_decision_text)
+  expect_true(flags$search_legal_principles)
+
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_legal_principles = FALSE
+  )
+  expect_true(flags$search_decision_text)
+  expect_false(flags$search_legal_principles)
+
+  # Both explicitly FALSE is still an error.
+  expect_error(
+    risAT:::ris_normalize_document_type_flags(
+      application_code = "Vwgh",
+      search_decision_text = FALSE,
+      search_legal_principles = FALSE
+    ),
+    class = "risat_invalid_argument"
+  )
+})
+
+test_that("ignored document type flags warn with a classed condition", {
+  expect_warning(
+    risAT:::ris_normalize_document_type_flags(
+      application_code = "Gbk",
+      search_decision_text = TRUE
+    ),
+    class = "risat_ignored_argument"
+  )
+})
+
 test_that("case law page binding harmonizes mixed list/scalar columns", {
   page_1 <- tibble::tibble(
     vfgh_indices = "41/02",

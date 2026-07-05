@@ -86,74 +86,26 @@ ris_parse_federal_internal <- function(
   requested_page = NULL,
   requested_per_page = NULL
 ) {
-  payload <- ris_as_payload(x)
-  root <- ris_extract_root(payload)
-  ris_stop_on_api_error(root)
-
-  document_refs <- ris_extract_document_references(root)
-  page_info <- ris_extract_page_info(root)
-  response_meta <- list(
-    status = root$status %||% root$Status %||% NA_character_,
-    hits = ris_extract_hits_count(root),
-    page_number = page_info$page_number %||% requested_page,
-    page_size = page_info$page_size %||% requested_per_page
+  out <- ris_parse_ris_response(
+    x,
+    requested_page = requested_page,
+    requested_per_page = requested_per_page,
+    row_builder = ris_reference_to_federal_row
   )
-
-  if (length(document_refs) == 0L) {
-    return(ris_empty_result())
-  }
-
-  rows <- purrr::map(
-    document_refs,
-    \(doc) ris_reference_to_federal_row(doc, response_meta)
-  )
-
-  out <- ris_bind_rows_harmonized(rows)
+  out <- ris_split_delimited_column(out, "keywords")
   ris_parse_date_columns(out, c("effective_date", "expiry_date"))
 }
 
-# Convert a single OgdDocumentReference into a one-row tibble.  Mirrors
-# ris_reference_to_tibble_row() but uses the Bundesrecht column map and keeps
-# the `bundesrecht` metadata block in internal app metadata.
+# Convert a single OgdDocumentReference into a one-row tibble.  Delegates to
+# the shared ris_reference_to_row() with the Bundesrecht column map, keeping
+# the `Bundesrecht` metadata block in internal app metadata.
 ris_reference_to_federal_row <- function(reference, response_meta) {
-  data <- reference$Data %||% list()
-  metadata <- data$Metadaten %||% list()
-  metadata_flat <- ris_flatten_named_list(metadata)
-  metadata_flat <- purrr::modify(metadata_flat, ~ if (is.null(.x)) NA else .x)
-
-  if (length(metadata_flat) == 0L) {
-    metadata_flat <- list()
-  }
-
-  if (is.null(names(metadata_flat)) || any(names(metadata_flat) == "")) {
-    names(metadata_flat) <- paste0("field_", seq_along(metadata_flat))
-  }
-
-  names(metadata_flat) <- make.unique(ris_to_snake_case(names(metadata_flat)))
-  metadata_flat <- purrr::modify(metadata_flat, ris_to_scalar_or_list)
-
-  # Drop XML serialization artifact columns before building the row.
-  metadata_flat <- metadata_flat[!names(metadata_flat) %in% ris_columns_to_drop]
-
-  # Translate German snake_case names to English.  make.unique() guards
-  # against two source fields translating to the same English name (e.g.
-  # Indizes serialized with and without an Item wrapper both map to
-  # "indices").
-  names(metadata_flat) <- make.unique(
-    ris_translate_federal_column_names(names(metadata_flat))
+  ris_reference_to_row(
+    reference,
+    response_meta,
+    translate_names = ris_translate_federal_column_names,
+    extra_meta_blocks = "Bundesrecht"
   )
-
-  row <- tibble::as_tibble_row(metadata_flat, .name_repair = "minimal")
-  row$content_urls <- list(ris_extract_content_urls(data$Dokumentliste))
-  row$app_metadata <- list(
-    list(
-      response = response_meta,
-      technisch = metadata$Technisch %||% list(),
-      allgemein = metadata$Allgemein %||% list(),
-      bundesrecht = metadata$Bundesrecht %||% list()
-    )
-  )
-  row
 }
 
 # ============================================================================

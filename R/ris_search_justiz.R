@@ -58,8 +58,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Keyword search across decision texts and Rechtssaetze (default).
 #' # The query field supports full-text operators: space/"und" = AND,
 #' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
@@ -91,7 +90,6 @@
 #' # Look up a specific OGH case by business number
 #' # OGH business number format: "N Ob NNN/YY" or "N Ob N/YYg" etc.
 #' ris_search_justiz(business_number = "1Ob1/23g", echo = TRUE)
-#' }
 #' @export
 ris_search_justiz <- function(
   query = NULL,

@@ -109,6 +109,47 @@ test_that("ris_req_case_law exposes sort_by and sort_direction", {
   expect_match(default_req$url, "SortierungSortDirection=Descending")
 })
 
+test_that("Normenliste omits the default sort and validates explicit sort_by", {
+  # Datum is not a sortable Normenliste column, so the default sort must be
+  # omitted entirely rather than sent (the API rejects it with a schema error).
+  default_req <- ris_req_case_law(application = "norm_list", query = "Baurecht")
+  expect_no_match(default_req$url, "SortierungSortedByColumn")
+  expect_no_match(default_req$url, "SortierungSortDirection")
+
+  explicit <- ris_req_case_law(
+    application = "norm_list",
+    query = "Baurecht",
+    sort_by = "brief_info",
+    sort_direction = "ascending"
+  )
+  expect_match(explicit$url, "SortierungSortedByColumn=Kurzinformation")
+  expect_match(explicit$url, "SortierungSortDirection=Ascending")
+
+  # A direction alone is anchored to the only sortable column.
+  direction_only <- ris_req_case_law(
+    application = "norm_list",
+    sort_direction = "ascending"
+  )
+  expect_match(direction_only$url, "SortierungSortedByColumn=Kurzinformation")
+
+  expect_error(
+    ris_req_case_law(application = "norm_list", sort_by = "Datum"),
+    "Assertion on 'sort_by'"
+  )
+})
+
+test_that("perform functions reject foreign requests with a classed error", {
+  foreign_req <- httr2::request("https://example.org")
+  expect_error(
+    ris_perform_case_law(foreign_req),
+    class = "risat_invalid_argument"
+  )
+  expect_error(
+    ris_perform_federal(foreign_req),
+    class = "risat_invalid_argument"
+  )
+})
+
 # ── Website URL accessors ────────────────────────────────────────────────────
 
 test_that("ris_search_url and ris_app_url read result attributes", {

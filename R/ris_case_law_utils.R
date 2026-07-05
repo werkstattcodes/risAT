@@ -144,10 +144,10 @@ ris_bool_to_title_case <- function(x) {
 ris_url_encode_query <- function(params) {
   pieces <- purrr::imap_chr(
     params,
-    ~ paste0(
-      utils::URLencode(as.character(.y), reserved = TRUE),
+    \(value, name) paste0(
+      utils::URLencode(as.character(name), reserved = TRUE),
       "=",
-      utils::URLencode(as.character(.x), reserved = TRUE)
+      utils::URLencode(as.character(value), reserved = TRUE)
     )
   )
   paste(pieces, collapse = "&")
@@ -261,7 +261,7 @@ ris_build_case_law_params <- function(
   )
 
   # Remove NULL and empty-string entries so they don't clutter the URL.
-  purrr::discard(params, ~ is.null(.x) || identical(.x, ""))
+  purrr::discard(params, \(x) is.null(x) || identical(x, ""))
 }
 
 
@@ -389,14 +389,17 @@ ris_case_law_supports_document_type <- function(application_code) {
 # users to write "BeschlussVS", "beschluss_vs", "Beschluss VS", or
 # "beschluss-vs" and have them all match the same lookup key.
 ris_normalize_key <- function(x) {
-  gsub("[[:space:]_-]+", "", tolower(trimws(x)))
+  x |>
+    stringr::str_trim() |>
+    stringr::str_to_lower() |>
+    stringr::str_remove_all("[\\s_-]+")
 }
 
 # Build a lookup vector whose names are the ris_normalize_key() form of the
 # canonical values themselves.  Used for enums whose API values are German
 # phrases (Justiz decision types, Dsk decision types).
 ris_self_keyed_lookup <- function(canonical) {
-  stats::setNames(canonical, vapply(canonical, ris_normalize_key, character(1)))
+  rlang::set_names(canonical, ris_normalize_key(canonical))
 }
 
 # -- Generic enum lookup -------------------------------------------------------
@@ -548,24 +551,32 @@ ris_normalize_case_law_decision_type <- function(
 }
 
 # -- Sort column normalization -------------------------------------------------
-# Only VfGH and VwGH have a defined set of sortable columns; other
-# applications pass sort_by through unchanged.
+# Only VfGH, VwGH, and Normenliste have a client-side validated set of
+# sortable columns; other applications pass sort_by through unchanged.
 #
-# The lookup accepts both the German API names (Geschaeftszahl, Datum, Art,
-# Typ) and English aliases (business_number, decision_date, decision_type,
-# document_type).  Note: "Art" maps to decision type and "Typ" maps to
-# document type in the RIS UI.
-ris_case_law_sort_by_lookup <- c(
-  geschaeftszahl = "Geschaeftszahl",
-  datum = "Datum",
-  art = "Art",
-  typ = "Typ",
-  businessnumber = "Geschaeftszahl",
-  casenumber = "Geschaeftszahl",
-  decisiondate = "Datum",
-  decisiontype = "Art",
-  documenttype = "Typ"
+# The lookups accept both the German API names and English aliases.  Note:
+# "Art" maps to decision type and "Typ" maps to document type in the RIS UI.
+# Normenliste is special: per the OGD API handbook its only sortable column
+# is "Kurzinformation" (there is no Datum column), so "Datum" must be
+# rejected client-side rather than sent to the API.
+ris_case_law_sort_by_lookups <- list(
+  Vfgh = c(
+    geschaeftszahl = "Geschaeftszahl",
+    datum = "Datum",
+    art = "Art",
+    typ = "Typ",
+    businessnumber = "Geschaeftszahl",
+    casenumber = "Geschaeftszahl",
+    decisiondate = "Datum",
+    decisiontype = "Art",
+    documenttype = "Typ"
+  ),
+  Normenliste = c(
+    kurzinformation = "Kurzinformation",
+    briefinfo = "Kurzinformation"
+  )
 )
+ris_case_law_sort_by_lookups$Vwgh <- ris_case_law_sort_by_lookups$Vfgh
 
 ris_normalize_case_law_sort_by <- function(application_code, sort_by) {
   if (is.null(sort_by) || identical(sort_by, "")) {
@@ -578,18 +589,19 @@ ris_normalize_case_law_sort_by <- function(application_code, sort_by) {
     .var.name = "sort_by"
   )
 
-  if (!application_code %in% c("Vfgh", "Vwgh")) {
+  lookup <- ris_case_law_sort_by_lookups[[application_code]]
+  if (is.null(lookup)) {
     return(sort_by)
   }
 
   key <- ris_normalize_key(sort_by)
   checkmate::assert_choice(
     key,
-    choices = names(ris_case_law_sort_by_lookup),
+    choices = names(lookup),
     .var.name = "sort_by"
   )
 
-  unname(ris_case_law_sort_by_lookup[[key]])
+  unname(lookup[[key]])
 }
 
 # -- Document type flags normalization -----------------------------------------
@@ -601,8 +613,10 @@ ris_normalize_case_law_sort_by <- function(application_code, sort_by) {
 #   2. User left both NULL:
 #      -> default to TRUE/TRUE (search both document types)
 #   3. User provided one but not the other:
-#      -> the unprovided one defaults to FALSE
-#   4. Both FALSE:
+#      -> the unprovided one defaults to the complement, so a single flag
+#         always selects exactly one document type: TRUE means "only this
+#         type", FALSE means "only the other type"
+#   4. Both explicitly FALSE:
 #      -> error (at least one must be TRUE, otherwise no results would return)
 ris_normalize_document_type_flags <- function(
   application_code,
@@ -616,12 +630,12 @@ ris_normalize_document_type_flags <- function(
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles
   )
-  provided <- purrr::keep(flags, ~ !is.null(.x))
+  provided <- purrr::keep(flags, \(x) !is.null(x))
 
   if (length(provided) > 0L) {
     valid <- purrr::map_lgl(
       provided,
-      ~ is.logical(.x) && length(.x) == 1L && !is.na(.x)
+      \(x) is.logical(x) && length(x) == 1L && !is.na(x)
     )
     if (!all(valid)) {
       rlang::abort(
@@ -635,7 +649,8 @@ ris_normalize_document_type_flags <- function(
   if (!supports) {
     if (length(provided) > 0L) {
       rlang::warn(
-        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application."
+        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application.",
+        class = "risat_ignored_argument"
       )
     }
     return(list(search_decision_text = NULL, search_legal_principles = NULL))
@@ -646,16 +661,14 @@ ris_normalize_document_type_flags <- function(
     return(list(search_decision_text = TRUE, search_legal_principles = TRUE))
   }
 
-  # If only one flag was provided, default the other to FALSE.
-  search_decision_text <- if (is.null(search_decision_text)) {
-    FALSE
-  } else {
-    search_decision_text
+  # If only one flag was provided, default the other to its complement so a
+  # single flag always selects exactly one document type (TRUE = "only this
+  # type", FALSE = "only the other type").
+  if (is.null(search_decision_text)) {
+    search_decision_text <- !search_legal_principles
   }
-  search_legal_principles <- if (is.null(search_legal_principles)) {
-    FALSE
-  } else {
-    search_legal_principles
+  if (is.null(search_legal_principles)) {
+    search_legal_principles <- !search_decision_text
   }
 
   # Guard: at least one must be TRUE, otherwise the API returns no results.

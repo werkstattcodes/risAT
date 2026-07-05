@@ -53,12 +53,16 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 (\code{SucheInEntscheidungstexten}).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
-(\code{SucheInRechtssaetzen}).}
+(\code{SucheInRechtssaetzen}). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. \code{search_decision_text = FALSE} searches legal principles only).
+Setting both to \code{FALSE} is an error.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-(\verb{https://www.ris.bka.gv.at/<Applikation>/} and the corresponding
-\code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
-double-check the result set in the browser.}
+\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
+URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
+number of returned rows, so the result set can be double-checked in the
+browser.}
 
 \item{max_pages}{Maximum number of result pages to fetch (100 documents
 per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
@@ -83,7 +87,7 @@ Defaults are aligned with the VfGH RIS handbook:
 (default search in Rechtssaetze).
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
 # The query field supports full-text operators: space/"und" = AND,
 # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
@@ -137,5 +141,5 @@ ris_search_vfgh(
   business_number = "G 97/2021",
   echo = TRUE
 )
-}
+\dontshow{\}) # examplesIf}
 }

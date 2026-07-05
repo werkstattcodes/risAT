@@ -26,22 +26,16 @@
 #'
 #' @inheritParams ris_req_case_law
 #' @inheritParams ris_perform_case_law
-#' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
-#'   (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
-#'   `Ergebnis.wxe` query URL) and the number of returned rows, so users can
-#'   double-check the result set in the browser.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' ris_search_case_law(
 #'   application = "federal_administrative_court",
 #'   query = "Asyl"
 #' )
-#' }
 ris_search_case_law <- function(
   application,
   query = NULL,
@@ -74,8 +68,8 @@ ris_search_case_law <- function(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  sort_by = "Datum",
-  sort_direction = "Descending",
+  sort_by = NULL,
+  sort_direction = NULL,
   echo = FALSE,
   max_pages = Inf,
   base_url = ris_base_url()

@@ -32,8 +32,7 @@
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search all staff representation oversight decisions
 #' ris_search_pvak(query = "Wahlrecht")
 #'
@@ -45,7 +44,6 @@
 #'
 #' # Search by norm
 #' ris_search_pvak(norm = "BPVG §22")
-#' }
 #' @export
 ris_search_pvak <- function(
   query = NULL,

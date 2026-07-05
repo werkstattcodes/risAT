@@ -26,8 +26,10 @@
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_case_law()].
-#' @param echo Logical. If `TRUE`, prints the equivalent RIS website URLs
-#'   and the number of returned rows.
+#' @param echo Logical. If `TRUE`, prints the equivalent RIS website search
+#'   URL (the `Ergebnis.wxe` query on `https://www.ris.bka.gv.at`) and the
+#'   number of returned rows, so the result set can be double-checked in the
+#'   browser.
 #' @param max_pages Maximum number of result pages to fetch (100 documents
 #'   per page). Defaults to `Inf` (fetch all pages in scope). When the limit
 #'   truncates the result set, a message says how to get the rest. Use this
@@ -38,8 +40,7 @@
 #'   Includes list-column `content_urls`.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' req <- ris_req_case_law(
 #'   application = "federal_administrative_court",
 #'   query = "Asyl"
@@ -48,115 +49,17 @@
 #'
 #' # Cap a broad query at the first 2 pages (200 documents)
 #' results <- ris_perform_case_law(req, max_pages = 2)
-#' }
 ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
   checkmate::assert_flag(echo, .var.name = "echo")
   max_pages <- ris_normalize_max_pages(max_pages)
 
-  # -- Step 1: Extract metadata from the request ------------------------------
-  # ris_req_case_law() attaches an "ris_meta" attribute containing the
-  # application code, page size, and pre-built website URLs.  If this
-  # attribute is missing, the request wasn't built by our constructor.
-  meta <- attr(req, "ris_meta")
-  if (is.null(meta)) {
-    rlang::abort(
-      "`req` must be built with `ris_req_case_law()` (missing `ris_meta` attribute)."
-    )
-  }
-
-  application_code <- meta$application_code
-  per_page <- meta$per_page
-  website_urls <- meta$website_urls
-
-  # When echo = TRUE, print the RIS website URLs so the user can open the
-  # same search in a browser to cross-check the results.
-  if (isTRUE(echo)) {
-    message("RIS application URL: ", website_urls$app_url)
-    message("Equivalent RIS search URL: ", website_urls$search_url)
-  }
-
-  # -- Step 2: Fetch pages iteratively ----------------------------------------
-  # ris_iterate_case_law_pages() wraps httr2::req_perform_iterative() and
-  # automatically follows pagination by inspecting each response's page
-  # metadata.  It returns a list of httr2_response objects, one per page,
-  # stopping after max_pages pages.
-  responses <- ris_iterate_case_law_pages(req, max_pages = max_pages)
-  ris_inform_if_truncated(responses, max_pages)
-
-  # -- Step 3: Parse each page response into a tibble -------------------------
-  # ris_parse_search() (from ris_parse_search.R) handles the JSON-to-tibble
-  # conversion for a single page.  We tag each row with its page number and
-  # page size, then discard empty pages (NULL).
-  page_results <- purrr::imap(
-    responses,
-    function(resp, idx) {
-      page_tbl <- ris_parse_search_internal(
-        resp,
-        requested_page = as.integer(idx),
-        requested_per_page = per_page
-      )
-      if (nrow(page_tbl) == 0L) {
-        return(NULL)
-      }
-      page_tbl$.page_idx <- as.integer(idx)
-      page_tbl
-    }
+  ris_perform_ris_search(
+    req,
+    echo = echo,
+    max_pages = max_pages,
+    page_parser = ris_parse_search_internal,
+    builder_name = "ris_req_case_law"
   )
-
-  # -- Step 4: Combine pages --------------------------------------------------
-  # ris_bind_case_law_pages() handles the non-trivial task of rbinding tibbles
-  # that may have different column sets across pages (e.g. a field that only
-  # appears in some documents).
-  out <- ris_bind_case_law_pages(page_results)
-
-  # -- Step 5: Handle empty results -------------------------------------------
-  # Return a zero-row tibble with the guaranteed public column structure rather
-  # than an unstructured empty tibble, so downstream code sees the same schema
-  # as for non-empty results.
-  if (nrow(out) == 0L) {
-    empty_out <- ris_empty_result(website_urls)
-    if (isTRUE(echo)) {
-      message("Rows returned: 0")
-    }
-    return(empty_out)
-  }
-
-  # -- Step 6: Enrich app_metadata with request provenance --------------------
-  # Each row's app_metadata list-column already contains document-level
-  # metadata from the API.  Here we append a `request` sub-list so users
-  # can trace which endpoint, application, page, and RIS URLs produced each
-  # row.  This is invaluable for debugging and reproducibility.
-  out$app_metadata <- purrr::map2(
-    out$app_metadata,
-    out$.page_idx,
-    ~ c(
-      .x,
-      list(
-        request = list(
-          endpoint = "/Judikatur",
-          application = application_code,
-          seitennummer = as.integer(.y),
-          dokumente_pro_seite = ris_per_page_to_api_value(per_page),
-          ris_app_url = website_urls$app_url,
-          ris_search_url = website_urls$search_url
-        )
-      )
-    )
-  )
-
-  # Drop the temporary page index column used for app_metadata enrichment.
-  out$.page_idx <- NULL
-
-  # Attach RIS URLs as top-level attributes on the output tibble for easy
-  # programmatic access (e.g. attr(result, "ris_search_url")).
-  attr(out, "ris_app_url") <- website_urls$app_url
-  attr(out, "ris_search_url") <- website_urls$search_url
-
-  if (isTRUE(echo)) {
-    message("Rows returned: ", nrow(out))
-  }
-
-  ris_drop_app_metadata(out)
 }
 
 # ============================================================================
@@ -194,9 +97,9 @@ ris_bind_case_law_pages <- function(page_results) {
   # Identify columns where the type is inconsistent across pages (list in
   # some, atomic in others).  These must be coerced to list everywhere.
   mixed_list_cols <- all_cols[purrr::map_lgl(all_cols, function(col) {
-    present <- purrr::keep(pages, ~ col %in% names(.x))
-    any_list <- any(purrr::map_lgl(present, ~ is.list(.x[[col]])))
-    any_non_list <- any(purrr::map_lgl(present, ~ !is.list(.x[[col]])))
+    present <- purrr::keep(pages, \(page) col %in% names(page))
+    any_list <- any(purrr::map_lgl(present, \(page) is.list(page[[col]])))
+    any_non_list <- any(purrr::map_lgl(present, \(page) !is.list(page[[col]])))
     any_list && any_non_list
   })]
 
@@ -251,7 +154,9 @@ ris_iterate_case_law_pages <- function(req, max_pages = Inf) {
       httr2::req_url_query(req, Seitennummer = as.integer(next_page))
     },
     max_reqs = max_pages,
-    progress = TRUE
+    # Show the pagination progress bar only in interactive sessions so it
+    # doesn't pollute knitted documents, logs, or CI output.
+    progress = rlang::is_interactive()
   )
 }
 
