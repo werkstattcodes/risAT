@@ -30,7 +30,7 @@ ris_search_federal(
 }
 \arguments{
 \item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
-full-text operators (space/\code{und} = AND, \code{oder} = OR, \code{nicht} = NOT,
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
 \code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{title}{Optional title or abbreviation of the legal norm (\code{Titel}).}

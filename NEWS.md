@@ -1,6 +1,10 @@
 # risAT 0.0.0.9000
 
 - Initial development version.
+- The full-text `query` and `norm` arguments now accept `OR` and `ODER` as
+  the OR operator; they are translated client-side to the RIS-native
+  full-text operator. Text inside single-quoted exact phrases is left
+  untouched.
 - Fixed API schema-validation errors for the GBK filters: `senate`, the
   federal `commission`, and the multi-word `discrimination_ground` values
   ("Ethnische Zugehörigkeit", "Sexuelle Orientierung") were sent in their

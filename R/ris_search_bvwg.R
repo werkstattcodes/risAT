@@ -34,7 +34,7 @@
 #' @examplesIf interactive()
 #' # Keyword search across decision texts and Rechtssaetze (default).
 #' # The query field supports full-text operators: space/"und" = AND,
-#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' # "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_bvwg(query = "Asyl")
 #'
 #' # Filter to Erkenntnis decisions within a date range

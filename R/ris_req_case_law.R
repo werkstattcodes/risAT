@@ -48,9 +48,13 @@
 #'   | `"Umse"` | `"environmental_panel"` | Environmental Panel (1994--2013) |
 #'   | `"Bks"` | `"federal_communications_panel"` | Federal Communications Panel (2001--2013) |
 #'   | `"Verg"` | `"procurement_review_bodies"` | Procurement Review Bodies (until 2013) |
-#' @param query Optional full-text query (`Suchworte`).
+#' @param query Optional full-text query (`Suchworte`). Supports the RIS
+#'   full-text operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT,
+#'   `*` = wildcard, `'phrase'` for exact phrase).
 #' @param business_number Optional business number (`Geschaeftszahl`).
-#' @param norm Optional legal norm query (`Norm`).
+#' @param norm Optional legal norm query (`Norm`). Multiple norms can be
+#'   combined with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+#'   `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 #' @param decision_date_from Optional lower date bound (`YYYY-MM-DD`,
 #'   `EntscheidungsdatumVon`).
 #' @param decision_date_to Optional upper date bound (`YYYY-MM-DD`,
@@ -293,6 +297,12 @@ ris_req_case_law <- function(
   # Translate the user-facing application name (which may be an English alias
   # like "constitutional_court") into the canonical RIS code (e.g. "Vfgh").
   application_code <- ris_case_law_application_to_code(application)
+
+  # Translate the uppercase OR operators ("OR", "ODER") in the full-text
+  # fields into the RIS-native "oder" before the value reaches the API
+  # parameters and the website URLs.
+  query <- ris_normalize_or_operator(query)
+  norm <- ris_normalize_or_operator(norm)
 
   # Normalize court-specific enum parameters.  These accept flexible input
   # (English aliases, case variants) and return the exact API-expected string.

@@ -24,7 +24,7 @@
 #' and parse the results, or use [httr2::req_dry_run()] to inspect the URL.
 #'
 #' @param query Optional full-text query (`Suchworte`). Supports the RIS
-#'   full-text operators (space/`und` = AND, `oder` = OR, `nicht` = NOT,
+#'   full-text operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT,
 #'   `*` = wildcard, `'phrase'` for exact phrase).
 #' @param title Optional title or abbreviation of the legal norm (`Titel`).
 #' @param index Optional index reference from the systematic directory of
@@ -166,6 +166,11 @@ ris_req_federal <- function(
   if ((!is.null(section_from) || !is.null(section_to)) && is.null(section_type)) {
     section_type <- "Alle"
   }
+
+  # Translate the uppercase OR operators ("OR", "ODER") in the full-text
+  # query into the RIS-native "oder" before the value reaches the API
+  # parameters and the website URLs.
+  query <- ris_normalize_or_operator(query)
 
   # -- Step 2: Assemble API query parameters ----------------------------------
   params <- ris_build_federal_params(

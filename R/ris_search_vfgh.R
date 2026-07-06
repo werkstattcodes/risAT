@@ -43,7 +43,7 @@
 #' @examplesIf interactive()
 #' # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
 #' # The query field supports full-text operators: space/"und" = AND,
-#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' # "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_vfgh(query = "Meinungsfreiheit")
 #'
 #' # Wildcard and phrase search examples
@@ -61,7 +61,7 @@
 #' # descending (most recent first).
 #' # Norm notation: include the year where it is part of the official
 #' # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
-#' # For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+#' # For multiple norms wrap each in single quotes: 'StGG Art2' ODER 'B-VG Art7'
 #' ris_search_vfgh(
 #'   norm = "B-VG Art7",
 #'   decision_type = "judgment"

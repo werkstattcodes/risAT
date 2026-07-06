@@ -11,6 +11,8 @@
 #   4. ris_app_url() /
 #      ris_search_url()      — accessors for the RIS website URL attributes
 #   5. ris_parse_date_columns() — coerce known date columns to Date
+#   6. ris_normalize_or_operator() — translate OR/ODER to the RIS-native
+#      full-text OR operator
 # ============================================================================
 
 #' RIS API Base URL
@@ -210,6 +212,24 @@ ris_search_url <- function(x) {
 #' @export
 ris_app_url <- function(x) {
   attr(x, "ris_app_url", exact = TRUE)
+}
+
+# Translate the uppercase OR operators accepted by risAT ("OR", "ODER") into
+# the RIS-native full-text operator "oder" in a full-text field (Suchworte,
+# Norm).  Only standalone all-uppercase tokens are rewritten: lowercase "oder"
+# already works natively, and mixed-case variants ("Oder") remain ordinary
+# search words.  Text inside single-quoted exact phrases ('...') is left
+# untouched so phrase semantics are preserved — the alternation consumes
+# quoted spans before the operator tokens can match.
+ris_normalize_or_operator <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  stringr::str_replace_all(
+    x,
+    "'[^']*'|\\b(?:OR|ODER)\\b",
+    \(matches) ifelse(matches %in% c("OR", "ODER"), "oder", matches)
+  )
 }
 
 # Coerce the named columns to Date where present.  The API returns ISO 8601

@@ -20,11 +20,15 @@ ris_search_gbk(
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}

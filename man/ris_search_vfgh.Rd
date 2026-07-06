@@ -21,11 +21,15 @@ ris_search_vfgh(
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -86,7 +90,7 @@ Defaults are aligned with the VfGH RIS handbook:
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
 # The query field supports full-text operators: space/"und" = AND,
-# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+# "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 ris_search_vfgh(query = "Meinungsfreiheit")
 
 # Wildcard and phrase search examples
@@ -104,7 +108,7 @@ ris_search_vfgh(
 # descending (most recent first).
 # Norm notation: include the year where it is part of the official
 # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
-# For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+# For multiple norms wrap each in single quotes: 'StGG Art2' ODER 'B-VG Art7'
 ris_search_vfgh(
   norm = "B-VG Art7",
   decision_type = "judgment"

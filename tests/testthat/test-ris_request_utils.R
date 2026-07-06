@@ -152,6 +152,77 @@ test_that("perform functions reject foreign requests with a classed error", {
   )
 })
 
+# ── OR operator normalization ────────────────────────────────────────────────
+
+test_that("ris_normalize_or_operator rewrites uppercase OR/ODER to oder", {
+  expect_equal(
+    risAT:::ris_normalize_or_operator("Asyl OR Grundrecht"),
+    "Asyl oder Grundrecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_or_operator("Asyl ODER Grundrecht"),
+    "Asyl oder Grundrecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_or_operator("A OR B ODER C"),
+    "A oder B oder C"
+  )
+})
+
+test_that("ris_normalize_or_operator leaves non-uppercase variants unchanged", {
+  expect_equal(
+    risAT:::ris_normalize_or_operator("Asyl oder Grundrecht"),
+    "Asyl oder Grundrecht"
+  )
+  expect_equal(
+    risAT:::ris_normalize_or_operator("Asyl Oder Grundrecht"),
+    "Asyl Oder Grundrecht"
+  )
+})
+
+test_that("ris_normalize_or_operator only matches standalone tokens", {
+  expect_equal(risAT:::ris_normalize_or_operator("ORDER"), "ORDER")
+  expect_equal(risAT:::ris_normalize_or_operator("MOTOR"), "MOTOR")
+  expect_equal(risAT:::ris_normalize_or_operator("ODERBERG"), "ODERBERG")
+})
+
+test_that("ris_normalize_or_operator preserves quoted exact phrases", {
+  expect_equal(
+    risAT:::ris_normalize_or_operator("'THE OR CASE'"),
+    "'THE OR CASE'"
+  )
+  expect_equal(
+    risAT:::ris_normalize_or_operator("x OR 'A OR B'"),
+    "x oder 'A OR B'"
+  )
+})
+
+test_that("ris_normalize_or_operator passes NULL through", {
+  expect_null(risAT:::ris_normalize_or_operator(NULL))
+})
+
+test_that("request builders normalize OR/ODER in query and norm", {
+  case_law_req <- ris_req_case_law(
+    application = "Vfgh",
+    query = "Asyl OR Grundrecht",
+    norm = "'StGG Art2' ODER 'B-VG Art7'"
+  )
+  case_law_url <- utils::URLdecode(case_law_req$url)
+  expect_match(case_law_url, "Suchworte=Asyl oder Grundrecht", fixed = TRUE)
+  expect_match(
+    case_law_url,
+    "Norm='StGG Art2' oder 'B-VG Art7'",
+    fixed = TRUE
+  )
+
+  federal_req <- ris_req_federal(query = "Miete ODER Pacht")
+  expect_match(
+    utils::URLdecode(federal_req$url),
+    "Suchworte=Miete oder Pacht",
+    fixed = TRUE
+  )
+})
+
 # ── Website URL accessors ────────────────────────────────────────────────────
 
 test_that("ris_search_url and ris_app_url read result attributes", {

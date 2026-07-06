@@ -28,11 +28,15 @@ ris_search_justiz(
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -115,7 +119,7 @@ Markensenat (OPMS, until 2013), and selected foreign decisions (AUSL).
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Keyword search across decision texts and Rechtssaetze (default).
 # The query field supports full-text operators: space/"und" = AND,
-# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+# "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 ris_search_justiz(query = "Schadenersatz")
 
 # Filter to OGH decisions only

@@ -29,7 +29,7 @@ Imports:
     purrr,
     rlang,
     stats,
-    stringr,
+    stringr (>= 1.5.0),
     tibble,
     utils
 Suggests:

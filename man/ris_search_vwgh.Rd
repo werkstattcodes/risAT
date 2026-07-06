@@ -21,11 +21,15 @@ ris_search_vwgh(
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -81,7 +85,7 @@ Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Keyword search across both decision texts and Rechtssaetze (default).
 # The query field supports full-text operators: space/"und" = AND,
-# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+# "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 ris_search_vwgh(query = "Asylrecht")
 
 # Wildcard and phrase search examples
@@ -97,8 +101,8 @@ ris_search_vwgh(
   search_legal_principles = TRUE
 )
 
-# Multiple norms: wrap each in single quotes and join with "oder"
-ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+# Multiple norms: wrap each in single quotes and join with "ODER" (or "OR")
+ris_search_vwgh(norm = "'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'")
 
 # Filter by decision type and date range.
 # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
