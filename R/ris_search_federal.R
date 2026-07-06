@@ -62,7 +62,6 @@ ris_search_federal <- function(
   sort_by = NULL,
   sort_direction = NULL,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 ) {
   # Build the httr2 request with all search parameters.  Validation and
@@ -91,5 +90,5 @@ ris_search_federal <- function(
   )
 
   # Execute the request and return the parsed tibble.
-  ris_perform_federal(req, echo = echo, max_pages = max_pages)
+  ris_perform_federal(req, echo = echo)
 }

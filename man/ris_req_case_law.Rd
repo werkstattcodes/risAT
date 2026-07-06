@@ -153,7 +153,17 @@ and \code{Uvs}.}
 \item{senate}{Optional senate (\code{Senat}), used for \code{Gbk}.}
 
 \item{discrimination_ground}{Optional discrimination ground
-(\code{Diskriminierungsgrund}), used for \code{Gbk}.}
+(\code{Diskriminierungsgrund}), used for \code{Gbk}. Accepted German values:
+\code{"Geschlecht"}, \code{"Ethnische Zugehörigkeit"}, \code{"Religion"},
+\code{"Weltanschauung"}, \code{"Alter"}, \code{"Sexuelle Orientierung"},
+\code{"Behinderung"}, and \code{"Mehrfachdiskriminierung"}. English aliases:
+\code{"gender"}/\code{"sex"} -> \code{"Geschlecht"}, \code{"ethnicity"}/
+\code{"ethnic_origin"} -> \code{"EthnischeZugehoerigkeit"}, \code{"religion"} ->
+\code{"Religion"}, \code{"worldview"} -> \code{"Weltanschauung"}, \code{"age"} ->
+\code{"Alter"}, \code{"sexual_orientation"} -> \code{"SexuelleOrientierung"},
+\code{"disability"} -> \code{"Behinderung"}, and \code{"multiple"}/
+\code{"multiple_discrimination"} -> \code{"Mehrfachdiskriminierung"}.
+Matching is case-insensitive and ignores spaces, underscores, and hyphens.}
 
 \item{author}{Optional author (\code{Verfasser}), used for \code{Ubas}.}
 

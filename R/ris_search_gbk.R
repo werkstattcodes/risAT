@@ -50,12 +50,17 @@
 #'   `"Senat I"`, `"Senat II"`, `"Senat III"`. Roman numerals (`"I"`,
 #'   `"II"`, `"III"`) and digits (`"1"`, `"2"`, `"3"`) are also accepted.
 #' @param discrimination_ground Optional discrimination ground
-#'   (`Diskriminierungsgrund`). Accepted values: `"Geschlecht"`,
+#'   (`Diskriminierungsgrund`). Accepted German values: `"Geschlecht"`,
 #'   `"Ethnische Zugehörigkeit"`, `"Religion"`, `"Weltanschauung"`,
-#'   `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`,
-#'   `"Mehrfachdiskriminierung"`. English aliases (`"gender"`, `"age"`,
-#'   `"disability"`, `"ethnicity"`, `"sexual_orientation"`, etc.) are
-#'   also accepted (case-insensitive).
+#'   `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`, and
+#'   `"Mehrfachdiskriminierung"`. English aliases: `"gender"`/`"sex"` ->
+#'   `"Geschlecht"`, `"ethnicity"`/`"ethnic_origin"` ->
+#'   `"EthnischeZugehoerigkeit"`, `"religion"` -> `"Religion"`,
+#'   `"worldview"` -> `"Weltanschauung"`, `"age"` -> `"Alter"`,
+#'   `"sexual_orientation"` -> `"SexuelleOrientierung"`, `"disability"` ->
+#'   `"Behinderung"`, and `"multiple"`/`"multiple_discrimination"` ->
+#'   `"Mehrfachdiskriminierung"`. Matching is case-insensitive and ignores
+#'   spaces, underscores, and hyphens.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
@@ -94,7 +99,6 @@ ris_search_gbk <- function(
   discrimination_ground = NULL,
   in_ris_since = NULL,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 ) {
   commission <- ris_normalize_gbk_commission(commission)
@@ -116,7 +120,6 @@ ris_search_gbk <- function(
     discrimination_ground = discrimination_ground,
     in_ris_since = in_ris_since,
     echo = echo,
-    max_pages = max_pages,
     base_url = base_url
   )
 }

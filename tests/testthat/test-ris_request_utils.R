@@ -30,22 +30,6 @@ test_that("case law and federal requests share user agent and throttling", {
   }
 })
 
-# ── max_pages validation ─────────────────────────────────────────────────────
-
-test_that("ris_normalize_max_pages accepts positive numbers and Inf", {
-  expect_equal(risAT:::ris_normalize_max_pages(Inf), Inf)
-  expect_equal(risAT:::ris_normalize_max_pages(3), 3)
-  expect_equal(risAT:::ris_normalize_max_pages(2.7), 2)
-})
-
-test_that("ris_normalize_max_pages rejects invalid values", {
-  expect_error(risAT:::ris_normalize_max_pages(0))
-  expect_error(risAT:::ris_normalize_max_pages(-1))
-  expect_error(risAT:::ris_normalize_max_pages("ten"))
-  expect_error(risAT:::ris_normalize_max_pages(NA))
-  expect_error(risAT:::ris_normalize_max_pages(c(1, 2)))
-})
-
 # ── Pagination against mocked httr2 responses ────────────────────────────────
 
 test_that("ris_perform_case_law paginates via httr2 and combines pages", {
@@ -66,31 +50,49 @@ test_that("ris_perform_case_law paginates via httr2 and combines pages", {
   expect_false("app_metadata" %in% names(out))
 })
 
-test_that("max_pages truncates pagination and informs the user", {
+# ── Echo progress messages ───────────────────────────────────────────────────
+
+test_that("echo reports the search URL, hit count, and row count in order", {
   resp1 <- httr2::response_json(
     body = fixture_payload("case_law_multi_page_page1.json")
   )
-  httr2::local_mocked_responses(list(resp1))
+  resp2 <- httr2::response_json(
+    body = fixture_payload("case_law_multi_page_page2.json")
+  )
+  httr2::local_mocked_responses(list(resp1, resp2))
 
   req <- ris_req_case_law(application = "Vfgh", query = "Grundrecht")
-  expect_message(
-    out <- ris_perform_case_law(req, max_pages = 1),
-    class = "risat_truncated_results"
-  )
-  expect_equal(nrow(out), 1L)
+  msgs <- testthat::capture_messages(out <- ris_perform_case_law(req, echo = TRUE))
+
+  expect_length(msgs, 3)
+  expect_match(msgs[1], "^Equivalent RIS search URL: ")
+  expect_equal(trimws(msgs[2]), "Total hits: 2 (2 pages)")
+  expect_equal(trimws(msgs[3]), "Rows returned: 2")
+  expect_equal(nrow(out), 2L)
 })
 
-test_that("no truncation message when all pages fit within max_pages", {
+test_that("echo reports singular 'page' for a single-page result", {
   resp <- httr2::response_json(
     body = fixture_payload("case_law_one_page.json")
   )
   httr2::local_mocked_responses(list(resp))
 
   req <- ris_req_case_law(application = "Vwgh", query = "Asyl")
-  expect_no_message(
-    ris_perform_case_law(req, max_pages = 1),
-    class = "risat_truncated_results"
+  msgs <- testthat::capture_messages(ris_perform_case_law(req, echo = TRUE))
+
+  expect_equal(trimws(msgs[2]), "Total hits: 1 (1 page)")
+})
+
+test_that("echo reports zero hits without a page count for empty results", {
+  resp <- httr2::response_json(
+    body = fixture_payload("case_law_empty.json")
   )
+  httr2::local_mocked_responses(list(resp))
+
+  req <- ris_req_case_law(application = "Vwgh", query = "NoHitNeedle")
+  msgs <- testthat::capture_messages(ris_perform_case_law(req, echo = TRUE))
+
+  expect_equal(trimws(msgs[2]), "Total hits: 0")
 })
 
 # ── Sort arguments (case law) ────────────────────────────────────────────────
@@ -155,7 +157,7 @@ test_that("perform functions reject foreign requests with a classed error", {
 test_that("ris_search_url and ris_app_url read result attributes", {
   payload <- fixture_payload("case_law_one_page.json")
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req, max_pages) list(payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(payload),
     ris_search_vwgh(query = "Asyl")
   )
 

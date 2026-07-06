@@ -4,22 +4,19 @@
 \alias{ris_perform_case_law}
 \title{Perform a RIS Case Law Search}
 \usage{
-ris_perform_case_law(req, echo = FALSE, max_pages = Inf)
+ris_perform_case_law(req, echo = FALSE)
 }
 \arguments{
 \item{req}{An \code{httr2_request} object, typically built with
 \code{\link[=ris_req_case_law]{ris_req_case_law()}}.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
-URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
-number of returned rows, so the result set can be double-checked in the
-browser.}
-
-\item{max_pages}{Maximum number of result pages to fetch (100 documents
-per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
-truncates the result set, a message says how to get the rest. Use this
-to keep broad exploratory queries from firing hundreds of requests at
-the public RIS API.}
+\item{echo}{Logical. If \code{TRUE}, prints three progress messages: the
+equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
+\verb{https://www.ris.bka.gv.at}) before any request is sent; the total hit
+and page count as soon as the first page's response arrives; and the
+final number of returned rows once all pages have been fetched. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.}
 }
 \value{
 A tidy tibble with parsed search results.
@@ -27,8 +24,8 @@ Includes list-column \code{content_urls}.
 }
 \description{
 Execute a request built by \code{\link[=ris_req_case_law]{ris_req_case_law()}} and return parsed results.
-Pages are fetched iteratively using \code{httr2::req_perform_iterative()},
-up to \code{max_pages} pages.
+Pages are fetched iteratively using \code{httr2::req_perform_iterative()}
+until all pages in scope have been retrieved.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
@@ -37,8 +34,5 @@ req <- ris_req_case_law(
   query = "Asyl"
 )
 results <- ris_perform_case_law(req)
-
-# Cap a broad query at the first 2 pages (200 documents)
-results <- ris_perform_case_law(req, max_pages = 2)
 \dontshow{\}) # examplesIf}
 }

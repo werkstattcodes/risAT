@@ -88,7 +88,6 @@ ris_search_dsk <- function(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 ) {
   checkmate::assert_string(
@@ -110,7 +109,6 @@ ris_search_dsk <- function(
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     echo = echo,
-    max_pages = max_pages,
     base_url = base_url
   )
 }

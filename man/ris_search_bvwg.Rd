@@ -17,7 +17,6 @@ ris_search_bvwg(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 )
 }
@@ -57,16 +56,13 @@ its complement, so a single flag selects exactly one document type
 (e.g. \code{search_decision_text = FALSE} searches legal principles only).
 Setting both to \code{FALSE} is an error.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
-URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
-number of returned rows, so the result set can be double-checked in the
-browser.}
-
-\item{max_pages}{Maximum number of result pages to fetch (100 documents
-per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
-truncates the result set, a message says how to get the rest. Use this
-to keep broad exploratory queries from firing hundreds of requests at
-the public RIS API.}
+\item{echo}{Logical. If \code{TRUE}, prints three progress messages: the
+equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
+\verb{https://www.ris.bka.gv.at}) before any request is sent; the total hit
+and page count as soon as the first page's response arrives; and the
+final number of returned rows once all pages have been fetched. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.}
 
 \item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
 overridden for a session via \code{options(risAT.base_url = ...)}.}

@@ -10,9 +10,8 @@
   are unchanged, and the API enum spellings are now accepted as input too.
 - All requests are now throttled client-side (30 requests per minute) as a
   courtesy to the public RIS OGD API.
-- New `max_pages` argument on all search and perform functions caps the number
-  of result pages fetched (default `Inf` = all pages); a message explains how
-  to fetch the rest when a result set is truncated.
+- All search and perform functions always fetch every page in scope; there is
+  no `max_pages` argument to cap or truncate a result set.
 - `ris_req_case_law()` and `ris_search_case_law()` gained `sort_by` and
   `sort_direction` arguments (previously hard-coded to date descending, which
   remains the default).

@@ -159,7 +159,7 @@ test_that("federal exported tibble outputs never include app_metadata", {
   payload <- make_federal_payload()
 
   outputs <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req, max_pages) list(payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(payload),
     list(
       parse = ris_parse_federal(payload),
       perform = ris_perform_federal(ris_req_federal(title = "ABGB")),

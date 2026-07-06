@@ -7,12 +7,16 @@
 #   1. ris_req_case_law()   — build an httr2_request  (ris_req_case_law.R)
 #   2. ris_perform_case_law() — execute & parse       (this file)
 #
-# The RIS API paginates results.  This file also contains three internal
-# pagination helpers that are only used here:
+# The RIS API paginates results.  This file also contains internal pagination
+# helpers that are only used here:
 #
 #   - ris_iterate_case_law_pages()  — drives httr2::req_perform_iterative()
+#   - ris_case_law_page_status()    — parses/validates page + hit-count
+#                                      metadata from a response root
 #   - ris_next_case_law_page()      — computes the next page number from
 #                                      the API response metadata
+#   - ris_report_hit_count()        — echo message reporting total hits and
+#                                      page count, emitted after the first page
 #   - ris_bind_case_law_pages()     — rbinds page tibbles, handling the fact
 #                                      that different pages may return
 #                                      different column sets
@@ -21,20 +25,18 @@
 #' Perform a RIS Case Law Search
 #'
 #' Execute a request built by [ris_req_case_law()] and return parsed results.
-#' Pages are fetched iteratively using `httr2::req_perform_iterative()`,
-#' up to `max_pages` pages.
+#' Pages are fetched iteratively using `httr2::req_perform_iterative()`
+#' until all pages in scope have been retrieved.
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_case_law()].
-#' @param echo Logical. If `TRUE`, prints the equivalent RIS website search
-#'   URL (the `Ergebnis.wxe` query on `https://www.ris.bka.gv.at`) and the
-#'   number of returned rows, so the result set can be double-checked in the
-#'   browser.
-#' @param max_pages Maximum number of result pages to fetch (100 documents
-#'   per page). Defaults to `Inf` (fetch all pages in scope). When the limit
-#'   truncates the result set, a message says how to get the rest. Use this
-#'   to keep broad exploratory queries from firing hundreds of requests at
-#'   the public RIS API.
+#' @param echo Logical. If `TRUE`, prints three progress messages: the
+#'   equivalent RIS website search URL (the `Ergebnis.wxe` query on
+#'   `https://www.ris.bka.gv.at`) before any request is sent; the total hit
+#'   and page count as soon as the first page's response arrives; and the
+#'   final number of returned rows once all pages have been fetched. This
+#'   lets the result set be double-checked in the browser and gives an early
+#'   sense of scope for broad queries without waiting for every page.
 #'
 #' @return A tidy tibble with parsed search results.
 #'   Includes list-column `content_urls`.
@@ -46,17 +48,12 @@
 #'   query = "Asyl"
 #' )
 #' results <- ris_perform_case_law(req)
-#'
-#' # Cap a broad query at the first 2 pages (200 documents)
-#' results <- ris_perform_case_law(req, max_pages = 2)
-ris_perform_case_law <- function(req, echo = FALSE, max_pages = Inf) {
+ris_perform_case_law <- function(req, echo = FALSE) {
   checkmate::assert_flag(echo, .var.name = "echo")
-  max_pages <- ris_normalize_max_pages(max_pages)
 
   ris_perform_ris_search(
     req,
     echo = echo,
-    max_pages = max_pages,
     page_parser = ris_parse_search_internal,
     builder_name = "ris_req_case_law"
   )
@@ -136,15 +133,24 @@ ris_bind_case_law_pages <- function(page_results) {
 # page exists.  If so, it modifies the request's `Seitennummer` parameter
 # and returns the updated request; otherwise it returns NULL to stop iteration.
 #
-# max_pages caps the number of requests; the default Inf fetches *all* pages
-# (the RIS API may return hundreds for broad queries).
-ris_iterate_case_law_pages <- function(req, max_pages = Inf) {
+# Fetches *all* pages in scope (the RIS API may return hundreds for broad
+# queries).  When echo = TRUE, the total hit/page count is reported once, as
+# soon as the first page's response metadata is available, rather than
+# waiting for every page to be fetched.
+ris_iterate_case_law_pages <- function(req, echo = FALSE) {
+  reported <- FALSE
+
   httr2::req_perform_iterative(
     req = req,
     next_req = function(resp, req) {
       payload <- httr2::resp_body_json(resp, simplifyVector = FALSE)
       root <- ris_extract_root(payload)
       ris_stop_on_api_error(root)
+
+      if (echo && !reported) {
+        ris_report_hit_count(root)
+        reported <<- TRUE
+      }
 
       next_page <- ris_next_case_law_page(root)
       if (is.null(next_page)) {
@@ -153,50 +159,96 @@ ris_iterate_case_law_pages <- function(req, max_pages = Inf) {
 
       httr2::req_url_query(req, Seitennummer = as.integer(next_page))
     },
-    max_reqs = max_pages,
+    max_reqs = Inf,
     # Show the pagination progress bar only in interactive sessions so it
     # doesn't pollute knitted documents, logs, or CI output.
     progress = rlang::is_interactive()
   )
 }
 
-# -- ris_next_case_law_page() -------------------------------------------------
-# Computes the next page number from the parsed API response root, or returns
-# NULL if we've reached the last page.
-#
-# The API response includes:
+# -- ris_case_law_page_status() -----------------------------------------------
+# Parses and validates the pagination metadata from an API response root:
 #   - page_number: current 1-based page index
 #   - page_size:   number of results per page
 #   - total_hits:  total number of matching documents
-#
-# We calculate total_pages = ceil(total_hits / page_size) and check whether
-# the current page_number has reached it.  Various edge cases (missing
-# metadata, NA values, zero hits, page_size < 1) all return NULL to stop
-# pagination.  The metadata fields may be NULL or zero-length when the API
-# omits them, so each value is checked for length 1 before is.na().
-ris_next_case_law_page <- function(root) {
+#   - total_pages: ceil(total_hits / page_size), or NA when it can't be
+#                  computed (missing metadata, zero hits, page_size < 1)
+# The metadata fields may be NULL or zero-length when the API omits them, so
+# each value is checked for length 1 before is.na().  Shared by
+# ris_next_case_law_page() (pagination control) and ris_report_hit_count()
+# (echo reporting) so the validity rules live in one place.
+ris_case_law_page_status <- function(root) {
   page_info <- ris_extract_page_info(root)
   total_hits <- ris_extract_hits_count(root)
 
-  page_number <- page_info$page_number
-  page_size <- page_info$page_size
-
   is_valid_scalar <- function(x) length(x) == 1L && !is.na(x)
 
-  if (!is_valid_scalar(page_number) || !is_valid_scalar(page_size)) {
+  page_number <- page_info$page_number
+  if (!is_valid_scalar(page_number)) {
+    page_number <- NA_integer_
+  }
+
+  page_size <- page_info$page_size
+  if (!is_valid_scalar(page_size) || page_size < 1L) {
+    page_size <- NA_integer_
+  }
+
+  if (!is_valid_scalar(total_hits) || total_hits < 0L) {
+    total_hits <- NA_integer_
+  }
+
+  total_pages <- if (!is.na(page_size) && !is.na(total_hits) && total_hits > 0L) {
+    as.integer(max(1L, ceiling(total_hits / page_size)))
+  } else {
+    NA_integer_
+  }
+
+  list(
+    page_number = page_number,
+    page_size = page_size,
+    total_hits = total_hits,
+    total_pages = total_pages
+  )
+}
+
+# -- ris_next_case_law_page() -------------------------------------------------
+# Computes the next page number from the parsed API response root, or returns
+# NULL if we've reached the last page (or the metadata needed to tell is
+# missing/invalid).
+ris_next_case_law_page <- function(root) {
+  status <- ris_case_law_page_status(root)
+
+  if (is.na(status$page_number) || is.na(status$total_pages)) {
     return(NULL)
   }
-  if (page_size < 1L) {
-    return(NULL)
-  }
-  if (!is_valid_scalar(total_hits) || total_hits <= 0L) {
+  if (status$page_number >= status$total_pages) {
     return(NULL)
   }
 
-  total_pages <- as.integer(max(1L, ceiling(total_hits / page_size)))
-  if (page_number >= total_pages) {
-    return(NULL)
+  as.integer(status$page_number + 1L)
+}
+
+# -- ris_report_hit_count() ----------------------------------------------------
+# Emits an echo message reporting the total hit count (and page count, when
+# computable) for a search, using the same pagination metadata as
+# ris_next_case_law_page().  Called once, right after the first page's
+# response is decoded, so broad queries don't leave the user waiting until
+# every page has been fetched to see how many results are in scope.
+ris_report_hit_count <- function(root) {
+  status <- ris_case_law_page_status(root)
+
+  if (is.na(status$total_hits)) {
+    return(invisible(NULL))
   }
 
-  as.integer(page_number + 1L)
+  if (is.na(status$total_pages)) {
+    message("Total hits: ", status$total_hits)
+    return(invisible(NULL))
+  }
+
+  message(
+    "Total hits: ", status$total_hits,
+    " (", status$total_pages,
+    " page", if (status$total_pages != 1L) "s" else "", ")"
+  )
 }

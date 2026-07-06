@@ -39,7 +39,6 @@ ris_search_case_law(
   sort_by = NULL,
   sort_direction = NULL,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 )
 }
@@ -155,7 +154,17 @@ and \code{Uvs}.}
 \item{senate}{Optional senate (\code{Senat}), used for \code{Gbk}.}
 
 \item{discrimination_ground}{Optional discrimination ground
-(\code{Diskriminierungsgrund}), used for \code{Gbk}.}
+(\code{Diskriminierungsgrund}), used for \code{Gbk}. Accepted German values:
+\code{"Geschlecht"}, \code{"Ethnische Zugehörigkeit"}, \code{"Religion"},
+\code{"Weltanschauung"}, \code{"Alter"}, \code{"Sexuelle Orientierung"},
+\code{"Behinderung"}, and \code{"Mehrfachdiskriminierung"}. English aliases:
+\code{"gender"}/\code{"sex"} -> \code{"Geschlecht"}, \code{"ethnicity"}/
+\code{"ethnic_origin"} -> \code{"EthnischeZugehoerigkeit"}, \code{"religion"} ->
+\code{"Religion"}, \code{"worldview"} -> \code{"Weltanschauung"}, \code{"age"} ->
+\code{"Alter"}, \code{"sexual_orientation"} -> \code{"SexuelleOrientierung"},
+\code{"disability"} -> \code{"Behinderung"}, and \code{"multiple"}/
+\code{"multiple_discrimination"} -> \code{"Mehrfachdiskriminierung"}.
+Matching is case-insensitive and ignores spaces, underscores, and hyphens.}
 
 \item{author}{Optional author (\code{Verfasser}), used for \code{Ubas}.}
 
@@ -194,16 +203,13 @@ value to the API as-is.}
 \code{"Ascending"} or \code{"Descending"}. Defaults to \code{"Descending"} whenever a
 sort column is in effect.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website search
-URL (the \code{Ergebnis.wxe} query on \verb{https://www.ris.bka.gv.at}) and the
-number of returned rows, so the result set can be double-checked in the
-browser.}
-
-\item{max_pages}{Maximum number of result pages to fetch (100 documents
-per page). Defaults to \code{Inf} (fetch all pages in scope). When the limit
-truncates the result set, a message says how to get the rest. Use this
-to keep broad exploratory queries from firing hundreds of requests at
-the public RIS API.}
+\item{echo}{Logical. If \code{TRUE}, prints three progress messages: the
+equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
+\verb{https://www.ris.bka.gv.at}) before any request is sent; the total hit
+and page count as soon as the first page's response arrives; and the
+final number of returned rows once all pages have been fetched. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.}
 
 \item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
 overridden for a session via \code{options(risAT.base_url = ...)}.}

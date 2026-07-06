@@ -71,7 +71,6 @@ ris_search_case_law <- function(
   sort_by = NULL,
   sort_direction = NULL,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 ) {
   # Build the httr2 request with all search parameters.  Validation and
@@ -114,5 +113,5 @@ ris_search_case_law <- function(
   )
 
   # Execute the request and return the parsed tibble.
-  ris_perform_case_law(req, echo = echo, max_pages = max_pages)
+  ris_perform_case_law(req, echo = echo)
 }

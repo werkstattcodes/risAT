@@ -113,7 +113,17 @@
 #' @param commission Optional commission (`Kommission`), used for `Gbk`.
 #' @param senate Optional senate (`Senat`), used for `Gbk`.
 #' @param discrimination_ground Optional discrimination ground
-#'   (`Diskriminierungsgrund`), used for `Gbk`.
+#'   (`Diskriminierungsgrund`), used for `Gbk`. Accepted German values:
+#'   `"Geschlecht"`, `"Ethnische Zugehörigkeit"`, `"Religion"`,
+#'   `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`,
+#'   `"Behinderung"`, and `"Mehrfachdiskriminierung"`. English aliases:
+#'   `"gender"`/`"sex"` -> `"Geschlecht"`, `"ethnicity"`/
+#'   `"ethnic_origin"` -> `"EthnischeZugehoerigkeit"`, `"religion"` ->
+#'   `"Religion"`, `"worldview"` -> `"Weltanschauung"`, `"age"` ->
+#'   `"Alter"`, `"sexual_orientation"` -> `"SexuelleOrientierung"`,
+#'   `"disability"` -> `"Behinderung"`, and `"multiple"`/
+#'   `"multiple_discrimination"` -> `"Mehrfachdiskriminierung"`.
+#'   Matching is case-insensitive and ignores spaces, underscores, and hyphens.
 #' @param author Optional author (`Verfasser`), used for `Ubas`.
 #' @param short_title Optional short title (`Kurzbezeichnung`), used for `Umse`.
 #' @param domain Optional domain (`Bereich`), used for `Bks`.

@@ -17,8 +17,8 @@
 #' Perform a RIS Bundesrecht Search
 #'
 #' Execute a request built by [ris_req_federal()] and return parsed results.
-#' Pages are fetched iteratively using `httr2::req_perform_iterative()`,
-#' up to `max_pages` pages.
+#' Pages are fetched iteratively using `httr2::req_perform_iterative()`
+#' until all pages in scope have been retrieved.
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_federal()].
@@ -31,14 +31,12 @@
 #' @examplesIf interactive()
 #' req <- ris_req_federal(title = "ABGB")
 #' results <- ris_perform_federal(req)
-ris_perform_federal <- function(req, echo = FALSE, max_pages = Inf) {
+ris_perform_federal <- function(req, echo = FALSE) {
   checkmate::assert_flag(echo, .var.name = "echo")
-  max_pages <- ris_normalize_max_pages(max_pages)
 
   ris_perform_ris_search(
     req,
     echo = echo,
-    max_pages = max_pages,
     page_parser = ris_parse_federal_internal,
     builder_name = "ris_req_federal"
   )

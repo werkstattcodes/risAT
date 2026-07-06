@@ -43,13 +43,6 @@ ris_base_request <- function(base_url, endpoint) {
     httr2::req_throttle(capacity = 30, fill_time_s = 60)
 }
 
-# Validate the max_pages argument shared by the perform/search functions.
-# Accepts a single positive number, including Inf (fetch all pages).
-ris_normalize_max_pages <- function(max_pages) {
-  checkmate::assert_number(max_pages, lower = 1, .var.name = "max_pages")
-  floor(max_pages)
-}
-
 # Type-stable zero-row result: guarantees the columns that every public RIS
 # search result contains, so downstream code can rely on `out$id` etc. even
 # when a search returns no hits.  website_urls is NULL when called from the
@@ -74,35 +67,6 @@ ris_drop_app_metadata <- function(tbl) {
   tbl
 }
 
-# After pagination stopped at max_pages, check whether the API had more pages
-# and tell the user how to get them.  `responses` may contain httr2_response
-# objects (live requests) or decoded payload lists (tests); ris_as_payload()
-# handles both.
-ris_inform_if_truncated <- function(responses, max_pages) {
-  if (!is.finite(max_pages) || length(responses) < max_pages) {
-    return(invisible(NULL))
-  }
-
-  last_root <- ris_extract_root(ris_as_payload(responses[[length(responses)]]))
-  if (is.null(ris_next_case_law_page(last_root))) {
-    return(invisible(NULL))
-  }
-
-  hits <- ris_extract_hits_count(last_root)
-  hits_note <- if (length(hits) == 1L && !is.na(hits)) {
-    paste0(" (", hits, " total hits)")
-  } else {
-    ""
-  }
-  rlang::inform(
-    paste0(
-      "Stopped after `max_pages = ", max_pages, "` pages", hits_note,
-      "; more results are available. Increase `max_pages` to fetch them."
-    ),
-    class = "risat_truncated_results"
-  )
-}
-
 # Shared execution engine behind ris_perform_case_law() and
 # ris_perform_federal(): validate the request metadata, fetch all pages,
 # parse each with `page_parser`, combine, enrich request provenance in the
@@ -110,12 +74,11 @@ ris_inform_if_truncated <- function(responses, max_pages) {
 # public perform functions only differ in their page parser and in the name
 # of the request builder mentioned in error messages.
 #
-# `echo` and `max_pages` are assumed to be already validated by the public
-# perform functions, so assertion errors carry the name the user called.
+# `echo` is assumed to be already validated by the public perform functions,
+# so assertion errors carry the name the user called.
 ris_perform_ris_search <- function(
   req,
   echo,
-  max_pages,
   page_parser,
   builder_name,
   call = rlang::caller_env()
@@ -149,8 +112,10 @@ ris_perform_ris_search <- function(
   }
 
   # Fetch pages iteratively, following pagination via the response metadata.
-  responses <- ris_iterate_case_law_pages(req, max_pages = max_pages)
-  ris_inform_if_truncated(responses, max_pages)
+  # When echo = TRUE, the total hit/page count is reported as soon as the
+  # first page arrives (see ris_iterate_case_law_pages()), well before all
+  # pages have been fetched.
+  responses <- ris_iterate_case_law_pages(req, echo = echo)
 
   # Parse each page, tag rows with their page number, and drop empty pages.
   page_results <- purrr::imap(

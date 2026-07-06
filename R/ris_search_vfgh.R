@@ -108,7 +108,6 @@ ris_search_vfgh <- function(
   search_decision_text = FALSE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  max_pages = Inf,
   base_url = ris_base_url()
 ) {
   # Delegate to the generic case law search with application fixed to "Vfgh".
@@ -126,7 +125,6 @@ ris_search_vfgh <- function(
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles,
     echo = echo,
-    max_pages = max_pages,
     base_url = base_url
   )
 }
