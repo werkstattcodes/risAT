@@ -147,6 +147,6 @@ If you use risAT in your research, please cite it:
 citation("risAT")
 ```
 
-> Schmidt R (2026). _risAT: Interface to the Austrian RIS OGD REST API_.
-> R package version 0.0.0.9000,
+> Schmidt R (2026). _risAT: An R package wrapping the API of the Austrian
+> Legal Information System (RIS)_. R package version 0.0.1,
 > <https://github.com/werkstattcodes/risAT>.
