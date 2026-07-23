@@ -7,3 +7,4 @@ docs
 inst/doc
 .claude/
 .playwright-mcp/
+.vscode/
