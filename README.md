@@ -148,5 +148,5 @@ citation("risAT")
 ```
 
 > Schmidt R (2026). _risAT: An R package wrapping the API of the Austrian
-> Legal Information System (RIS)_. R package version 0.0.1,
+> Legal Information System (RIS)_. R package version 0.1.0,
 > <https://github.com/werkstattcodes/risAT>.

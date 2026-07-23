@@ -1,4 +1,4 @@
-# risAT 0.0.1
+# risAT 0.1.0
 
 - Initial development version.
 - The full-text `query` and `norm` arguments now accept `OR` and `ODER` as

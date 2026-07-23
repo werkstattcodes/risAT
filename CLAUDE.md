@@ -9,7 +9,7 @@ This file provides guidance for AI coding assistants working in this repository.
 `risAT` is an R package that provides a tidyverse-friendly interface to the Austrian RIS (Rechtsinformationssystem) Open Government Data REST API v2.6. It covers the `/Judikatur` endpoint (case law / jurisprudence, all 9 court applications) and the `/Bundesrecht` endpoint (consolidated federal law, `BrKons`), and is designed for reproducible legal research.
 
 - **Language**: R
-- **Package version**: 0.0.1
+- **Package version**: 0.1.0
 - **License**: MIT
 - **API base URL**: `https://data.bka.gv.at/ris/api/v2.6/`
 

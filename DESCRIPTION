@@ -1,7 +1,7 @@
 Package: risAT
 Type: Package
 Title: An R Package Wrapping the API of the Austrian Legal Information System (RIS)
-Version: 0.0.1
+Version: 0.1.0
 Authors@R:
     person(
       given = "Roland",
