@@ -30,11 +30,10 @@
 #'
 #' @param req An `httr2_request` object, typically built with
 #'   [ris_req_case_law()].
-#' @param echo Logical. If `TRUE`, prints three progress messages: the
+#' @param echo Logical. If `TRUE`, prints two progress messages: the
 #'   equivalent RIS website search URL (the `Ergebnis.wxe` query on
-#'   `https://www.ris.bka.gv.at`) before any request is sent; the total hit
-#'   and page count as soon as the first page's response arrives; and the
-#'   final number of returned rows once all pages have been fetched. This
+#'   `https://www.ris.bka.gv.at`) before any request is sent; and the total
+#'   hit and page count as soon as the first page's response arrives. This
 #'   lets the result set be double-checked in the browser and gives an early
 #'   sense of scope for broad queries without waiting for every page.
 #'

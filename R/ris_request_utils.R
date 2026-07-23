@@ -143,9 +143,6 @@ ris_perform_ris_search <- function(
   # same schema as for non-empty results.
   if (nrow(out) == 0L) {
     empty_out <- ris_empty_result(website_urls)
-    if (isTRUE(echo)) {
-      message("Rows returned: 0")
-    }
     return(empty_out)
   }
 
@@ -176,10 +173,6 @@ ris_perform_ris_search <- function(
   # accessors.
   attr(out, "ris_app_url") <- website_urls$app_url
   attr(out, "ris_search_url") <- website_urls$search_url
-
-  if (isTRUE(echo)) {
-    message("Rows returned: ", nrow(out))
-  }
 
   ris_drop_app_metadata(out)
 }

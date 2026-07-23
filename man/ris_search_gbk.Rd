@@ -69,11 +69,10 @@ Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}
 English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{"three_months"}, \code{"six_months"}, \code{"one_year"}).}
 
-\item{echo}{Logical. If \code{TRUE}, prints three progress messages: the
+\item{echo}{Logical. If \code{TRUE}, prints two progress messages: the
 equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
-\verb{https://www.ris.bka.gv.at}) before any request is sent; the total hit
-and page count as soon as the first page's response arrives; and the
-final number of returned rows once all pages have been fetched. This
+\verb{https://www.ris.bka.gv.at}) before any request is sent; and the total
+hit and page count as soon as the first page's response arrives. This
 lets the result set be double-checked in the browser and gives an early
 sense of scope for broad queries without waiting for every page.}
 

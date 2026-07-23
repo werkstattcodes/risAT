@@ -52,7 +52,7 @@ test_that("ris_perform_case_law paginates via httr2 and combines pages", {
 
 # ── Echo progress messages ───────────────────────────────────────────────────
 
-test_that("echo reports the search URL, hit count, and row count in order", {
+test_that("echo reports the search URL and hit count in order", {
   resp1 <- httr2::response_json(
     body = fixture_payload("case_law_multi_page_page1.json")
   )
@@ -64,10 +64,9 @@ test_that("echo reports the search URL, hit count, and row count in order", {
   req <- ris_req_case_law(application = "Vfgh", query = "Grundrecht")
   msgs <- testthat::capture_messages(out <- ris_perform_case_law(req, echo = TRUE))
 
-  expect_length(msgs, 3)
+  expect_length(msgs, 2)
   expect_match(msgs[1], "^Equivalent RIS search URL: ")
   expect_equal(trimws(msgs[2]), "Total hits: 2 (2 pages)")
-  expect_equal(trimws(msgs[3]), "Rows returned: 2")
   expect_equal(nrow(out), 2L)
 })
 
