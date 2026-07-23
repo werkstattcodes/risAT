@@ -1,6 +1,6 @@
 bibentry(
   bibtype  = "Manual",
-  title    = "risAT: Interface to the Austrian RIS OGD REST API",
+  title    = "risAT: An R package wrapping the API of the Austrian Legal Information System (RIS)",
   author   = person("Roland", "Schmidt"),
   year     = "2026",
   url      = "https://github.com/werkstattcodes/risAT",

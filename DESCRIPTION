@@ -1,6 +1,6 @@
 Package: risAT
 Type: Package
-Title: Interface to the Austrian RIS OGD REST API
+Title: An R Package Wrapping the API of the Austrian Legal Information System (RIS)
 Version: 0.0.0.9000
 Authors@R:
     person(
