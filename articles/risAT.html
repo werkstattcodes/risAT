@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">risAT</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,10 +109,8 @@ arguments:</p>
 <span><span class="va">results</span></span></code></pre></div>
 <p>All search functions return a tibble. Key columns include
 <code>id</code>, <code>application</code>, <code>decision_date</code>,
-<code>case_number</code>, <code>document_type</code>, and two
-list-columns: <code>content_urls</code> (download links) and
-<code>app_metadata</code> (court-specific fields and response
-metadata).</p>
+<code>case_number</code>, <code>document_type</code>, and
+<code>content_urls</code> (a list-column of download links).</p>
 </div>
 <div class="section level2">
 <h2 id="available-court-wrappers">Available court wrappers<a class="anchor" aria-label="anchor" href="#available-court-wrappers"></a>
@@ -223,21 +221,12 @@ pagination</li>
 <h2 id="pagination">Pagination<a class="anchor" aria-label="anchor" href="#pagination"></a>
 </h2>
 <p>The RIS API returns results in pages. risAT handles pagination
-automatically and fetches all available pages in scope. Pagination
-metadata for each row is stored in the <code>app_metadata</code>
-list-column under <code>response</code> (API response info) and
-<code>request</code> (request provenance):</p>
+automatically and fetches all available pages in scope. The equivalent
+RIS website URLs are attached to the result and can be retrieved with
+helper functions:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Total hit count reported by the API</span></span>
-<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">hits</span></span>
-<span></span>
-<span><span class="co"># Current response page metadata</span></span>
-<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">page_number</span></span>
-<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">response</span><span class="op">$</span><span class="va">page_size</span></span>
-<span></span>
-<span><span class="co"># Request provenance metadata attached by risAT</span></span>
-<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">request</span><span class="op">$</span><span class="va">seitennummer</span></span>
-<span><span class="va">results</span><span class="op">$</span><span class="va">app_metadata</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">request</span><span class="op">$</span><span class="va">dokumente_pro_seite</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ris_search_url.html">ris_app_url</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ris_search_url.html">ris_search_url</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="working-with-results">Working with results<a class="anchor" aria-label="anchor" href="#working-with-results"></a>
@@ -396,11 +385,6 @@ passed through in their original snake_case form.</p>
 <td><code>content_urls</code></td>
 <td><code>Dokumentliste &gt; ContentReference</code></td>
 <td>Content download URLs (list-column)</td>
-</tr>
-<tr class="odd">
-<td><code>app_metadata</code></td>
-<td>—</td>
-<td>Package-generated metadata (list-column)</td>
 </tr>
 </tbody>
 </table>
@@ -801,7 +785,7 @@ passed through in their original snake_case form.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

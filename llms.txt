@@ -4,12 +4,12 @@ The risAT package provides a tidyverse-friendly interface to the
 Austrian [RIS](https://www.ris.bka.gv.at/) (Rechtsinformationssystem)
 Open Government Data REST API v2.6. It covers the `/Judikatur` endpoint
 (case law / jurisprudence) across all supported court applications and
+the `/Bundesrecht` endpoint for consolidated federal law (`BrKons`), and
 is designed for reproducible legal research.
 
-Please note that the package is **in a development stage**. Upcoming
-changes may break existing code. If you encounter any bug, you are
-welcome to file an issue at the package’s [GitHub
-repo](https://github.com/werkstattcodes/risAT/issues).
+Version 0.1.0 is **experimental**, and breaking changes may occur before
+1.0. If you encounter any bug, you are welcome to file an issue at the
+package’s [GitHub repo](https://github.com/werkstattcodes/risAT/issues).
 
 ## Data source
 
@@ -35,6 +35,24 @@ You can install risAT from
 pak::pak("werkstattcodes/risAT")
 ```
 
+## RIS coverage
+
+The RIS website is organised into several content areas, each backed by
+one or more API “applications”. The table below shows which of them
+risAT currently supports. Status legend: ✅ implemented · 🔜 planned · —
+not yet supported.
+
+| RIS area | Applications | risAT |
+|----|----|----|
+| **Judikatur** (case law) | VfGH, VwGH, Justiz, BVwG, LVwG, Normenliste, DSK, DOK, PVAK, GBK, UVS, AsylGH, UBAS, UMSE, BKS, VERG | ✅ implemented |
+| **Bundesrecht** – consolidated (`BrKons`) | Federal law in consolidated form | ✅ implemented |
+| **Bundesrecht** – gazettes (`BgblAuth`, `BgblPdf`, `BgblAlt`) | Federal Law Gazettes (1848–present) | 🔜 planned |
+| **Bundesrecht** – drafts (`Begut`, `RegV`, `Erv`) | Consultation drafts, government bills, Austrian laws in English | 🔜 planned |
+| **Landesrecht** (`LrKons`, `LgblAuth`, `Lgbl`, `LgblNO`, `Vbl`) | State law (consolidated) and state gazettes | 🔜 planned |
+| **Kundmachungen & Erlässe** (`Upts`, `Erlaesse`, `Avsv`, …) | Other notices and ministerial decrees (`/Sonstige`) | 🔜 planned |
+| **Gemeinden** (`Gr`, `GrA`) | Municipal law and notices | — |
+| **Bezirke** (`Bvb`) | District authority notices | — |
+
 ## Available court applications and functions
 
 The RIS Judikatur endpoint covers multiple court applications. risAT
@@ -54,13 +72,19 @@ function that accepts any application code:
 | PVAK / PVAB (staff representation) | [`ris_search_pvak()`](https://werkstattcodes.github.io/risAT/reference/ris_search_pvak.md) |  |
 | GBK (equal treatment commissions) | [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md) | No doc-type flags |
 
+### Federal law (Bundesrecht)
+
+| Application | Function | Notes |
+|----|----|----|
+| Consolidated federal law (BrKons) | [`ris_search_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_search_federal.md) | Title/full-text/index search, version (`Fassung`) and in-/out-of-force date filters |
+
 Lower-level building blocks for advanced use:
 
-| Step | Function |
-|----|----|
-| Build request | [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md) |
-| Execute request (with pagination) | [`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md) |
-| Parse response | [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md) |
+| Step | Judikatur | Bundesrecht |
+|----|----|----|
+| Build request | [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md) | [`ris_req_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_req_federal.md) |
+| Execute request (with pagination) | [`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md) | [`ris_perform_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_federal.md) |
+| Parse response | [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md) | [`ris_parse_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_federal.md) |
 
 ## Minimal example
 
@@ -94,14 +118,20 @@ results_all <- ris_search_case_law(
   application = "data_protection",
   query = "Videoüberwachung"
 )
+
+# Consolidated federal law (Bundesrecht): look up a law by its short title
+results_abgb <- ris_search_federal(title = "ABGB")
+
+# The consolidated text as it stood on a given date (point-in-time version)
+results_mrg <- ris_search_federal(query = "Mietzins", version_date = "2020-01-01")
 ```
 
 ## Output
 
 Search functions automatically iterate through all RIS pages and return
 results as a tidy tibble with columns including `id`, `court`,
-`decision_date`, `case_number`, `content_urls` (list-column), and
-`app_metadata` (list-column). See the [reference
+`decision_date`, `case_number`, and `content_urls` (a list-column of
+download links). See the [reference
 documentation](https://werkstattcodes.github.io/risAT/reference/) for
 full details.
 
@@ -118,8 +148,8 @@ If you use risAT in your research, please cite it:
 citation("risAT")
 ```
 
-> Schmidt R (2026). *risAT: Interface to the Austrian RIS OGD REST API*.
-> R package version 0.0.0.9000,
+> Schmidt R (2026). *risAT: An R package wrapping the API of the
+> Austrian Legal Information System (RIS)*. R package version 0.1.0,
 > <https://github.com/werkstattcodes/risAT>.
 
 # Package index
@@ -154,17 +184,41 @@ Convenience wrappers pre-filled with a specific application code.
 - [`ris_search_gbk()`](https://werkstattcodes.github.io/risAT/reference/ris_search_gbk.md)
   : Search Equal Treatment Commission Decisions in RIS
 
+## Search Functions — Bundesrecht
+
+Search consolidated federal law (Bundesrecht in konsolidierter Fassung,
+BrKons).
+
+- [`ris_search_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_search_federal.md)
+  : Search Austrian Consolidated Federal Law in RIS
+
 ## Request Building
 
 - [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md)
   : Build a RIS Case Law API Request
 - [`ris_perform_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_case_law.md)
   : Perform a RIS Case Law Search
+- [`ris_req_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_req_federal.md)
+  : Build a RIS Bundesrecht API Request
+- [`ris_perform_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_perform_federal.md)
+  : Perform a RIS Bundesrecht Search
 
 ## Parsers
 
 - [`ris_parse_search()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_search.md)
   : Parse RIS Search Responses
+- [`ris_parse_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_parse_federal.md)
+  : Parse RIS Bundesrecht Search Responses
+
+## Utilities
+
+API base URL and RIS website URL accessors.
+
+- [`ris_base_url()`](https://werkstattcodes.github.io/risAT/reference/ris_base_url.md)
+  : RIS API Base URL
+- [`ris_search_url()`](https://werkstattcodes.github.io/risAT/reference/ris_search_url.md)
+  [`ris_app_url()`](https://werkstattcodes.github.io/risAT/reference/ris_search_url.md)
+  : Get the RIS Website URLs of a Search Result
 
 # Articles
 

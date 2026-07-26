@@ -20,7 +20,7 @@ ris_search_bvwg(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 ```
 
@@ -28,7 +28,9 @@ ris_search_bvwg(
 
 - query:
 
-  Optional full-text query (`Suchworte`).
+  Optional full-text query (`Suchworte`). Supports the RIS full-text
+  operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT, `*` =
+  wildcard, `'phrase'` for exact phrase).
 
 - business_number:
 
@@ -36,7 +38,9 @@ ris_search_bvwg(
 
 - norm:
 
-  Optional legal norm query (`Norm`).
+  Optional legal norm query (`Norm`). Multiple norms can be combined
+  with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+  `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 
 - decision_date_from:
 
@@ -74,22 +78,32 @@ ris_search_bvwg(
 - search_legal_principles:
 
   Optional flag for legal principles search (`SucheInRechtssaetzen`).
+  When both flags are omitted, both document types are searched. When
+  only one flag is given, the other defaults to its complement, so a
+  single flag selects exactly one document type (e.g.
+  `search_decision_text = FALSE` searches legal principles only).
+  Setting both to `FALSE` is an error.
 
 - echo:
 
-  Logical. If `TRUE`, prints the equivalent RIS website URLs
-  (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
-  `Ergebnis.wxe` query URL) and the number of returned rows, so users
-  can double-check the result set in the browser.
+  Logical. If `TRUE`, prints two progress messages: the equivalent RIS
+  website search URL (the `Ergebnis.wxe` query on
+  `https://www.ris.bka.gv.at`) before any request is sent; and the total
+  hit and page count as soon as the first page's response arrives. This
+  lets the result set be double-checked in the browser and gives an
+  early sense of scope for broad queries without waiting for every page.
 
 - base_url:
 
-  API base URL.
+  API base URL. Defaults to
+  [`ris_base_url()`](https://werkstattcodes.github.io/risAT/reference/ris_base_url.md),
+  which can be overridden for a session via
+  `options(risAT.base_url = ...)`.
 
 ## Value
 
-A tidy tibble with parsed search results. Includes list-columns
-`content_urls` and `app_metadata`.
+A tidy tibble with parsed search results. Includes list-column
+`content_urls`.
 
 ## Details
 
@@ -100,10 +114,10 @@ immigration, procurement, and telecommunications decisions.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) { # interactive()
 # Keyword search across decision texts and Rechtssaetze (default).
 # The query field supports full-text operators: space/"und" = AND,
-# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+# "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 ris_search_bvwg(query = "Asyl")
 
 # Filter to Erkenntnis decisions within a date range
@@ -122,5 +136,5 @@ ris_search_bvwg(in_ris_since = "one_month")
 # Look up a specific decision by business number and echo the browser URL.
 # BVwG business number format: "W NNN NNNNNNNN-N/YYYYX" or similar.
 ris_search_bvwg(business_number = "W175 2221503-1", echo = TRUE)
-} # }
+}
 ```

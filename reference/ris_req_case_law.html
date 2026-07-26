@@ -13,7 +13,7 @@ httr2::req_dry_run() to inspect the URL."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">risAT</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,9 @@ httr2::req_dry_run() to inspect the URL."><meta property="og:image" content="htt
 <span>  in_ris_since <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  search_decision_text <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  search_legal_principles <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  base_url <span class="op">=</span> <span class="st">"https://data.bka.gv.at/ris/api/v2.6"</span></span>
+<span>  sort_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sort_direction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  base_url <span class="op">=</span> <span class="fu"><a href="ris_base_url.html">ris_base_url</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -104,7 +106,9 @@ httr2::req_dry_run() to inspect the URL."><meta property="og:image" content="htt
 
 
 <dt id="arg-query">query<a class="anchor" aria-label="anchor" href="#arg-query"></a></dt>
-<dd><p>Optional full-text query (<code>Suchworte</code>).</p></dd>
+<dd><p>Optional full-text query (<code>Suchworte</code>). Supports the RIS
+full-text operators (space/<code>und</code> = AND, <code>OR</code>/<code>ODER</code> = OR, <code>nicht</code> = NOT,
+<code>*</code> = wildcard, <code>'phrase'</code> for exact phrase).</p></dd>
 
 
 <dt id="arg-business-number">business_number<a class="anchor" aria-label="anchor" href="#arg-business-number"></a></dt>
@@ -112,7 +116,9 @@ httr2::req_dry_run() to inspect the URL."><meta property="og:image" content="htt
 
 
 <dt id="arg-norm">norm<a class="anchor" aria-label="anchor" href="#arg-norm"></a></dt>
-<dd><p>Optional legal norm query (<code>Norm</code>).</p></dd>
+<dd><p>Optional legal norm query (<code>Norm</code>). Multiple norms can be
+combined with <code>OR</code>/<code>ODER</code> (wrap each norm in single quotes, e.g.
+<code>"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"</code>).</p></dd>
 
 
 <dt id="arg-decision-date-from">decision_date_from<a class="anchor" aria-label="anchor" href="#arg-decision-date-from"></a></dt>
@@ -236,7 +242,17 @@ and <code>Uvs</code>.</p></dd>
 
 <dt id="arg-discrimination-ground">discrimination_ground<a class="anchor" aria-label="anchor" href="#arg-discrimination-ground"></a></dt>
 <dd><p>Optional discrimination ground
-(<code>Diskriminierungsgrund</code>), used for <code>Gbk</code>.</p></dd>
+(<code>Diskriminierungsgrund</code>), used for <code>Gbk</code>. Accepted German values:
+<code>"Geschlecht"</code>, <code>"Ethnische Zugehörigkeit"</code>, <code>"Religion"</code>,
+<code>"Weltanschauung"</code>, <code>"Alter"</code>, <code>"Sexuelle Orientierung"</code>,
+<code>"Behinderung"</code>, and <code>"Mehrfachdiskriminierung"</code>. English aliases:
+<code>"gender"</code>/<code>"sex"</code> -&gt; <code>"Geschlecht"</code>, <code>"ethnicity"</code>/
+<code>"ethnic_origin"</code> -&gt; <code>"EthnischeZugehoerigkeit"</code>, <code>"religion"</code> -&gt;
+<code>"Religion"</code>, <code>"worldview"</code> -&gt; <code>"Weltanschauung"</code>, <code>"age"</code> -&gt;
+<code>"Alter"</code>, <code>"sexual_orientation"</code> -&gt; <code>"SexuelleOrientierung"</code>,
+<code>"disability"</code> -&gt; <code>"Behinderung"</code>, and <code>"multiple"</code>/
+<code>"multiple_discrimination"</code> -&gt; <code>"Mehrfachdiskriminierung"</code>.
+Matching is case-insensitive and ignores spaces, underscores, and hyphens.</p></dd>
 
 
 <dt id="arg-author">author<a class="anchor" aria-label="anchor" href="#arg-author"></a></dt>
@@ -266,11 +282,35 @@ English aliases (<code>"one_week"</code>, <code>"two_weeks"</code>, <code>"one_m
 
 <dt id="arg-search-legal-principles">search_legal_principles<a class="anchor" aria-label="anchor" href="#arg-search-legal-principles"></a></dt>
 <dd><p>Optional flag for legal principles search
-(<code>SucheInRechtssaetzen</code>).</p></dd>
+(<code>SucheInRechtssaetzen</code>). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. <code>search_decision_text = FALSE</code> searches legal principles only).
+Setting both to <code>FALSE</code> is an error.</p></dd>
+
+
+<dt id="arg-sort-by">sort_by<a class="anchor" aria-label="anchor" href="#arg-sort-by"></a></dt>
+<dd><p>Sort column (<code>SortierungSortedByColumn</code>). When omitted,
+defaults to <code>"Datum"</code> (decision date) for all applications except
+<code>Normenliste</code>, whose only sortable column is <code>"Kurzinformation"</code> — there
+the sort parameters are omitted and the API default order applies. For
+VfGH and VwGH the value is validated client-side against
+<code>"Geschaeftszahl"</code>, <code>"Datum"</code>, <code>"Art"</code>, <code>"Typ"</code> (English aliases
+<code>"business_number"</code>/<code>"case_number"</code>, <code>"decision_date"</code>,
+<code>"decision_type"</code>, <code>"document_type"</code>); for <code>Normenliste</code> against
+<code>"Kurzinformation"</code> (alias <code>"brief_info"</code>); other applications pass the
+value to the API as-is.</p></dd>
+
+
+<dt id="arg-sort-direction">sort_direction<a class="anchor" aria-label="anchor" href="#arg-sort-direction"></a></dt>
+<dd><p>Sort direction (<code>SortierungSortDirection</code>):
+<code>"Ascending"</code> or <code>"Descending"</code>. Defaults to <code>"Descending"</code> whenever a
+sort column is in effect.</p></dd>
 
 
 <dt id="arg-base-url">base_url<a class="anchor" aria-label="anchor" href="#arg-base-url"></a></dt>
-<dd><p>API base URL.</p></dd>
+<dd><p>API base URL. Defaults to <code><a href="ris_base_url.html">ris_base_url()</a></code>, which can be
+overridden for a session via <code>options(risAT.base_url = ...)</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -282,7 +322,7 @@ containing the application code and website URLs. Pass this to
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># interactive()</span></span></span>
 <span class="r-in"><span><span class="co"># Build request, then inspect the URL without hitting the network</span></span></span>
 <span class="r-in"><span><span class="va">req</span> <span class="op">&lt;-</span> <span class="fu">ris_req_case_law</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  application <span class="op">=</span> <span class="st">"constitutional_court"</span>,</span></span>
@@ -292,7 +332,7 @@ containing the application code and website URLs. Pass this to
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Execute</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="ris_perform_case_law.html">ris_perform_case_law</a></span><span class="op">(</span><span class="va">req</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -304,7 +344,7 @@ containing the application code and website URLs. Pass this to
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

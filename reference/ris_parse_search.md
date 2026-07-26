@@ -26,9 +26,9 @@ ris_parse_search(x, requested_page = NULL, requested_per_page = NULL)
 
 ## Value
 
-A tibble parsed from one RIS response payload. Includes list-columns
-`content_urls` and `app_metadata`. The `decision_date` column, when
-present, is parsed to `Date`.
+A tibble parsed from one RIS response payload. Includes list-column
+`content_urls`. The `decision_date` column, when present, is parsed to
+`Date`.
 
 ## Examples
 
@@ -62,8 +62,8 @@ payload <- list(
   )
 )
 ris_parse_search(payload)
-#> # A tibble: 1 × 5
-#>   id    application document_url               content_urls app_metadata    
-#>   <chr> <chr>       <chr>                      <list>       <list>          
-#> 1 DOC-1 Vwgh        https://example.org/meta/1 <chr [1]>    <named list [3]>
+#> # A tibble: 1 × 4
+#>   id    application document_url               content_urls
+#>   <chr> <chr>       <chr>                      <list>      
+#> 1 DOC-1 Vwgh        https://example.org/meta/1 <chr [1]>   
 ```

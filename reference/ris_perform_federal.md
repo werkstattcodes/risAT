@@ -1,7 +1,7 @@
-# Perform a RIS Case Law Search
+# Perform a RIS Bundesrecht Search
 
 Execute a request built by
-[`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md)
+[`ris_req_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_req_federal.md)
 and return parsed results. Pages are fetched iteratively using
 [`httr2::req_perform_iterative()`](https://httr2.r-lib.org/reference/req_perform_iterative.html)
 until all pages in scope have been retrieved.
@@ -9,7 +9,7 @@ until all pages in scope have been retrieved.
 ## Usage
 
 ``` r
-ris_perform_case_law(req, echo = FALSE)
+ris_perform_federal(req, echo = FALSE)
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ ris_perform_case_law(req, echo = FALSE)
 - req:
 
   An `httr2_request` object, typically built with
-  [`ris_req_case_law()`](https://werkstattcodes.github.io/risAT/reference/ris_req_case_law.md).
+  [`ris_req_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_req_federal.md).
 
 - echo:
 
@@ -37,10 +37,7 @@ A tidy tibble with parsed search results. Includes list-column
 
 ``` r
 if (FALSE) { # interactive()
-req <- ris_req_case_law(
-  application = "federal_administrative_court",
-  query = "Asyl"
-)
-results <- ris_perform_case_law(req)
+req <- ris_req_federal(title = "ABGB")
+results <- ris_perform_federal(req)
 }
 ```

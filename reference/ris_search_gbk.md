@@ -19,7 +19,7 @@ ris_search_gbk(
   discrimination_ground = NULL,
   in_ris_since = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 ```
 
@@ -27,7 +27,9 @@ ris_search_gbk(
 
 - query:
 
-  Optional full-text query (`Suchworte`).
+  Optional full-text query (`Suchworte`). Supports the RIS full-text
+  operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT, `*` =
+  wildcard, `'phrase'` for exact phrase).
 
 - business_number:
 
@@ -35,7 +37,9 @@ ris_search_gbk(
 
 - norm:
 
-  Optional legal norm query (`Norm`).
+  Optional legal norm query (`Norm`). Multiple norms can be combined
+  with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+  `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 
 - decision_date_from:
 
@@ -67,11 +71,17 @@ ris_search_gbk(
 - discrimination_ground:
 
   Optional discrimination ground (`Diskriminierungsgrund`). Accepted
-  values: `"Geschlecht"`, `"Ethnische Zugehörigkeit"`, `"Religion"`,
-  `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`,
-  `"Behinderung"`, `"Mehrfachdiskriminierung"`. English aliases
-  (`"gender"`, `"age"`, `"disability"`, `"ethnicity"`,
-  `"sexual_orientation"`, etc.) are also accepted (case-insensitive).
+  German values: `"Geschlecht"`, `"Ethnische Zugehörigkeit"`,
+  `"Religion"`, `"Weltanschauung"`, `"Alter"`,
+  `"Sexuelle Orientierung"`, `"Behinderung"`, and
+  `"Mehrfachdiskriminierung"`. English aliases: `"gender"`/`"sex"` -\>
+  `"Geschlecht"`, `"ethnicity"`/`"ethnic_origin"` -\>
+  `"EthnischeZugehoerigkeit"`, `"religion"` -\> `"Religion"`,
+  `"worldview"` -\> `"Weltanschauung"`, `"age"` -\> `"Alter"`,
+  `"sexual_orientation"` -\> `"SexuelleOrientierung"`, `"disability"`
+  -\> `"Behinderung"`, and `"multiple"`/`"multiple_discrimination"` -\>
+  `"Mehrfachdiskriminierung"`. Matching is case-insensitive and ignores
+  spaces, underscores, and hyphens.
 
 - in_ris_since:
 
@@ -83,19 +93,24 @@ ris_search_gbk(
 
 - echo:
 
-  Logical. If `TRUE`, prints the equivalent RIS website URLs
-  (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
-  `Ergebnis.wxe` query URL) and the number of returned rows, so users
-  can double-check the result set in the browser.
+  Logical. If `TRUE`, prints two progress messages: the equivalent RIS
+  website search URL (the `Ergebnis.wxe` query on
+  `https://www.ris.bka.gv.at`) before any request is sent; and the total
+  hit and page count as soon as the first page's response arrives. This
+  lets the result set be double-checked in the browser and gives an
+  early sense of scope for broad queries without waiting for every page.
 
 - base_url:
 
-  API base URL.
+  API base URL. Defaults to
+  [`ris_base_url()`](https://werkstattcodes.github.io/risAT/reference/ris_base_url.md),
+  which can be overridden for a session via
+  `options(risAT.base_url = ...)`.
 
 ## Value
 
-A tidy tibble with parsed search results. Includes list-columns
-`content_urls` and `app_metadata`.
+A tidy tibble with parsed search results. Includes list-column
+`content_urls`.
 
 ## Details
 
@@ -110,7 +125,7 @@ for this wrapper.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) { # interactive()
 # Search all equal treatment commission decisions
 ris_search_gbk(query = "Diskriminierung")
 
@@ -131,5 +146,5 @@ ris_search_gbk(
   norm = "GlBG §17",
   senate = "Senat I"
 )
-} # }
+}
 ```

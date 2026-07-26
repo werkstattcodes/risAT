@@ -9,13 +9,14 @@
 Source:
 [`inst/CITATION`](https://github.com/werkstattcodes/risAT/blob/main/inst/CITATION)
 
-Schmidt R (2026). *risAT: Interface to the Austrian RIS OGD REST API*. R
-package version 0.0.0.9000, <https://github.com/werkstattcodes/risAT>.
+Schmidt R (2026). *risAT: An R package wrapping the API of the Austrian
+Legal Information System (RIS)*. R package version 0.1.0,
+<https://github.com/werkstattcodes/risAT>.
 
     @Manual{,
-      title = {risAT: Interface to the Austrian RIS OGD REST API},
+      title = {risAT: An R package wrapping the API of the Austrian Legal Information System (RIS)},
       author = {Roland Schmidt},
       year = {2026},
       url = {https://github.com/werkstattcodes/risAT},
-      note = {R package version 0.0.0.9000},
+      note = {R package version 0.1.0},
     }

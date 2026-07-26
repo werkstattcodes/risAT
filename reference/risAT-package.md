@@ -1,7 +1,11 @@
 # risAT: Interface to the Austrian RIS OGD REST API
 
-Search helpers for Austrian legal information from the
-Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.
+Search and parse Austrian legal information from the
+Rechtsinformationssystem (RIS) Open Government Data REST API
+<https://data.bka.gv.at/ris/api/v2.6/> provided by the Austrian Federal
+Chancellery. Supports case law from all Judikatur applications and
+consolidated federal law, returning tidy tibbles for reproducible legal
+research.
 
 ## Details
 
@@ -37,3 +41,7 @@ combine both steps for common court applications.
 ## Author
 
 **Maintainer**: Roland Schmidt <rs2903@gmail.com>
+
+Authors:
+
+- Roland Schmidt <rs2903@gmail.com>

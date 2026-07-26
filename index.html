@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Interface to the Austrian RIS OGD REST API • risAT</title>
+<title>An R Package Wrapping the API of the Austrian Legal Information System (RIS) • risAT</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -16,9 +16,9 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
-<meta property="og:title" content="Interface to the Austrian RIS OGD REST API">
-<meta name="description" content="Search helpers for Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.">
-<meta property="og:description" content="Search helpers for Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.">
+<meta property="og:title" content="An R Package Wrapping the API of the Austrian Legal Information System (RIS)">
+<meta name="description" content="Search and parse Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API &lt;https://data.bka.gv.at/ris/api/v2.6/&gt; provided by the Austrian Federal Chancellery. Supports case law from all Judikatur applications and consolidated federal law, returning tidy tibbles for reproducible legal research.">
+<meta property="og:description" content="Search and parse Austrian legal information from the Rechtsinformationssystem (RIS) Open Government Data REST API &lt;https://data.bka.gv.at/ris/api/v2.6/&gt; provided by the Austrian Federal Chancellery. Supports case law from all Judikatur applications and consolidated federal law, returning tidy tibbles for reproducible legal research.">
 <meta property="og:image" content="https://werkstattcodes.github.io/risAT/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">risAT</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,8 +75,8 @@
 </div>
 <!-- badges: start -->
 
-<p>The risAT package provides a tidyverse-friendly interface to the Austrian <a href="https://www.ris.bka.gv.at/" class="external-link">RIS</a> (Rechtsinformationssystem) Open Government Data REST API v2.6. It covers the <code>/Judikatur</code> endpoint (case law / jurisprudence) across all supported court applications and is designed for reproducible legal research.</p>
-<p>Please note that the package is <strong>in a development stage</strong>. Upcoming changes may break existing code. If you encounter any bug, you are welcome to file an issue at the package’s <a href="https://github.com/werkstattcodes/risAT/issues" class="external-link">GitHub repo</a>.</p>
+<p>The risAT package provides a tidyverse-friendly interface to the Austrian <a href="https://www.ris.bka.gv.at/" class="external-link">RIS</a> (Rechtsinformationssystem) Open Government Data REST API v2.6. It covers the <code>/Judikatur</code> endpoint (case law / jurisprudence) across all supported court applications and the <code>/Bundesrecht</code> endpoint for consolidated federal law (<code>BrKons</code>), and is designed for reproducible legal research.</p>
+<p>Version 0.1.0 is <strong>experimental</strong>, and breaking changes may occur before 1.0. If you encounter any bug, you are welcome to file an issue at the package’s <a href="https://github.com/werkstattcodes/risAT/issues" class="external-link">GitHub repo</a>.</p>
 <div class="section level2">
 <h2 id="data-source">Data source<a class="anchor" aria-label="anchor" href="#data-source"></a>
 </h2>
@@ -90,6 +90,73 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"werkstattcodes/risAT"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="ris-coverage">RIS coverage<a class="anchor" aria-label="anchor" href="#ris-coverage"></a>
+</h2>
+<p>The RIS website is organised into several content areas, each backed by one or more API “applications”. The table below shows which of them risAT currently supports. Status legend: ✅ implemented · 🔜 planned · — not yet supported.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>RIS area</th>
+<th>Applications</th>
+<th>risAT</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+<strong>Judikatur</strong> (case law)</td>
+<td>VfGH, VwGH, Justiz, BVwG, LVwG, Normenliste, DSK, DOK, PVAK, GBK, UVS, AsylGH, UBAS, UMSE, BKS, VERG</td>
+<td>✅ implemented</td>
+</tr>
+<tr>
+<td>
+<strong>Bundesrecht</strong> – consolidated (<code>BrKons</code>)</td>
+<td>Federal law in consolidated form</td>
+<td>✅ implemented</td>
+</tr>
+<tr>
+<td>
+<strong>Bundesrecht</strong> – gazettes (<code>BgblAuth</code>, <code>BgblPdf</code>, <code>BgblAlt</code>)</td>
+<td>Federal Law Gazettes (1848–present)</td>
+<td>🔜 planned</td>
+</tr>
+<tr>
+<td>
+<strong>Bundesrecht</strong> – drafts (<code>Begut</code>, <code>RegV</code>, <code>Erv</code>)</td>
+<td>Consultation drafts, government bills, Austrian laws in English</td>
+<td>🔜 planned</td>
+</tr>
+<tr>
+<td>
+<strong>Landesrecht</strong> (<code>LrKons</code>, <code>LgblAuth</code>, <code>Lgbl</code>, <code>LgblNO</code>, <code>Vbl</code>)</td>
+<td>State law (consolidated) and state gazettes</td>
+<td>🔜 planned</td>
+</tr>
+<tr>
+<td>
+<strong>Kundmachungen &amp; Erlässe</strong> (<code>Upts</code>, <code>Erlaesse</code>, <code>Avsv</code>, …)</td>
+<td>Other notices and ministerial decrees (<code>/Sonstige</code>)</td>
+<td>🔜 planned</td>
+</tr>
+<tr>
+<td>
+<strong>Gemeinden</strong> (<code>Gr</code>, <code>GrA</code>)</td>
+<td>Municipal law and notices</td>
+<td>—</td>
+</tr>
+<tr>
+<td>
+<strong>Bezirke</strong> (<code>Bvb</code>)</td>
+<td>District authority notices</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="available-court-applications-and-functions">Available court applications and functions<a class="anchor" aria-label="anchor" href="#available-court-applications-and-functions"></a>
@@ -159,27 +226,57 @@
 </tr>
 </tbody>
 </table>
+<div class="section level3">
+<h3 id="federal-law-bundesrecht">Federal law (Bundesrecht)<a class="anchor" aria-label="anchor" href="#federal-law-bundesrecht"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Application</th>
+<th>Function</th>
+<th>Notes</th>
+</tr></thead>
+<tbody><tr>
+<td>Consolidated federal law (BrKons)</td>
+<td><code><a href="reference/ris_search_federal.html">ris_search_federal()</a></code></td>
+<td>Title/full-text/index search, version (<code>Fassung</code>) and in-/out-of-force date filters</td>
+</tr></tbody>
+</table>
 <p>Lower-level building blocks for advanced use:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr>
 <th>Step</th>
-<th>Function</th>
+<th>Judikatur</th>
+<th>Bundesrecht</th>
 </tr></thead>
 <tbody>
 <tr>
 <td>Build request</td>
 <td><code><a href="reference/ris_req_case_law.html">ris_req_case_law()</a></code></td>
+<td><code><a href="reference/ris_req_federal.html">ris_req_federal()</a></code></td>
 </tr>
 <tr>
 <td>Execute request (with pagination)</td>
 <td><code><a href="reference/ris_perform_case_law.html">ris_perform_case_law()</a></code></td>
+<td><code><a href="reference/ris_perform_federal.html">ris_perform_federal()</a></code></td>
 </tr>
 <tr>
 <td>Parse response</td>
 <td><code><a href="reference/ris_parse_search.html">ris_parse_search()</a></code></td>
+<td><code><a href="reference/ris_parse_federal.html">ris_parse_federal()</a></code></td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <div class="section level2">
 <h2 id="minimal-example">Minimal example<a class="anchor" aria-label="anchor" href="#minimal-example"></a>
@@ -212,12 +309,18 @@
 <span><span class="va">results_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_case_law.html">ris_search_case_law</a></span><span class="op">(</span></span>
 <span>  application <span class="op">=</span> <span class="st">"data_protection"</span>,</span>
 <span>  query <span class="op">=</span> <span class="st">"Videoüberwachung"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Consolidated federal law (Bundesrecht): look up a law by its short title</span></span>
+<span><span class="va">results_abgb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_federal.html">ris_search_federal</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"ABGB"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The consolidated text as it stood on a given date (point-in-time version)</span></span>
+<span><span class="va">results_mrg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ris_search_federal.html">ris_search_federal</a></span><span class="op">(</span>query <span class="op">=</span> <span class="st">"Mietzins"</span>, version_date <span class="op">=</span> <span class="st">"2020-01-01"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a>
 </h2>
-<p>Search functions automatically iterate through all RIS pages and return results as a tidy tibble with columns including <code>id</code>, <code>court</code>, <code>decision_date</code>, <code>case_number</code>, <code>content_urls</code> (list-column), and <code>app_metadata</code> (list-column). See the <a href="https://werkstattcodes.github.io/risAT/reference/">reference documentation</a> for full details.</p>
+<p>Search functions automatically iterate through all RIS pages and return results as a tidy tibble with columns including <code>id</code>, <code>court</code>, <code>decision_date</code>, <code>case_number</code>, and <code>content_urls</code> (a list-column of download links). See the <a href="https://werkstattcodes.github.io/risAT/reference/">reference documentation</a> for full details.</p>
 <p>For a full column name reference mapping the original German RIS API fields to their English risAT equivalents, see <code><a href="articles/risAT.html">vignette("risAT")</a></code>.</p>
 </div>
 <div class="section level2">
@@ -227,7 +330,7 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"risAT"</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
-<p>Schmidt R (2026). <em>risAT: Interface to the Austrian RIS OGD REST API</em>. R package version 0.0.0.9000, <a href="https://github.com/werkstattcodes/risAT" class="external-link uri">https://github.com/werkstattcodes/risAT</a>.</p>
+<p>Schmidt R (2026). <em>risAT: An R package wrapping the API of the Austrian Legal Information System (RIS)</em>. R package version 0.1.0, <a href="https://github.com/werkstattcodes/risAT" class="external-link uri">https://github.com/werkstattcodes/risAT</a>.</p>
 </blockquote>
 </div>
 </div>
@@ -273,8 +376,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.repostatus.org/#wip" class="external-link"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://github.com/werkstattcodes/risAT/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/werkstattcodes/risAT/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 
@@ -287,7 +390,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

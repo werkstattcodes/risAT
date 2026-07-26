@@ -7,8 +7,9 @@ reference](https://werkstattcodes.github.io/risAT/reference/index.md).
 {risAT} provides a tidyverse-friendly interface to the Austrian
 [RIS](https://www.ris.bka.gv.at/) (Rechtsinformationssystem) Open
 Government Data API v2.6. It covers the `/Judikatur` endpoint — case law
-from all nine supported court applications — and is designed for
-reproducible legal research.
+from all nine supported court applications — and the `/Bundesrecht`
+endpoint for consolidated federal law, and is designed for reproducible
+legal research.
 
 ## First search
 
@@ -42,14 +43,13 @@ results
 All search functions return a tibble — one row per document. The most
 frequently used columns are:
 
-| Column          | Description                                         |
-|-----------------|-----------------------------------------------------|
-| `id`            | Unique RIS document identifier                      |
-| `case_number`   | Business number (*Geschäftszahl*)                   |
-| `decision_date` | Date of the decision                                |
-| `document_type` | `Rechtssatz` or `Text` (full decision)              |
-| `content_urls`  | List-column of download links                       |
-| `app_metadata`  | List-column of court-specific and response metadata |
+| Column          | Description                            |
+|-----------------|----------------------------------------|
+| `id`            | Unique RIS document identifier         |
+| `case_number`   | Business number (*Geschäftszahl*)      |
+| `decision_date` | Date of the decision                   |
+| `document_type` | `Rechtssatz` or `Text` (full decision) |
+| `content_urls`  | List-column of download links          |
 
 ## Filtering results
 
@@ -295,48 +295,107 @@ pdf_urls
     #> 10 Ra 2025/05/0145 2026-03-27    https://www.ris.bka.gv.at/Dokumente/Vwgh/JWT_2…
     #> # ℹ 9,627 more rows
 
-### `app_metadata` — court-specific fields and response context
+### RIS website URLs
 
-Court-specific fields and pagination context are nested in
-`app_metadata`. Use
-[`tidyr::unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html)
-to bring them to the top level:
-
-``` r
-
-library(tidyr)
-
-results |>
-  select(id, case_number, app_metadata) |>
-  unnest_wider(app_metadata) |>
-  glimpse()
-```
-
-    #> Rows: 9,637
-    #> Columns: 6
-    #> $ id          <chr> "JWT_2025050017_20260506J00", "JWR_2025050017_20260506J02"…
-    #> $ case_number <chr> "Ro 2025/05/0017", "Ro 2025/05/0017", "Ro 2025/05/0017", "…
-    #> $ response    <list> [NA, 9637, 1, 100], [NA, 9637, 1, 100], [NA, 9637, 1, 100…
-    #> $ technisch   <list> ["JWT_2025050017_20260506J00", "Vwgh", "Verwaltungsgerich…
-    #> $ allgemein   <list> ["2026-06-02", "2026-06-02", "https://www.ris.bka.gv.at/D…
-    #> $ request     <list> ["/Judikatur", "Vwgh", 1, "OneHundred", "https://www.ris.…
-
-The `response` sub-list contains pagination context (total hits, page
-number) and `request` records the exact API parameters sent:
+Search results carry the equivalent RIS website URLs as attributes. Use
+[`ris_app_url()`](https://werkstattcodes.github.io/risAT/reference/ris_search_url.md)
+and
+[`ris_search_url()`](https://werkstattcodes.github.io/risAT/reference/ris_search_url.md)
+to retrieve them before applying dplyr operations that may drop custom
+attributes:
 
 ``` r
 
-# Total hits reported by the API
-results$app_metadata[[1]]$response$hits
-
-# Page context
-results$app_metadata[[1]]$response$page_number
-results$app_metadata[[1]]$response$page_size
+ris_app_url(results)
+ris_search_url(results)
 ```
 
-    #> 9637
-    #> 1
-    #> 100
+    #> https://www.ris.bka.gv.at/Vwgh/
+    #> https://www.ris.bka.gv.at/Ergebnis.wxe?Abfrage=Vwgh&Entscheidungsart=Undefined&Sammlungsnummer=&Index=&SucheNachRechtssatz=True&SucheNachText=True&GZ=&VonDatum=&BisDatum=05.06.2026&Norm=&ImRisSeitVonDatum=&ImRisSeitBisDatum=&ImRisSeit=Undefined&ResultPageSize=100&Suchworte=Baurecht&Position=1&SkipToDocumentPage=true
+
+## Federal law: how often has a law been amended?
+
+Beyond case law, risAT also covers consolidated federal law
+(*Bundesrecht in konsolidierter Fassung*) through
+[`ris_search_federal()`](https://werkstattcodes.github.io/risAT/reference/ris_search_federal.md).
+Here each row is one consolidated *version* of a provision, and the
+`amendments` column records the amending Federal Law Gazettes
+(*Bundesgesetzblätter*, “BGBl.”). We can use that to answer a common
+question: **how often has a law been amended?**
+
+We’ll use the *Ökostromgesetz 2012* (Green Electricity Act) as an
+example:
+
+``` r
+
+oekostrom <- ris_search_federal(title = "Ökostromgesetz 2012")
+nrow(oekostrom)
+```
+
+    #> [1] 190
+
+The amending acts are listed as free text in the `amendments` column
+(one `BGBl.` reference per amendment). Each provision lists the
+amendments that affected it, so the *distinct* gazette references across
+all provisions give the amendment history of the whole law. We extract
+them with a regular expression and deduplicate:
+
+``` r
+
+library(dplyr)
+library(stringr)
+
+amendments <- oekostrom |>
+  pull(amendments) |>
+  str_extract_all("BGBl\\.\\s*[IVX]*\\s*Nr\\.\\s*\\d+/\\d{4}") |>
+  unlist() |>
+  str_squish() |>
+  unique()
+
+# How often has the law been amended?
+length(amendments)
+#> [1] 9
+
+sort(amendments)
+#> [1] "BGBl. I Nr. 108/2017" "BGBl. I Nr. 11/2012"  "BGBl. I Nr. 12/2021" 
+#> [4] "BGBl. I Nr. 150/2021" "BGBl. I Nr. 198/2023" "BGBl. I Nr. 24/2020" 
+#> [7] "BGBl. I Nr. 42/2019"  "BGBl. I Nr. 69/2025"  "BGBl. I Nr. 97/2019"
+```
+
+Because each `BGBl.` reference ends in a year, we can also chart the
+amendment activity over time:
+
+``` r
+
+library(ggplot2)
+
+tibble(amendment = amendments) |>
+  mutate(year = as.integer(str_extract(amendment, "\\d{4}$"))) |>
+  count(year) |>
+  ggplot(aes(x = year, y = n)) +
+  geom_col(fill = "#2E4057") +
+  scale_y_continuous(
+    breaks = scales::breaks_width(1),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  labs(
+    title    = "Amendments to the Ökostromgesetz 2012 by year",
+    subtitle = "Distinct amending Federal Law Gazettes (BGBl.) per year.",
+    caption  = "Data: RIS OGD API v2.6; retrieved via {risAT}.",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title          = element_text(face = "bold"),
+    plot.title.position = "plot",
+    plot.subtitle       = element_text(color = "grey40", margin = margin(b = 10)),
+    plot.caption        = element_text(color = "grey50", size = rel(0.8)),
+    panel.grid.major.x  = element_blank(),
+    panel.grid.minor    = element_blank()
+  )
+```
+
+![](getting-started_files/figure-html/bundesrecht-amend-plot-1.png)
 
 ## The two-step pattern
 

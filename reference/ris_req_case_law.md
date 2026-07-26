@@ -42,7 +42,9 @@ ris_req_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  sort_by = NULL,
+  sort_direction = NULL,
+  base_url = ris_base_url()
 )
 ```
 
@@ -75,7 +77,9 @@ ris_req_case_law(
 
 - query:
 
-  Optional full-text query (`Suchworte`).
+  Optional full-text query (`Suchworte`). Supports the RIS full-text
+  operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT, `*` =
+  wildcard, `'phrase'` for exact phrase).
 
 - business_number:
 
@@ -83,7 +87,9 @@ ris_req_case_law(
 
 - norm:
 
-  Optional legal norm query (`Norm`).
+  Optional legal norm query (`Norm`). Multiple norms can be combined
+  with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+  `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 
 - decision_date_from:
 
@@ -212,7 +218,17 @@ ris_req_case_law(
 - discrimination_ground:
 
   Optional discrimination ground (`Diskriminierungsgrund`), used for
-  `Gbk`.
+  `Gbk`. Accepted German values: `"Geschlecht"`,
+  `"Ethnische Zugehörigkeit"`, `"Religion"`, `"Weltanschauung"`,
+  `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`, and
+  `"Mehrfachdiskriminierung"`. English aliases: `"gender"`/`"sex"` -\>
+  `"Geschlecht"`, `"ethnicity"`/ `"ethnic_origin"` -\>
+  `"EthnischeZugehoerigkeit"`, `"religion"` -\> `"Religion"`,
+  `"worldview"` -\> `"Weltanschauung"`, `"age"` -\> `"Alter"`,
+  `"sexual_orientation"` -\> `"SexuelleOrientierung"`, `"disability"`
+  -\> `"Behinderung"`, and `"multiple"`/ `"multiple_discrimination"` -\>
+  `"Mehrfachdiskriminierung"`. Matching is case-insensitive and ignores
+  spaces, underscores, and hyphens.
 
 - author:
 
@@ -241,10 +257,37 @@ ris_req_case_law(
 - search_legal_principles:
 
   Optional flag for legal principles search (`SucheInRechtssaetzen`).
+  When both flags are omitted, both document types are searched. When
+  only one flag is given, the other defaults to its complement, so a
+  single flag selects exactly one document type (e.g.
+  `search_decision_text = FALSE` searches legal principles only).
+  Setting both to `FALSE` is an error.
+
+- sort_by:
+
+  Sort column (`SortierungSortedByColumn`). When omitted, defaults to
+  `"Datum"` (decision date) for all applications except `Normenliste`,
+  whose only sortable column is `"Kurzinformation"` — there the sort
+  parameters are omitted and the API default order applies. For VfGH and
+  VwGH the value is validated client-side against `"Geschaeftszahl"`,
+  `"Datum"`, `"Art"`, `"Typ"` (English aliases
+  `"business_number"`/`"case_number"`, `"decision_date"`,
+  `"decision_type"`, `"document_type"`); for `Normenliste` against
+  `"Kurzinformation"` (alias `"brief_info"`); other applications pass
+  the value to the API as-is.
+
+- sort_direction:
+
+  Sort direction (`SortierungSortDirection`): `"Ascending"` or
+  `"Descending"`. Defaults to `"Descending"` whenever a sort column is
+  in effect.
 
 - base_url:
 
-  API base URL.
+  API base URL. Defaults to
+  [`ris_base_url()`](https://werkstattcodes.github.io/risAT/reference/ris_base_url.md),
+  which can be overridden for a session via
+  `options(risAT.base_url = ...)`.
 
 ## Value
 
@@ -256,7 +299,7 @@ to execute the search.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) { # interactive()
 # Build request, then inspect the URL without hitting the network
 req <- ris_req_case_law(
   application = "constitutional_court",
@@ -266,5 +309,5 @@ httr2::req_dry_run(req)
 
 # Execute
 results <- ris_perform_case_law(req)
-} # }
+}
 ```

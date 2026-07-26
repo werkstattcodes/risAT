@@ -32,9 +32,8 @@ results
 ```
 
 All search functions return a tibble. Key columns include `id`,
-`application`, `decision_date`, `case_number`, `document_type`, and two
-list-columns: `content_urls` (download links) and `app_metadata`
-(court-specific fields and response metadata).
+`application`, `decision_date`, `case_number`, `document_type`, and
+`content_urls` (a list-column of download links).
 
 ## Available court wrappers
 
@@ -120,22 +119,14 @@ results <- ris_perform_case_law(req)
 ## Pagination
 
 The RIS API returns results in pages. risAT handles pagination
-automatically and fetches all available pages in scope. Pagination
-metadata for each row is stored in the `app_metadata` list-column under
-`response` (API response info) and `request` (request provenance):
+automatically and fetches all available pages in scope. The equivalent
+RIS website URLs are attached to the result and can be retrieved with
+helper functions:
 
 ``` r
 
-# Total hit count reported by the API
-results$app_metadata[[1]]$response$hits
-
-# Current response page metadata
-results$app_metadata[[1]]$response$page_number
-results$app_metadata[[1]]$response$page_size
-
-# Request provenance metadata attached by risAT
-results$app_metadata[[1]]$request$seitennummer
-results$app_metadata[[1]]$request$dokumente_pro_seite
+ris_app_url(results)
+ris_search_url(results)
 ```
 
 ## Working with results
@@ -224,7 +215,6 @@ These columns appear across most or all court applications.
 | `legal_principles_url` | `RechtssaetzeUrl` | URL to the legal principles page |
 | `decision_text_url` | `EntscheidungstextUrl` | URL to the decision text |
 | `content_urls` | `Dokumentliste > ContentReference` | Content download URLs (list-column) |
-| `app_metadata` | — | Package-generated metadata (list-column) |
 
 ### VwGH (Administrative Court)
 

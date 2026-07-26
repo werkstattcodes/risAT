@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">risAT</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,18 +43,32 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="risat-0009000">risAT 0.0.0.9000<a class="anchor" aria-label="anchor" href="#risat-0009000"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="risat-010">risAT 0.1.0<a class="anchor" aria-label="anchor" href="#risat-010"></a></h2>
 <ul><li>Initial development version.</li>
+<li>The full-text <code>query</code> and <code>norm</code> arguments now accept <code>OR</code> and <code>ODER</code> as the OR operator; they are translated client-side to the RIS-native full-text operator. Text inside single-quoted exact phrases is left untouched.</li>
+<li>Fixed API schema-validation errors for the GBK filters: <code>senate</code>, the federal <code>commission</code>, and the multi-word <code>discrimination_ground</code> values (“Ethnische Zugehörigkeit”, “Sexuelle Orientierung”) were sent in their RIS-website display form; they are now mapped to the OGD API enum values (<code>I</code>/<code>II</code>/<code>III</code>, <code>BundesGleichbehandlungskommission</code>, <code>EthnischeZugehoerigkeit</code>, <code>SexuelleOrientierung</code>). Accepted user inputs are unchanged, and the API enum spellings are now accepted as input too.</li>
+<li>All requests are now throttled client-side (30 requests per minute) as a courtesy to the public RIS OGD API.</li>
+<li>All search and perform functions always fetch every page in scope; there is no <code>max_pages</code> argument to cap or truncate a result set.</li>
+<li>
+<code><a href="../reference/ris_req_case_law.html">ris_req_case_law()</a></code> and <code><a href="../reference/ris_search_case_law.html">ris_search_case_law()</a></code> gained <code>sort_by</code> and <code>sort_direction</code> arguments (previously hard-coded to date descending, which remains the default).</li>
+<li>New <code><a href="../reference/ris_base_url.html">ris_base_url()</a></code> helper is the single source of the API base URL; it can be overridden per session via <code>options(risAT.base_url = ...)</code>.</li>
+<li>New accessors <code><a href="../reference/ris_search_url.html">ris_search_url()</a></code> and <code><a href="../reference/ris_search_url.html">ris_app_url()</a></code> retrieve the RIS website URLs attached to search results.</li>
+<li>Bundesrecht requests now send the same package-identifying <code>User-Agent</code> header as Judikatur requests.</li>
+<li>Empty search results now return a zero-row tibble with the guaranteed common columns (<code>id</code>, <code>application</code>, <code>content_urls</code>), matching the schema of non-empty results.</li>
+<li>
+<code><a href="../reference/ris_parse_federal.html">ris_parse_federal()</a></code> parses <code>effective_date</code> and <code>expiry_date</code> to <code>Date</code> and guards against duplicate column names after translation.</li>
+<li>Validation errors now carry condition classes (<code>risat_invalid_argument</code>, <code>risat_api_error</code>, <code>risat_truncated_results</code>) so they can be caught with <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch()</a></code>.</li>
 <li>
 <code>decision_date</code> (and <code>court</code>/<code>title</code> from the general metadata block) are now returned as dedicated columns; <code>decision_date</code> is parsed to <code>Date</code>.</li>
 <li>Requests now identify the package via a <code>User-Agent</code> header.</li>
 <li>Fixed pagination errors when the API response lacks <code>Hits</code> page metadata or serializes <code>Hits</code> as a bare scalar count; such responses now stop pagination gracefully instead of erroring.</li>
 <li>Added <code>/Judikatur</code> search and parsing helpers for RIS OGD API v2.6.</li>
+<li>Added <code>/Bundesrecht</code> support for consolidated federal law (application <code>BrKons</code>): <code><a href="../reference/ris_search_federal.html">ris_search_federal()</a></code>, plus the <code><a href="../reference/ris_req_federal.html">ris_req_federal()</a></code> / <code><a href="../reference/ris_perform_federal.html">ris_perform_federal()</a></code> request/perform pair and <code><a href="../reference/ris_parse_federal.html">ris_parse_federal()</a></code>. Supports title, full-text, index, type, law-number, promulgation organ, and version filters (point-in-time <code>version_date</code> or entry-into-force / expiry date ranges), section narrowing, and sorting.</li>
 <li>Updated documentation for finalized behavior:
 <ul><li>
 <code><a href="../reference/ris_search_vfgh.html">ris_search_vfgh()</a></code> defaults to Rechtssätze (RS).</li>
 <li>Search functions always iterate over all pages in scope.</li>
-<li>Result schema includes list-columns <code>content_urls</code> and <code>app_metadata</code>; pagination context is available in nested <code>app_metadata$response</code> and <code>app_metadata$request</code> metadata.</li>
+<li>Result schema includes the <code>content_urls</code> list-column; internal <code>app_metadata</code> is not returned by exported functions.</li>
 <li>VfGH english aliases documented for <code>decision_type</code>, <code>sort_by</code>, and <code>in_ris_since</code>.</li>
 </ul></li>
 <li>Fixed mixed column-type binding across multi-page responses.</li>
@@ -71,7 +85,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

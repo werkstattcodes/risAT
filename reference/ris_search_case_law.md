@@ -41,8 +41,10 @@ ris_search_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
+  sort_by = NULL,
+  sort_direction = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 ```
 
@@ -75,7 +77,9 @@ ris_search_case_law(
 
 - query:
 
-  Optional full-text query (`Suchworte`).
+  Optional full-text query (`Suchworte`). Supports the RIS full-text
+  operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT, `*` =
+  wildcard, `'phrase'` for exact phrase).
 
 - business_number:
 
@@ -83,7 +87,9 @@ ris_search_case_law(
 
 - norm:
 
-  Optional legal norm query (`Norm`).
+  Optional legal norm query (`Norm`). Multiple norms can be combined
+  with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+  `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 
 - decision_date_from:
 
@@ -212,7 +218,17 @@ ris_search_case_law(
 - discrimination_ground:
 
   Optional discrimination ground (`Diskriminierungsgrund`), used for
-  `Gbk`.
+  `Gbk`. Accepted German values: `"Geschlecht"`,
+  `"Ethnische Zugehörigkeit"`, `"Religion"`, `"Weltanschauung"`,
+  `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`, and
+  `"Mehrfachdiskriminierung"`. English aliases: `"gender"`/`"sex"` -\>
+  `"Geschlecht"`, `"ethnicity"`/ `"ethnic_origin"` -\>
+  `"EthnischeZugehoerigkeit"`, `"religion"` -\> `"Religion"`,
+  `"worldview"` -\> `"Weltanschauung"`, `"age"` -\> `"Alter"`,
+  `"sexual_orientation"` -\> `"SexuelleOrientierung"`, `"disability"`
+  -\> `"Behinderung"`, and `"multiple"`/ `"multiple_discrimination"` -\>
+  `"Mehrfachdiskriminierung"`. Matching is case-insensitive and ignores
+  spaces, underscores, and hyphens.
 
 - author:
 
@@ -241,22 +257,51 @@ ris_search_case_law(
 - search_legal_principles:
 
   Optional flag for legal principles search (`SucheInRechtssaetzen`).
+  When both flags are omitted, both document types are searched. When
+  only one flag is given, the other defaults to its complement, so a
+  single flag selects exactly one document type (e.g.
+  `search_decision_text = FALSE` searches legal principles only).
+  Setting both to `FALSE` is an error.
+
+- sort_by:
+
+  Sort column (`SortierungSortedByColumn`). When omitted, defaults to
+  `"Datum"` (decision date) for all applications except `Normenliste`,
+  whose only sortable column is `"Kurzinformation"` — there the sort
+  parameters are omitted and the API default order applies. For VfGH and
+  VwGH the value is validated client-side against `"Geschaeftszahl"`,
+  `"Datum"`, `"Art"`, `"Typ"` (English aliases
+  `"business_number"`/`"case_number"`, `"decision_date"`,
+  `"decision_type"`, `"document_type"`); for `Normenliste` against
+  `"Kurzinformation"` (alias `"brief_info"`); other applications pass
+  the value to the API as-is.
+
+- sort_direction:
+
+  Sort direction (`SortierungSortDirection`): `"Ascending"` or
+  `"Descending"`. Defaults to `"Descending"` whenever a sort column is
+  in effect.
 
 - echo:
 
-  Logical. If `TRUE`, prints the equivalent RIS website URLs
-  (`https://www.ris.bka.gv.at/<Applikation>/` and the corresponding
-  `Ergebnis.wxe` query URL) and the number of returned rows, so users
-  can double-check the result set in the browser.
+  Logical. If `TRUE`, prints two progress messages: the equivalent RIS
+  website search URL (the `Ergebnis.wxe` query on
+  `https://www.ris.bka.gv.at`) before any request is sent; and the total
+  hit and page count as soon as the first page's response arrives. This
+  lets the result set be double-checked in the browser and gives an
+  early sense of scope for broad queries without waiting for every page.
 
 - base_url:
 
-  API base URL.
+  API base URL. Defaults to
+  [`ris_base_url()`](https://werkstattcodes.github.io/risAT/reference/ris_base_url.md),
+  which can be overridden for a session via
+  `options(risAT.base_url = ...)`.
 
 ## Value
 
-A tidy tibble with parsed search results. Includes list-columns
-`content_urls` and `app_metadata`.
+A tidy tibble with parsed search results. Includes list-column
+`content_urls`.
 
 ## Details
 
@@ -266,10 +311,10 @@ Results are fetched iteratively across all pages in scope using
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) { # interactive()
 ris_search_case_law(
   application = "federal_administrative_court",
   query = "Asyl"
 )
-} # }
+}
 ```

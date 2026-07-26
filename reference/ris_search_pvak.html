@@ -9,7 +9,7 @@ application = "Pvak".'><meta property="og:image" content="https://werkstattcodes
 
     <a class="navbar-brand me-2" href="../index.html">risAT</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@ application = "Pvak".'><meta property="og:image" content="https://werkstattcodes
 <span>  search_decision_text <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  search_legal_principles <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  base_url <span class="op">=</span> <span class="st">"https://data.bka.gv.at/ris/api/v2.6"</span></span>
+<span>  base_url <span class="op">=</span> <span class="fu"><a href="ris_base_url.html">ris_base_url</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,7 +73,9 @@ application = "Pvak".'><meta property="og:image" content="https://werkstattcodes
 
 
 <dl><dt id="arg-query">query<a class="anchor" aria-label="anchor" href="#arg-query"></a></dt>
-<dd><p>Optional full-text query (<code>Suchworte</code>).</p></dd>
+<dd><p>Optional full-text query (<code>Suchworte</code>). Supports the RIS
+full-text operators (space/<code>und</code> = AND, <code>OR</code>/<code>ODER</code> = OR, <code>nicht</code> = NOT,
+<code>*</code> = wildcard, <code>'phrase'</code> for exact phrase).</p></dd>
 
 
 <dt id="arg-business-number">business_number<a class="anchor" aria-label="anchor" href="#arg-business-number"></a></dt>
@@ -81,7 +83,9 @@ application = "Pvak".'><meta property="og:image" content="https://werkstattcodes
 
 
 <dt id="arg-norm">norm<a class="anchor" aria-label="anchor" href="#arg-norm"></a></dt>
-<dd><p>Optional legal norm query (<code>Norm</code>).</p></dd>
+<dd><p>Optional legal norm query (<code>Norm</code>). Multiple norms can be
+combined with <code>OR</code>/<code>ODER</code> (wrap each norm in single quotes, e.g.
+<code>"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"</code>).</p></dd>
 
 
 <dt id="arg-decision-date-from">decision_date_from<a class="anchor" aria-label="anchor" href="#arg-decision-date-from"></a></dt>
@@ -119,24 +123,31 @@ English aliases (<code>"one_week"</code>, <code>"two_weeks"</code>, <code>"one_m
 
 <dt id="arg-search-legal-principles">search_legal_principles<a class="anchor" aria-label="anchor" href="#arg-search-legal-principles"></a></dt>
 <dd><p>Optional flag for legal principles search
-(<code>SucheInRechtssaetzen</code>).</p></dd>
+(<code>SucheInRechtssaetzen</code>). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. <code>search_decision_text = FALSE</code> searches legal principles only).
+Setting both to <code>FALSE</code> is an error.</p></dd>
 
 
 <dt id="arg-echo">echo<a class="anchor" aria-label="anchor" href="#arg-echo"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, prints the equivalent RIS website URLs
-(<code>https://www.ris.bka.gv.at/&lt;Applikation&gt;/</code> and the corresponding
-<code>Ergebnis.wxe</code> query URL) and the number of returned rows, so users can
-double-check the result set in the browser.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, prints two progress messages: the
+equivalent RIS website search URL (the <code>Ergebnis.wxe</code> query on
+<code>https://www.ris.bka.gv.at</code>) before any request is sent; and the total
+hit and page count as soon as the first page's response arrives. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.</p></dd>
 
 
 <dt id="arg-base-url">base_url<a class="anchor" aria-label="anchor" href="#arg-base-url"></a></dt>
-<dd><p>API base URL.</p></dd>
+<dd><p>API base URL. Defaults to <code><a href="ris_base_url.html">ris_base_url()</a></code>, which can be
+overridden for a session via <code>options(risAT.base_url = ...)</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tidy tibble with parsed search results.
-Includes list-columns <code>content_urls</code> and <code>app_metadata</code>.</p>
+Includes list-column <code>content_urls</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -147,7 +158,7 @@ Personalvertretungsaufsichtsbehörde (PVAB, since 2014).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># interactive()</span></span></span>
 <span class="r-in"><span><span class="co"># Search all staff representation oversight decisions</span></span></span>
 <span class="r-in"><span><span class="fu">ris_search_pvak</span><span class="op">(</span>query <span class="op">=</span> <span class="st">"Wahlrecht"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -159,7 +170,7 @@ Personalvertretungsaufsichtsbehörde (PVAB, since 2014).</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Search by norm</span></span></span>
 <span class="r-in"><span><span class="fu">ris_search_pvak</span><span class="op">(</span>norm <span class="op">=</span> <span class="st">"BPVG §22"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -171,7 +182,7 @@ Personalvertretungsaufsichtsbehörde (PVAB, since 2014).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
