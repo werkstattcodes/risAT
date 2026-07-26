@@ -43,7 +43,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Vfgh", "invalid_type")
     Condition
-      Error in `ris_normalize_vfgh_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','beschluss','erkenntnis','vergleich','keineangabe','order','judgment','settlement','notspecified'}, but is 'invalidtype'.
 
 ---
@@ -51,7 +51,7 @@
     Code
       risAT:::ris_normalize_case_law_sort_by("Vfgh", "invalid_sort")
     Condition
-      Error in `ris_normalize_court_sort_by()`:
+      Error in `risAT:::ris_normalize_case_law_sort_by()`:
       ! Assertion on 'sort_by' failed: Must be element of set {'geschaeftszahl','datum','art','typ','businessnumber','casenumber','decisiondate','decisiontype','documenttype'}, but is 'invalidsort'.
 
 # VwGH decision_type is validated against documented values
@@ -59,7 +59,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Vwgh", "Vergleich")
     Condition
-      Error in `ris_normalize_vwgh_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','beschluss','erkenntnis','beschlussvs','erkenntnisvs'}, but is 'vergleich'.
 
 # VwGH and VfGH sort_by is validated against documented values
@@ -67,7 +67,7 @@
     Code
       risAT:::ris_normalize_case_law_sort_by("Vwgh", "invalid_sort")
     Condition
-      Error in `ris_normalize_court_sort_by()`:
+      Error in `risAT:::ris_normalize_case_law_sort_by()`:
       ! Assertion on 'sort_by' failed: Must be element of set {'geschaeftszahl','datum','art','typ','businessnumber','casenumber','decisiondate','decisiontype','documenttype'}, but is 'invalidsort'.
 
 # document type flags are ignored for apps without Dokumenttyp
@@ -211,7 +211,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Bvwg", "BeschlussVS")
     Condition
-      Error in `ris_normalize_bvwg_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','beschluss','erkenntnis'}, but is 'beschlussvs'.
 
 ---
@@ -219,7 +219,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Bvwg", "Vergleich")
     Condition
-      Error in `ris_normalize_bvwg_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','beschluss','erkenntnis'}, but is 'vergleich'.
 
 # LVwG decision_type is validated against documented values
@@ -227,7 +227,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Lvwg", "BeschlussVS")
     Condition
-      Error in `ris_normalize_lvwg_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','beschluss','erkenntnis','bescheid'}, but is 'beschlussvs'.
 
 # Justiz decision_type is validated against documented values
@@ -235,7 +235,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Justiz", "Erkenntnis")
     Condition
-      Error in `ris_normalize_justiz_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'ordentlicheerledigung(sachentscheidung)','zurückweisungmangelserheblicherrechtsfrage','zurückweisungausanderengründen','verstärktersenat'}, but is 'erkenntnis'.
 
 # Dsk decision_type is validated against documented values
@@ -243,7 +243,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Dsk", "Erkenntnis")
     Condition
-      Error in `ris_normalize_dsk_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','bescheidbeschwerde','bescheidamtswegigespruefverfahren','verwaltungsstraferkenntnisverwarnungermahnung','bescheidwissenschaftstatistikarchiv','bescheidinternatdatenverkehr','bescheidakkreditierungzertifizierung','bescheidverhaltensregeln','bescheidwarnung','bescheidregistrierung','bescheidsonstiger','empfehlung','bescheidifg','verfahrensschriftsaetze'}, but is 'erkenntnis'.
 
 # Gbk decision_type is validated against documented values
@@ -251,7 +251,7 @@
     Code
       risAT:::ris_normalize_case_law_decision_type("Gbk", "Beschluss")
     Condition
-      Error in `ris_normalize_gbk_decision_type()`:
+      Error in `risAT:::ris_normalize_case_law_decision_type()`:
       ! Assertion on 'decision_type' failed: Must be element of set {'undefined','einzelfallpruefungsergebnis','gutachten'}, but is 'beschluss'.
 
 # ris_search_justiz rejects non-string wrapper params

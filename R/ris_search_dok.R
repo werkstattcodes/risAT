@@ -29,10 +29,9 @@
 #'   (`EntscheidendeBehoerde`), e.g. `"Bundesdisziplinarbehörde"`.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search all disciplinary body decisions
 #' ris_search_dok(query = "Dienstpflichtverletzung")
 #'
@@ -47,7 +46,6 @@
 #'   norm = "BDG 1979 §43",
 #'   decision_date_from = "2015-01-01"
 #' )
-#' }
 #' @export
 ris_search_dok <- function(
   query = NULL,
@@ -61,7 +59,7 @@ ris_search_dok <- function(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   checkmate::assert_string(
     deciding_authority,

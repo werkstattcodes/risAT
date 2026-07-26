@@ -38,13 +38,12 @@
 #'   `"settlement"`, `"not_specified"`).
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search Rechtssaetze (default per VfGH handbook) for a constitutional keyword.
 #' # The query field supports full-text operators: space/"und" = AND,
-#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' # "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_vfgh(query = "Meinungsfreiheit")
 #'
 #' # Wildcard and phrase search examples
@@ -62,7 +61,7 @@
 #' # descending (most recent first).
 #' # Norm notation: include the year where it is part of the official
 #' # abbreviation (e.g. "StGG Art2", "EStG 1988 §29 Z1", "AsylG 2005 §5").
-#' # For multiple norms wrap each in single quotes: 'StGG Art2' oder 'B-VG Art7'
+#' # For multiple norms wrap each in single quotes: 'StGG Art2' ODER 'B-VG Art7'
 #' ris_search_vfgh(
 #'   norm = "B-VG Art7",
 #'   decision_type = "judgment"
@@ -95,7 +94,6 @@
 #'   business_number = "G 97/2021",
 #'   echo = TRUE
 #' )
-#' }
 #' @export
 ris_search_vfgh <- function(
   query = NULL,
@@ -110,7 +108,7 @@ ris_search_vfgh <- function(
   search_decision_text = FALSE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   # Delegate to the generic case law search with application fixed to "Vfgh".
   ris_search_case_law(

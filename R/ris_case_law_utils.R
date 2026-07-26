@@ -144,10 +144,10 @@ ris_bool_to_title_case <- function(x) {
 ris_url_encode_query <- function(params) {
   pieces <- purrr::imap_chr(
     params,
-    ~ paste0(
-      utils::URLencode(as.character(.y), reserved = TRUE),
+    \(value, name) paste0(
+      utils::URLencode(as.character(name), reserved = TRUE),
       "=",
-      utils::URLencode(as.character(.x), reserved = TRUE)
+      utils::URLencode(as.character(value), reserved = TRUE)
     )
   )
   paste(pieces, collapse = "&")
@@ -261,7 +261,7 @@ ris_build_case_law_params <- function(
   )
 
   # Remove NULL and empty-string entries so they don't clutter the URL.
-  purrr::discard(params, ~ is.null(.x) || identical(.x, ""))
+  purrr::discard(params, \(x) is.null(x) || identical(x, ""))
 }
 
 
@@ -294,7 +294,10 @@ ris_case_law_application_to_code <- function(application) {
       length(application) != 1L ||
       is.na(application)
   ) {
-    rlang::abort("`application` must be a single string.")
+    rlang::abort(
+      "`application` must be a single string.",
+      class = "risat_invalid_argument"
+    )
   }
 
   # The official RIS application codes, in their canonical casing.
@@ -362,11 +365,14 @@ ris_case_law_application_to_code <- function(application) {
 
   # No match — build a helpful error message listing all valid options.
   valid_values <- c(canonical_codes, names(alias_to_code))
-  rlang::abort(paste0(
-    "`application` is invalid. Use one of: ",
-    paste(valid_values, collapse = ", "),
-    "."
-  ))
+  rlang::abort(
+    paste0(
+      "`application` is invalid. Use one of: ",
+      paste(valid_values, collapse = ", "),
+      "."
+    ),
+    class = "risat_invalid_argument"
+  )
 }
 
 # -- Document type support check -----------------------------------------------
@@ -383,108 +389,78 @@ ris_case_law_supports_document_type <- function(application_code) {
 # users to write "BeschlussVS", "beschluss_vs", "Beschluss VS", or
 # "beschluss-vs" and have them all match the same lookup key.
 ris_normalize_key <- function(x) {
-  gsub("[[:space:]_-]+", "", tolower(trimws(x)))
+  x |>
+    stringr::str_trim() |>
+    stringr::str_to_lower() |>
+    stringr::str_remove_all("[\\s_-]+")
 }
 
-# -- Decision type normalization -----------------------------------------------
-# The decision_type parameter has different allowed values depending on the
-# court application.  VfGH and VwGH each have a specific set of valid types;
-# other applications accept any string (the API validates it server-side).
-ris_normalize_case_law_decision_type <- function(
-  application_code,
-  decision_type
+# Build a lookup vector whose names are the ris_normalize_key() form of the
+# canonical values themselves.  Used for enums whose API values are German
+# phrases (Justiz decision types, Dsk decision types).
+ris_self_keyed_lookup <- function(canonical) {
+  rlang::set_names(canonical, ris_normalize_key(canonical))
+}
+
+# -- Generic enum lookup -------------------------------------------------------
+# Shared engine for all abort-based enum normalizers (federal_state, GBK
+# commission/senate/discrimination ground, named intervals, sort direction,
+# Abschnitt type).  Handles the common pattern:
+#
+#   1. NULL/empty input -> NULL (parameter omitted from the query)
+#   2. non-string input -> error (`type_message`)
+#   3. normalize via ris_normalize_key() and match against `lookup`
+#   4. no match -> error (`invalid_message`)
+#
+# `call` defaults to the caller's frame so error messages point at the
+# specific normalizer (e.g. `ris_normalize_federal_state()`), not this helper.
+ris_match_lookup <- function(
+  x,
+  lookup,
+  arg,
+  invalid_message,
+  type_message = NULL,
+  call = rlang::caller_env()
 ) {
-  if (is.null(decision_type) || identical(decision_type, "")) {
+  if (is.null(x) || identical(x, "")) {
     return(NULL)
   }
-  checkmate::assert_character(
-    decision_type,
-    len = 1L,
-    any.missing = FALSE,
-    .var.name = "decision_type"
-  )
-
-  if (identical(application_code, "Vfgh")) {
-    return(ris_normalize_vfgh_decision_type(decision_type))
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    rlang::abort(
+      type_message %||% paste0("`", arg, "` must be a single string."),
+      class = "risat_invalid_argument",
+      call = call
+    )
   }
-
-  if (identical(application_code, "Vwgh")) {
-    return(ris_normalize_vwgh_decision_type(decision_type))
-  }
-
-  if (identical(application_code, "Bvwg")) {
-    return(ris_normalize_bvwg_decision_type(decision_type))
-  }
-
-  if (identical(application_code, "Lvwg")) {
-    return(ris_normalize_lvwg_decision_type(decision_type))
-  }
-
-  if (identical(application_code, "Justiz")) {
-    return(ris_normalize_justiz_decision_type(decision_type))
-  }
-
-  if (identical(application_code, "Dsk")) {
-    return(ris_normalize_dsk_decision_type(decision_type))
-  }
-
-  if (identical(application_code, "Gbk")) {
-    return(ris_normalize_gbk_decision_type(decision_type))
-  }
-
-  # For applications without a defined decision type enum (Dok, Pvak, etc.),
-  # pass through as-is — the API validates server-side.
-  decision_type
-}
-
-# VwGH decision types: Undefined, Beschluss, Erkenntnis, BeschlussVS,
-# ErkenntnisVS.  The "VS" suffix denotes a Verstaerkter Senat (reinforced
-# senate) decision, which carries special legal weight.
-ris_normalize_vwgh_decision_type <- function(x) {
-  lookup <- c(
-    undefined = "Undefined",
-    beschluss = "Beschluss",
-    erkenntnis = "Erkenntnis",
-    beschlussvs = "BeschlussVS",
-    erkenntnisvs = "ErkenntnisVS"
-  )
 
   key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
+  if (!key %in% names(lookup)) {
+    rlang::abort(
+      invalid_message,
+      class = "risat_invalid_argument",
+      call = call
+    )
+  }
 
   unname(lookup[[key]])
 }
 
-# -- Sort column normalization -------------------------------------------------
-# Only VfGH and VwGH have a defined set of sortable columns; other
-# applications pass sort_by through unchanged.
-ris_normalize_case_law_sort_by <- function(application_code, sort_by) {
-  if (is.null(sort_by) || identical(sort_by, "")) {
-    return(NULL)
-  }
-  checkmate::assert_character(
-    sort_by,
-    len = 1L,
-    any.missing = FALSE,
-    .var.name = "sort_by"
-  )
-
-  if (!application_code %in% c("Vfgh", "Vwgh")) {
-    return(sort_by)
-  }
-
-  ris_normalize_court_sort_by(sort_by)
-}
-
-# VfGH decision types: Undefined, Beschluss, Erkenntnis, Vergleich,
-# KeineAngabe.  English aliases ("order", "judgment", "settlement",
-# "not_specified") are mapped to their German API equivalents.
-ris_normalize_vfgh_decision_type <- function(x) {
-  lookup <- c(
+# -- Decision type normalization -----------------------------------------------
+# The decision_type parameter has different allowed values depending on the
+# court application.  Applications listed below have a fixed enum, validated
+# client-side; all other applications accept any string (the API validates it
+# server-side).  Lookup keys are the ris_normalize_key() form, so users may
+# write "BeschlussVS", "beschluss_vs", "Beschluss VS", or "beschluss-vs"
+# interchangeably.  English aliases exist where established translations do
+# (VfGH: "order", "judgment", "settlement", "not_specified").
+#
+# Notes on individual enums:
+#   - VwGH/VfGH: the "VS" suffix denotes a Verstaerkter Senat (reinforced
+#     senate) decision, which carries special legal weight.
+#   - Justiz and Dsk types are German phrases; their lookup keys are derived
+#     from the canonical values via ris_self_keyed_lookup().
+ris_case_law_decision_type_lookups <- list(
+  Vfgh = c(
     undefined = "Undefined",
     beschluss = "Beschluss",
     erkenntnis = "Erkenntnis",
@@ -494,83 +470,32 @@ ris_normalize_vfgh_decision_type <- function(x) {
     judgment = "Erkenntnis",
     settlement = "Vergleich",
     notspecified = "KeineAngabe"
-  )
-
-  key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
-
-  unname(lookup[[key]])
-}
-
-# BVwG decision types: Undefined, Beschluss, Erkenntnis.
-ris_normalize_bvwg_decision_type <- function(x) {
-  lookup <- c(
+  ),
+  Vwgh = c(
+    undefined = "Undefined",
+    beschluss = "Beschluss",
+    erkenntnis = "Erkenntnis",
+    beschlussvs = "BeschlussVS",
+    erkenntnisvs = "ErkenntnisVS"
+  ),
+  Bvwg = c(
     undefined = "Undefined",
     beschluss = "Beschluss",
     erkenntnis = "Erkenntnis"
-  )
-
-  key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
-
-  unname(lookup[[key]])
-}
-
-# LVwG decision types: Undefined, Beschluss, Erkenntnis, Bescheid.
-ris_normalize_lvwg_decision_type <- function(x) {
-  lookup <- c(
+  ),
+  Lvwg = c(
     undefined = "Undefined",
     beschluss = "Beschluss",
     erkenntnis = "Erkenntnis",
     bescheid = "Bescheid"
-  )
-
-  key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
-
-  unname(lookup[[key]])
-}
-
-# Justiz decision types are German phrases.  Because ris_normalize_key()
-# collapses all spaces, we need to build lookup keys by applying the same
-# transform to the canonical values.
-ris_normalize_justiz_decision_type <- function(x) {
-  canonical <- c(
+  ),
+  Justiz = ris_self_keyed_lookup(c(
     "Ordentliche Erledigung (Sachentscheidung)",
     "Zur\u00fcckweisung mangels erheblicher Rechtsfrage",
     "Zur\u00fcckweisung aus anderen Gr\u00fcnden",
     "Verst\u00e4rkter Senat"
-  )
-  lookup <- stats::setNames(
-    canonical,
-    vapply(canonical, ris_normalize_key, character(1))
-  )
-
-  key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
-
-  unname(lookup[[key]])
-}
-
-# Dsk decision types (14 values).
-ris_normalize_dsk_decision_type <- function(x) {
-  canonical <- c(
+  )),
+  Dsk = ris_self_keyed_lookup(c(
     "Undefined",
     "BescheidBeschwerde",
     "BescheidAmtswegigesPruefverfahren",
@@ -585,31 +510,37 @@ ris_normalize_dsk_decision_type <- function(x) {
     "Empfehlung",
     "BescheidIFG",
     "Verfahrensschriftsaetze"
-  )
-  lookup <- stats::setNames(
-    canonical,
-    vapply(canonical, ris_normalize_key, character(1))
-  )
-
-  key <- ris_normalize_key(x)
-  checkmate::assert_choice(
-    key,
-    choices = names(lookup),
-    .var.name = "decision_type"
-  )
-
-  unname(lookup[[key]])
-}
-
-# Gbk decision types: Undefined, Einzelfallpruefungsergebnis, Gutachten.
-ris_normalize_gbk_decision_type <- function(x) {
-  lookup <- c(
+  )),
+  Gbk = c(
     undefined = "Undefined",
     einzelfallpruefungsergebnis = "Einzelfallpruefungsergebnis",
     gutachten = "Gutachten"
   )
+)
 
-  key <- ris_normalize_key(x)
+ris_normalize_case_law_decision_type <- function(
+  application_code,
+  decision_type
+) {
+  if (is.null(decision_type) || identical(decision_type, "")) {
+    return(NULL)
+  }
+  checkmate::assert_character(
+    decision_type,
+    len = 1L,
+    any.missing = FALSE,
+    .var.name = "decision_type"
+  )
+
+  lookup <- ris_case_law_decision_type_lookups[[application_code]]
+
+  # For applications without a defined decision type enum (Dok, Pvak, etc.),
+  # pass through as-is — the API validates server-side.
+  if (is.null(lookup)) {
+    return(decision_type)
+  }
+
+  key <- ris_normalize_key(decision_type)
   checkmate::assert_choice(
     key,
     choices = names(lookup),
@@ -619,12 +550,17 @@ ris_normalize_gbk_decision_type <- function(x) {
   unname(lookup[[key]])
 }
 
-# Sort column lookup for VfGH/VwGH.  Accepts both the German API names
-# (Geschaeftszahl, Datum, Art, Typ) and English aliases (business_number,
-# decision_date, decision_type, document_type).  Note: "Art" maps to
-# decision type and "Typ" maps to document type in the RIS UI.
-ris_normalize_court_sort_by <- function(x) {
-  lookup <- c(
+# -- Sort column normalization -------------------------------------------------
+# Only VfGH, VwGH, and Normenliste have a client-side validated set of
+# sortable columns; other applications pass sort_by through unchanged.
+#
+# The lookups accept both the German API names and English aliases.  Note:
+# "Art" maps to decision type and "Typ" maps to document type in the RIS UI.
+# Normenliste is special: per the OGD API handbook its only sortable column
+# is "Kurzinformation" (there is no Datum column), so "Datum" must be
+# rejected client-side rather than sent to the API.
+ris_case_law_sort_by_lookups <- list(
+  Vfgh = c(
     geschaeftszahl = "Geschaeftszahl",
     datum = "Datum",
     art = "Art",
@@ -634,9 +570,31 @@ ris_normalize_court_sort_by <- function(x) {
     decisiondate = "Datum",
     decisiontype = "Art",
     documenttype = "Typ"
+  ),
+  Normenliste = c(
+    kurzinformation = "Kurzinformation",
+    briefinfo = "Kurzinformation"
+  )
+)
+ris_case_law_sort_by_lookups$Vwgh <- ris_case_law_sort_by_lookups$Vfgh
+
+ris_normalize_case_law_sort_by <- function(application_code, sort_by) {
+  if (is.null(sort_by) || identical(sort_by, "")) {
+    return(NULL)
+  }
+  checkmate::assert_character(
+    sort_by,
+    len = 1L,
+    any.missing = FALSE,
+    .var.name = "sort_by"
   )
 
-  key <- ris_normalize_key(x)
+  lookup <- ris_case_law_sort_by_lookups[[application_code]]
+  if (is.null(lookup)) {
+    return(sort_by)
+  }
+
+  key <- ris_normalize_key(sort_by)
   checkmate::assert_choice(
     key,
     choices = names(lookup),
@@ -655,8 +613,10 @@ ris_normalize_court_sort_by <- function(x) {
 #   2. User left both NULL:
 #      -> default to TRUE/TRUE (search both document types)
 #   3. User provided one but not the other:
-#      -> the unprovided one defaults to FALSE
-#   4. Both FALSE:
+#      -> the unprovided one defaults to the complement, so a single flag
+#         always selects exactly one document type: TRUE means "only this
+#         type", FALSE means "only the other type"
+#   4. Both explicitly FALSE:
 #      -> error (at least one must be TRUE, otherwise no results would return)
 ris_normalize_document_type_flags <- function(
   application_code,
@@ -670,16 +630,17 @@ ris_normalize_document_type_flags <- function(
     search_decision_text = search_decision_text,
     search_legal_principles = search_legal_principles
   )
-  provided <- purrr::keep(flags, ~ !is.null(.x))
+  provided <- purrr::keep(flags, \(x) !is.null(x))
 
   if (length(provided) > 0L) {
     valid <- purrr::map_lgl(
       provided,
-      ~ is.logical(.x) && length(.x) == 1L && !is.na(.x)
+      \(x) is.logical(x) && length(x) == 1L && !is.na(x)
     )
     if (!all(valid)) {
       rlang::abort(
-        "`search_decision_text` and `search_legal_principles` must be TRUE or FALSE."
+        "`search_decision_text` and `search_legal_principles` must be TRUE or FALSE.",
+        class = "risat_invalid_argument"
       )
     }
   }
@@ -688,7 +649,8 @@ ris_normalize_document_type_flags <- function(
   if (!supports) {
     if (length(provided) > 0L) {
       rlang::warn(
-        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application."
+        "`search_decision_text` and `search_legal_principles` are ignored for this Judikatur application.",
+        class = "risat_ignored_argument"
       )
     }
     return(list(search_decision_text = NULL, search_legal_principles = NULL))
@@ -699,22 +661,21 @@ ris_normalize_document_type_flags <- function(
     return(list(search_decision_text = TRUE, search_legal_principles = TRUE))
   }
 
-  # If only one flag was provided, default the other to FALSE.
-  search_decision_text <- if (is.null(search_decision_text)) {
-    FALSE
-  } else {
-    search_decision_text
+  # If only one flag was provided, default the other to its complement so a
+  # single flag always selects exactly one document type (TRUE = "only this
+  # type", FALSE = "only the other type").
+  if (is.null(search_decision_text)) {
+    search_decision_text <- !search_legal_principles
   }
-  search_legal_principles <- if (is.null(search_legal_principles)) {
-    FALSE
-  } else {
-    search_legal_principles
+  if (is.null(search_legal_principles)) {
+    search_legal_principles <- !search_decision_text
   }
 
   # Guard: at least one must be TRUE, otherwise the API returns no results.
   if (!isTRUE(search_decision_text) && !isTRUE(search_legal_principles)) {
     rlang::abort(
-      "At least one of `search_decision_text` or `search_legal_principles` must be TRUE."
+      "At least one of `search_decision_text` or `search_legal_principles` must be TRUE.",
+      class = "risat_invalid_argument"
     )
   }
 
@@ -744,7 +705,10 @@ ris_bool_to_true_or_null <- function(x) {
     return(NULL)
   }
   if (!is.logical(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("Logical RIS search flags must be TRUE or FALSE.")
+    rlang::abort(
+      "Logical RIS search flags must be TRUE or FALSE.",
+      class = "risat_invalid_argument"
+    )
   }
   if (isTRUE(x)) "true" else NULL
 }
@@ -759,14 +723,6 @@ ris_bool_to_true_or_null <- function(x) {
 # Aliases:     one_week, two_weeks, one_month, three_months,
 #              six_months, one_year
 ris_normalize_named_interval <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("Named interval parameters must be a single string.")
-  }
-
   lookup <- c(
     undefined = "Undefined",
     einerwoche = "EinerWoche",
@@ -783,9 +739,12 @@ ris_normalize_named_interval <- function(x) {
     oneyear = "EinemJahr"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "in_ris_since",
+    type_message = "Named interval parameters must be a single string.",
+    invalid_message = paste0(
       "Interval value is invalid. Use one of: ",
       paste(
         c(
@@ -806,10 +765,8 @@ ris_normalize_named_interval <- function(x) {
         collapse = ", "
       ),
       "."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 # -- Sort direction normalization ----------------------------------------------
@@ -817,18 +774,12 @@ ris_normalize_named_interval <- function(x) {
 # correctly-cased API value.  Returns NULL when omitted so the API uses its
 # default sort order.
 ris_normalize_sort_direction <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`sort_direction` must be a single string.")
-  }
-  allowed <- c("Ascending", "Descending")
-  idx <- match(tolower(x), tolower(allowed))
-  if (is.na(idx)) {
-    rlang::abort("`sort_direction` must be 'Ascending' or 'Descending'.")
-  }
-  allowed[[idx]]
+  ris_match_lookup(
+    x,
+    lookup = c(ascending = "Ascending", descending = "Descending"),
+    arg = "sort_direction",
+    invalid_message = "`sort_direction` must be 'Ascending' or 'Descending'."
+  )
 }
 
 # -- Federal state normalization -----------------------------------------------
@@ -836,13 +787,6 @@ ris_normalize_sort_direction <- function(x) {
 # Austrian state.  There are exactly 9 Bundesländer; we accept both the German
 # names and common English aliases.
 ris_normalize_federal_state <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`federal_state` must be a single string.")
-  }
-
   lookup <- c(
     burgenland = "Burgenland",
     "k\u00e4rnten" = "K\u00e4rnten",
@@ -864,9 +808,11 @@ ris_normalize_federal_state <- function(x) {
     vienna = "Wien"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "federal_state",
+    invalid_message = paste0(
       "`federal_state` is invalid. Use one of: ",
       paste(
         c(
@@ -883,125 +829,107 @@ ris_normalize_federal_state <- function(x) {
         collapse = ", "
       ),
       ". English aliases (e.g. 'Vienna', 'Styria') are also accepted."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 # -- GBK commission normalization ----------------------------------------------
 # The Gbk application covers two distinct commissions.  We accept the full
-# German names and short aliases.
+# German names and short aliases.  The API enum (GbkKommission) uses the
+# concatenated form without the hyphen ("BundesGleichbehandlungskommission").
 ris_normalize_gbk_commission <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`commission` must be a single string.")
-  }
-
   lookup <- c(
     # Full names (normalized)
-    bundesgleichbehandlungskommission = "Bundes-Gleichbehandlungskommission",
+    bundesgleichbehandlungskommission = "BundesGleichbehandlungskommission",
     gleichbehandlungskommission = "Gleichbehandlungskommission",
     # Short aliases
-    bundesgbk = "Bundes-Gleichbehandlungskommission",
-    bgbk = "Bundes-Gleichbehandlungskommission",
+    bundesgbk = "BundesGleichbehandlungskommission",
+    bgbk = "BundesGleichbehandlungskommission",
     gbk = "Gleichbehandlungskommission",
     # English aliases
-    federalequaltreatmentcommission = "Bundes-Gleichbehandlungskommission",
+    federalequaltreatmentcommission = "BundesGleichbehandlungskommission",
     privatesectorequaltreatmentcommission = "Gleichbehandlungskommission",
     privatesector = "Gleichbehandlungskommission",
-    federal = "Bundes-Gleichbehandlungskommission"
+    federal = "BundesGleichbehandlungskommission"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "commission",
+    invalid_message = paste0(
       "`commission` is invalid. Use one of: ",
       "'Bundes-Gleichbehandlungskommission' (federal public service) or ",
       "'Gleichbehandlungskommission' (private sector). ",
       "Short aliases 'bundesgbk'/'bgbk' and 'gbk' are also accepted."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 # -- GBK senate normalization --------------------------------------------------
 # The Bundes-GBK has Senat I and II; the private-sector GBK has Senat I, II,
 # and III.  We accept the full names, Roman numerals, and Arabic digits.
+# The API enum (GbkSenat) uses bare Roman numerals ("I", "II", "III").
 ris_normalize_gbk_senate <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`senate` must be a single string.")
-  }
-
   lookup <- c(
-    senati = "Senat I",
-    senatii = "Senat II",
-    senatiii = "Senat III",
-    i = "Senat I",
-    ii = "Senat II",
-    iii = "Senat III",
-    `1` = "Senat I",
-    `2` = "Senat II",
-    `3` = "Senat III"
+    senati = "I",
+    senatii = "II",
+    senatiii = "III",
+    i = "I",
+    ii = "II",
+    iii = "III",
+    `1` = "I",
+    `2` = "II",
+    `3` = "III"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(
-      "`senate` is invalid. Use 'Senat I', 'Senat II', or 'Senat III' (or 'I'/'II'/'III' or '1'/'2'/'3')."
-    )
-  }
-
-  unname(lookup[[key]])
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "senate",
+    invalid_message = "`senate` is invalid. Use 'Senat I', 'Senat II', or 'Senat III' (or 'I'/'II'/'III' or '1'/'2'/'3')."
+  )
 }
 
 # -- GBK discrimination ground normalization -----------------------------------
 # The discrimination grounds are defined in the Gleichbehandlungsgesetz (GlBG)
-# and the Bundes-Gleichbehandlungsgesetz (B-GlBG).  We accept the German API
-# values and common English aliases.
+# and the Bundes-Gleichbehandlungsgesetz (B-GlBG).  We accept the human-readable
+# German forms and common English aliases.  The API enum
+# (GbkDiskriminierungsgrund) uses concatenated ASCII identifiers
+# ("EthnischeZugehoerigkeit", "SexuelleOrientierung").
 ris_normalize_gbk_discrimination_ground <- function(x) {
-  if (is.null(x) || identical(x, "")) {
-    return(NULL)
-  }
-  if (!is.character(x) || length(x) != 1L || is.na(x)) {
-    rlang::abort("`discrimination_ground` must be a single string.")
-  }
-
   lookup <- c(
     # German canonical values
     geschlecht = "Geschlecht",
-    "ethnische zugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
-    "ethnischezugeh\u00f6rigkeit" = "Ethnische Zugeh\u00f6rigkeit",
-    ethnischezugehorigkeit = "Ethnische Zugeh\u00f6rigkeit",
+    "ethnische zugeh\u00f6rigkeit" = "EthnischeZugehoerigkeit",
+    "ethnischezugeh\u00f6rigkeit" = "EthnischeZugehoerigkeit",
+    ethnischezugehorigkeit = "EthnischeZugehoerigkeit",
+    ethnischezugehoerigkeit = "EthnischeZugehoerigkeit",
     religion = "Religion",
     weltanschauung = "Weltanschauung",
     alter = "Alter",
-    "sexuelle orientierung" = "Sexuelle Orientierung",
-    sexuelleorientierung = "Sexuelle Orientierung",
+    "sexuelle orientierung" = "SexuelleOrientierung",
+    sexuelleorientierung = "SexuelleOrientierung",
     behinderung = "Behinderung",
     mehrfachdiskriminierung = "Mehrfachdiskriminierung",
     # English aliases
     gender = "Geschlecht",
     sex = "Geschlecht",
-    ethnicity = "Ethnische Zugeh\u00f6rigkeit",
-    ethnicorigin = "Ethnische Zugeh\u00f6rigkeit",
+    ethnicity = "EthnischeZugehoerigkeit",
+    ethnicorigin = "EthnischeZugehoerigkeit",
     worldview = "Weltanschauung",
     age = "Alter",
-    sexualorientation = "Sexuelle Orientierung",
+    sexualorientation = "SexuelleOrientierung",
     disability = "Behinderung",
     multiplediscrimination = "Mehrfachdiskriminierung",
     multiple = "Mehrfachdiskriminierung"
   )
 
-  key <- ris_normalize_key(x)
-  if (!key %in% names(lookup)) {
-    rlang::abort(paste0(
+  ris_match_lookup(
+    x,
+    lookup,
+    arg = "discrimination_ground",
+    invalid_message = paste0(
       "`discrimination_ground` is invalid. Use one of: ",
       paste(
         c(
@@ -1017,10 +945,8 @@ ris_normalize_gbk_discrimination_ground <- function(x) {
         collapse = ", "
       ),
       ". English aliases (e.g. 'gender', 'age', 'disability') are also accepted."
-    ))
-  }
-
-  unname(lookup[[key]])
+    )
+  )
 }
 
 # -- Per-page to API enum conversion -------------------------------------------
@@ -1035,7 +961,10 @@ ris_per_page_to_api_value <- function(per_page) {
   )
   out <- unname(lookup[[as.character(as.integer(per_page))]])
   if (is.null(out)) {
-    rlang::abort("`per_page` must be one of: 10, 20, 50, 100.")
+    rlang::abort(
+      "`per_page` must be one of: 10, 20, 50, 100.",
+      class = "risat_invalid_argument"
+    )
   }
   out
 }

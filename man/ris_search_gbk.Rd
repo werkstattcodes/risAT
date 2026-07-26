@@ -16,15 +16,19 @@ ris_search_gbk(
   discrimination_ground = NULL,
   in_ris_since = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -47,12 +51,17 @@ or \code{"Gleichbehandlungskommission"} (private sector). Short aliases
 \code{"II"}, \code{"III"}) and digits (\code{"1"}, \code{"2"}, \code{"3"}) are also accepted.}
 
 \item{discrimination_ground}{Optional discrimination ground
-(\code{Diskriminierungsgrund}). Accepted values: \code{"Geschlecht"},
+(\code{Diskriminierungsgrund}). Accepted German values: \code{"Geschlecht"},
 \code{"Ethnische Zugehörigkeit"}, \code{"Religion"}, \code{"Weltanschauung"},
-\code{"Alter"}, \code{"Sexuelle Orientierung"}, \code{"Behinderung"},
-\code{"Mehrfachdiskriminierung"}. English aliases (\code{"gender"}, \code{"age"},
-\code{"disability"}, \code{"ethnicity"}, \code{"sexual_orientation"}, etc.) are
-also accepted (case-insensitive).}
+\code{"Alter"}, \code{"Sexuelle Orientierung"}, \code{"Behinderung"}, and
+\code{"Mehrfachdiskriminierung"}. English aliases: \code{"gender"}/\code{"sex"} ->
+\code{"Geschlecht"}, \code{"ethnicity"}/\code{"ethnic_origin"} ->
+\code{"EthnischeZugehoerigkeit"}, \code{"religion"} -> \code{"Religion"},
+\code{"worldview"} -> \code{"Weltanschauung"}, \code{"age"} -> \code{"Alter"},
+\code{"sexual_orientation"} -> \code{"SexuelleOrientierung"}, \code{"disability"} ->
+\code{"Behinderung"}, and \code{"multiple"}/\code{"multiple_discrimination"} ->
+\code{"Mehrfachdiskriminierung"}. Matching is case-insensitive and ignores
+spaces, underscores, and hyphens.}
 
 \item{in_ris_since}{Optional RIS recency filter (\code{ImRisSeit}).
 Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"},
@@ -60,16 +69,19 @@ Accepts API values (\code{"Undefined"}, \code{"EinerWoche"}, \code{"ZweiWochen"}
 English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 \code{"three_months"}, \code{"six_months"}, \code{"one_year"}).}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-(\verb{https://www.ris.bka.gv.at/<Applikation>/} and the corresponding
-\code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
-double-check the result set in the browser.}
+\item{echo}{Logical. If \code{TRUE}, prints two progress messages: the
+equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
+\verb{https://www.ris.bka.gv.at}) before any request is sent; and the total
+hit and page count as soon as the first page's response arrives. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.}
 
-\item{base_url}{API base URL.}
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 }
 \description{
 Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law()}} with
@@ -85,7 +97,7 @@ Note: the Gbk application does not support \code{search_decision_text} or
 for this wrapper.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Search all equal treatment commission decisions
 ris_search_gbk(query = "Diskriminierung")
 
@@ -106,5 +118,5 @@ ris_search_gbk(
   norm = "GlBG §17",
   senate = "Senat I"
 )
-}
+\dontshow{\}) # examplesIf}
 }

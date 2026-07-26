@@ -17,15 +17,19 @@ ris_search_vwgh(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 )
 }
 \arguments{
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -52,28 +56,35 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 (\code{SucheInEntscheidungstexten}).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
-(\code{SucheInRechtssaetzen}).}
+(\code{SucheInRechtssaetzen}). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. \code{search_decision_text = FALSE} searches legal principles only).
+Setting both to \code{FALSE} is an error.}
 
-\item{echo}{Logical. If \code{TRUE}, prints the equivalent RIS website URLs
-(\verb{https://www.ris.bka.gv.at/<Applikation>/} and the corresponding
-\code{Ergebnis.wxe} query URL) and the number of returned rows, so users can
-double-check the result set in the browser.}
+\item{echo}{Logical. If \code{TRUE}, prints two progress messages: the
+equivalent RIS website search URL (the \code{Ergebnis.wxe} query on
+\verb{https://www.ris.bka.gv.at}) before any request is sent; and the total
+hit and page count as soon as the first page's response arrives. This
+lets the result set be double-checked in the browser and gives an early
+sense of scope for broad queries without waiting for every page.}
 
-\item{base_url}{API base URL.}
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 A tidy tibble with parsed search results.
-Includes list-columns \code{content_urls} and \code{app_metadata}.
+Includes list-column \code{content_urls}.
 }
 \description{
 Convenience wrapper around \code{\link[=ris_search_case_law]{ris_search_case_law()}} with
 \code{application = "Vwgh"}.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Keyword search across both decision texts and Rechtssaetze (default).
 # The query field supports full-text operators: space/"und" = AND,
-# "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+# "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 ris_search_vwgh(query = "Asylrecht")
 
 # Wildcard and phrase search examples
@@ -89,8 +100,8 @@ ris_search_vwgh(
   search_legal_principles = TRUE
 )
 
-# Multiple norms: wrap each in single quotes and join with "oder"
-ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+# Multiple norms: wrap each in single quotes and join with "ODER" (or "OR")
+ris_search_vwgh(norm = "'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'")
 
 # Filter by decision type and date range.
 # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
@@ -121,5 +132,5 @@ ris_search_vwgh(
   business_number = "Ra 2021/01/0001",
   echo = TRUE
 )
-}
+\dontshow{\}) # examplesIf}
 }

@@ -56,13 +56,12 @@
 #'   (`AenderungenSeitPeriode`). Same interval keywords as `in_ris_since`.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Keyword search across decision texts and Rechtssaetze (default).
 #' # The query field supports full-text operators: space/"und" = AND,
-#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' # "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_justiz(query = "Schadenersatz")
 #'
 #' # Filter to OGH decisions only
@@ -91,7 +90,6 @@
 #' # Look up a specific OGH case by business number
 #' # OGH business number format: "N Ob NNN/YY" or "N Ob N/YYg" etc.
 #' ris_search_justiz(business_number = "1Ob1/23g", echo = TRUE)
-#' }
 #' @export
 ris_search_justiz <- function(
   query = NULL,
@@ -113,7 +111,7 @@ ris_search_justiz <- function(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   checkmate::assert_string(legal_area, null.ok = TRUE, .var.name = "legal_area")
   checkmate::assert_string(

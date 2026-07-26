@@ -35,16 +35,16 @@ test_that("ris_perform_case_law parses one-page fixture with stable list-columns
   payload <- fixture_payload("case_law_one_page.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(payload),
     ris_perform_case_law(req)
   )
 
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 1L)
-  expect_true(all(c("content_urls", "app_metadata") %in% names(out)))
+  expect_true("content_urls" %in% names(out))
+  expect_false("app_metadata" %in% names(out))
   expect_type(out$content_urls[[1]], "character")
   expect_gte(length(out$content_urls[[1]]), 1L)
-  expect_type(out$app_metadata[[1]], "list")
   expect_equal(out$id[[1]], "Vwgh-2026-0001")
   expect_equal(out$application[[1]], "Vwgh")
   expect_equal(attr(out, "ris_app_url"), "https://www.ris.bka.gv.at/Vwgh/")
@@ -59,7 +59,7 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   page2 <- fixture_payload("case_law_multi_page_page2.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(page1, page2),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(page1, page2),
     ris_perform_case_law(req)
   )
 
@@ -69,8 +69,7 @@ test_that("ris_perform_case_law combines paginated fixtures", {
   expect_true(is.list(out$judikatur_vfgh_index))
   expect_equal(out$judikatur_vfgh_index[[1]], "07/01")
   expect_equal(out$judikatur_vfgh_index[[2]], list("07/01", "07/02"))
-  expect_equal(out$app_metadata[[1]]$request$seitennummer, 1L)
-  expect_equal(out$app_metadata[[2]]$request$seitennummer, 2L)
+  expect_false("app_metadata" %in% names(out))
   expect_equal(
     attr(out, "ris_search_url"),
     attr(req, "ris_meta")$website_urls$search_url
@@ -93,15 +92,16 @@ test_that("ris_perform_case_law returns structured empty tibble for empty fixtur
   empty_payload <- fixture_payload("case_law_empty.json")
 
   out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(empty_payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(empty_payload),
     ris_perform_case_law(req)
   )
 
   expect_s3_class(out, "tbl_df")
   expect_equal(nrow(out), 0L)
-  expect_named(out, c("content_urls", "app_metadata"))
+  expect_named(out, c("id", "application", "content_urls"))
+  expect_type(out$id, "character")
+  expect_type(out$application, "character")
   expect_true(is.list(out$content_urls))
-  expect_true(is.list(out$app_metadata))
 })
 
 test_that("ris_perform_case_law surfaces API error payloads", {
@@ -110,10 +110,10 @@ test_that("ris_perform_case_law surfaces API error payloads", {
 
   expect_error(
     testthat::with_mocked_bindings(
-      ris_iterate_case_law_pages = function(req) list(err_payload),
+      ris_iterate_case_law_pages = function(req, echo = FALSE) list(err_payload),
       ris_perform_case_law(req)
     ),
-    "RIS API error \\[Vwgh\\]"
+    class = "risat_api_error"
   )
 })
 
@@ -122,12 +122,12 @@ test_that("wrapper smoke tests call perform path for VwGH and VfGH", {
   vfgh_payload <- fixture_payload("case_law_multi_page_page1.json")
 
   vwgh_out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(vwgh_payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(vwgh_payload),
     ris_search_vwgh(query = "Asyl")
   )
 
   vfgh_out <- testthat::with_mocked_bindings(
-    ris_iterate_case_law_pages = function(req) list(vfgh_payload),
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(vfgh_payload),
     ris_search_vfgh(query = "Grundrecht")
   )
 
@@ -135,6 +135,37 @@ test_that("wrapper smoke tests call perform path for VwGH and VfGH", {
   expect_s3_class(vfgh_out, "tbl_df")
   expect_equal(vwgh_out$application[[1]], "Vwgh")
   expect_equal(vfgh_out$application[[1]], "Vfgh")
-  expect_true(all(c("content_urls", "app_metadata") %in% names(vwgh_out)))
-  expect_true(all(c("content_urls", "app_metadata") %in% names(vfgh_out)))
+  expect_true("content_urls" %in% names(vwgh_out))
+  expect_true("content_urls" %in% names(vfgh_out))
+  expect_false("app_metadata" %in% names(vwgh_out))
+  expect_false("app_metadata" %in% names(vfgh_out))
+})
+
+test_that("case law exported tibble outputs never include app_metadata", {
+  payload <- fixture_payload("case_law_one_page.json")
+
+  outputs <- testthat::with_mocked_bindings(
+    ris_iterate_case_law_pages = function(req, echo = FALSE) list(payload),
+    list(
+      parse = ris_parse_search(payload),
+      perform = ris_perform_case_law(
+        ris_req_case_law(application = "Vwgh", query = "Asyl")
+      ),
+      search_case_law = ris_search_case_law(application = "Vwgh", query = "Asyl"),
+      search_vwgh = ris_search_vwgh(query = "Asyl"),
+      search_vfgh = ris_search_vfgh(query = "Asyl"),
+      search_bvwg = ris_search_bvwg(query = "Asyl"),
+      search_lvwg = ris_search_lvwg(query = "Asyl"),
+      search_justiz = ris_search_justiz(query = "Asyl"),
+      search_dsk = ris_search_dsk(query = "Asyl"),
+      search_dok = ris_search_dok(query = "Asyl"),
+      search_pvak = ris_search_pvak(query = "Asyl"),
+      search_gbk = ris_search_gbk(query = "Asyl")
+    )
+  )
+
+  purrr::walk(outputs, \(out) {
+    expect_s3_class(out, "tbl_df")
+    expect_false("app_metadata" %in% names(out))
+  })
 })

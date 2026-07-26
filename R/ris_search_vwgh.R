@@ -31,13 +31,12 @@
 #'   senate).
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Keyword search across both decision texts and Rechtssaetze (default).
 #' # The query field supports full-text operators: space/"und" = AND,
-#' # "oder" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
+#' # "OR"/"ODER" = OR, "nicht" = NOT, * = wildcard, 'phrase' for exact phrase.
 #' ris_search_vwgh(query = "Asylrecht")
 #'
 #' # Wildcard and phrase search examples
@@ -53,8 +52,8 @@
 #'   search_legal_principles = TRUE
 #' )
 #'
-#' # Multiple norms: wrap each in single quotes and join with "oder"
-#' ris_search_vwgh(norm = "'AsylG 2005 §3' oder 'BFA-VG §21 Abs7'")
+#' # Multiple norms: wrap each in single quotes and join with "ODER" (or "OR")
+#' ris_search_vwgh(norm = "'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'")
 #'
 #' # Filter by decision type and date range.
 #' # decision_type for VwGH: "Beschluss", "Erkenntnis", "BeschlussVS",
@@ -85,7 +84,6 @@
 #'   business_number = "Ra 2021/01/0001",
 #'   echo = TRUE
 #' )
-#' }
 #' @export
 ris_search_vwgh <- function(
   query = NULL,
@@ -100,7 +98,7 @@ ris_search_vwgh <- function(
   search_decision_text = TRUE,
   search_legal_principles = TRUE,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   # Delegate to the generic case law search with application fixed to "Vwgh".
   ris_search_case_law(

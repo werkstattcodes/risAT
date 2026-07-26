@@ -48,9 +48,13 @@
 #'   | `"Umse"` | `"environmental_panel"` | Environmental Panel (1994--2013) |
 #'   | `"Bks"` | `"federal_communications_panel"` | Federal Communications Panel (2001--2013) |
 #'   | `"Verg"` | `"procurement_review_bodies"` | Procurement Review Bodies (until 2013) |
-#' @param query Optional full-text query (`Suchworte`).
+#' @param query Optional full-text query (`Suchworte`). Supports the RIS
+#'   full-text operators (space/`und` = AND, `OR`/`ODER` = OR, `nicht` = NOT,
+#'   `*` = wildcard, `'phrase'` for exact phrase).
 #' @param business_number Optional business number (`Geschaeftszahl`).
-#' @param norm Optional legal norm query (`Norm`).
+#' @param norm Optional legal norm query (`Norm`). Multiple norms can be
+#'   combined with `OR`/`ODER` (wrap each norm in single quotes, e.g.
+#'   `"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"`).
 #' @param decision_date_from Optional lower date bound (`YYYY-MM-DD`,
 #'   `EntscheidungsdatumVon`).
 #' @param decision_date_to Optional upper date bound (`YYYY-MM-DD`,
@@ -113,7 +117,17 @@
 #' @param commission Optional commission (`Kommission`), used for `Gbk`.
 #' @param senate Optional senate (`Senat`), used for `Gbk`.
 #' @param discrimination_ground Optional discrimination ground
-#'   (`Diskriminierungsgrund`), used for `Gbk`.
+#'   (`Diskriminierungsgrund`), used for `Gbk`. Accepted German values:
+#'   `"Geschlecht"`, `"Ethnische Zugehörigkeit"`, `"Religion"`,
+#'   `"Weltanschauung"`, `"Alter"`, `"Sexuelle Orientierung"`,
+#'   `"Behinderung"`, and `"Mehrfachdiskriminierung"`. English aliases:
+#'   `"gender"`/`"sex"` -> `"Geschlecht"`, `"ethnicity"`/
+#'   `"ethnic_origin"` -> `"EthnischeZugehoerigkeit"`, `"religion"` ->
+#'   `"Religion"`, `"worldview"` -> `"Weltanschauung"`, `"age"` ->
+#'   `"Alter"`, `"sexual_orientation"` -> `"SexuelleOrientierung"`,
+#'   `"disability"` -> `"Behinderung"`, and `"multiple"`/
+#'   `"multiple_discrimination"` -> `"Mehrfachdiskriminierung"`.
+#'   Matching is case-insensitive and ignores spaces, underscores, and hyphens.
 #' @param author Optional author (`Verfasser`), used for `Ubas`.
 #' @param short_title Optional short title (`Kurzbezeichnung`), used for `Umse`.
 #' @param domain Optional domain (`Bereich`), used for `Bks`.
@@ -125,16 +139,33 @@
 #' @param search_decision_text Optional flag for decision text search
 #'   (`SucheInEntscheidungstexten`).
 #' @param search_legal_principles Optional flag for legal principles search
-#'   (`SucheInRechtssaetzen`).
-#' @param base_url API base URL.
+#'   (`SucheInRechtssaetzen`). When both flags are omitted, both document
+#'   types are searched. When only one flag is given, the other defaults to
+#'   its complement, so a single flag selects exactly one document type
+#'   (e.g. `search_decision_text = FALSE` searches legal principles only).
+#'   Setting both to `FALSE` is an error.
+#' @param sort_by Sort column (`SortierungSortedByColumn`). When omitted,
+#'   defaults to `"Datum"` (decision date) for all applications except
+#'   `Normenliste`, whose only sortable column is `"Kurzinformation"` — there
+#'   the sort parameters are omitted and the API default order applies. For
+#'   VfGH and VwGH the value is validated client-side against
+#'   `"Geschaeftszahl"`, `"Datum"`, `"Art"`, `"Typ"` (English aliases
+#'   `"business_number"`/`"case_number"`, `"decision_date"`,
+#'   `"decision_type"`, `"document_type"`); for `Normenliste` against
+#'   `"Kurzinformation"` (alias `"brief_info"`); other applications pass the
+#'   value to the API as-is.
+#' @param sort_direction Sort direction (`SortierungSortDirection`):
+#'   `"Ascending"` or `"Descending"`. Defaults to `"Descending"` whenever a
+#'   sort column is in effect.
+#' @param base_url API base URL. Defaults to [ris_base_url()], which can be
+#'   overridden for a session via `options(risAT.base_url = ...)`.
 #'
 #' @return An `httr2_request` object with an additional `"ris_meta"` attribute
 #'   containing the application code and website URLs. Pass this to
 #'   [ris_perform_case_law()] to execute the search.
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Build request, then inspect the URL without hitting the network
 #' req <- ris_req_case_law(
 #'   application = "constitutional_court",
@@ -144,7 +175,6 @@
 #'
 #' # Execute
 #' results <- ris_perform_case_law(req)
-#' }
 ris_req_case_law <- function(
   application,
   query = NULL,
@@ -177,7 +207,9 @@ ris_req_case_law <- function(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  sort_by = NULL,
+  sort_direction = NULL,
+  base_url = ris_base_url()
 ) {
   # -- Step 0: Assert input types -----------------------------------------------
   checkmate::assert_string(query, null.ok = TRUE, .var.name = "query")
@@ -266,6 +298,12 @@ ris_req_case_law <- function(
   # like "constitutional_court") into the canonical RIS code (e.g. "Vfgh").
   application_code <- ris_case_law_application_to_code(application)
 
+  # Translate the uppercase OR operators ("OR", "ODER") in the full-text
+  # fields into the RIS-native "oder" before the value reaches the API
+  # parameters and the website URLs.
+  query <- ris_normalize_or_operator(query)
+  norm <- ris_normalize_or_operator(norm)
+
   # Normalize court-specific enum parameters.  These accept flexible input
   # (English aliases, case variants) and return the exact API-expected string.
   federal_state <- ris_normalize_federal_state(federal_state)
@@ -275,6 +313,23 @@ ris_req_case_law <- function(
     discrimination_ground
   )
   per_page <- 100L
+
+  # Resolve the default sort.  Most applications sort by decision date
+  # descending, but Normenliste has no Datum column (its only sortable
+  # column is Kurzinformation) — sending Datum there is rejected by the API
+  # schema, so the sort is omitted by default and the API order applies.
+  if (is.null(sort_by)) {
+    sort_by <- if (application_code == "Normenliste") {
+      # A direction without a column is invalid; anchor it to the only
+      # sortable Normenliste column when the user gave just a direction.
+      if (is.null(sort_direction)) NULL else "Kurzinformation"
+    } else {
+      "Datum"
+    }
+  }
+  if (!is.null(sort_by) && is.null(sort_direction)) {
+    sort_direction <- "Descending"
+  }
 
   # Normalize decision_type based on which court application was selected.
   # VwGH and VfGH have specific allowed enums; other applications pass through.
@@ -328,8 +383,8 @@ ris_req_case_law <- function(
     short_title = short_title,
     domain = domain,
     in_ris_since = in_ris_since,
-    sort_by = "Datum",
-    sort_direction = "Descending",
+    sort_by = sort_by,
+    sort_direction = sort_direction,
     search_decision_text = document_type_flags$search_decision_text,
     search_legal_principles = document_type_flags$search_legal_principles,
     page = 1L,
@@ -366,15 +421,11 @@ ris_req_case_law <- function(
 
   # -- Step 4: Construct the httr2 request object -----------------------------
   # We target the /Judikatur endpoint and splice all non-NULL params into the
-  # URL query string.  req_retry(max_tries = 3) adds resilience against
-  # transient network errors.  A package-identifying user agent is set as a
-  # courtesy to the public OGD service.
-  req <- httr2::request(paste0(base_url, "/Judikatur")) |>
-    httr2::req_user_agent(
-      "risAT R package (https://github.com/werkstattcodes/risAT)"
-    ) |>
-    httr2::req_url_query(!!!params) |>
-    httr2::req_retry(max_tries = 3)
+  # URL query string.  ris_base_request() applies the shared request policy:
+  # package-identifying user agent, retries against transient network errors,
+  # and client-side throttling as a courtesy to the public OGD service.
+  req <- ris_base_request(base_url, "/Judikatur") |>
+    httr2::req_url_query(!!!params)
 
   # Attach metadata as a custom attribute on the request object.  This is the
   # bridge between the req and perform steps: ris_perform_case_law() reads

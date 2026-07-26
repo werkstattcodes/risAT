@@ -5,7 +5,11 @@
 ^background_docs$
 ^_internal$
 \.Rhistory$
+^\.Renviron$
+^\.git$
 ^\.github$
+^\.agents$
 ^\.claude$
 ^CLAUDE\.md$
+^\.vscode$
 ^\.playwright-mcp$

@@ -1,7 +1,7 @@
 Package: risAT
 Type: Package
-Title: Interface to the Austrian RIS OGD REST API
-Version: 0.0.0.9000
+Title: An R Package Wrapping the API of the Austrian Legal Information System (RIS)
+Version: 0.1.0
 Authors@R:
     person(
       given = "Roland",
@@ -9,8 +9,12 @@ Authors@R:
       email = "rs2903@gmail.com",
       role = c("aut", "cre")
     )
-Description: Search helpers for Austrian legal information from the
-    Rechtsinformationssystem (RIS) Open Government Data REST API v2.6.
+Description: Search and parse Austrian legal information from the
+    Rechtsinformationssystem (RIS) Open Government Data REST API
+    <https://data.bka.gv.at/ris/api/v2.6/> provided by the Austrian
+    Federal Chancellery. Supports case law from all Judikatur
+    applications and consolidated federal law, returning tidy tibbles
+    for reproducible legal research.
 License: MIT + file LICENSE
 URL: https://github.com/werkstattcodes/risAT,
     https://werkstattcodes.github.io/risAT
@@ -21,11 +25,11 @@ Roxygen: list(markdown = TRUE)
 Imports:
     checkmate,
     dplyr,
-    httr2,
+    httr2 (>= 1.1.0),
     purrr,
     rlang,
     stats,
-    stringr,
+    stringr (>= 1.5.0),
     tibble,
     utils
 Suggests:
@@ -41,4 +45,3 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown
 Config/roxygen2/version: 8.0.0
-RoxygenNote: 7.3.1

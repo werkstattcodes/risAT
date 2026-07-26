@@ -236,6 +236,51 @@ test_that("document type flags are ignored for apps without Dokumenttyp", {
   expect_equal(params$Kundmachungsorgan, "BGBl.")
 })
 
+test_that("a single document type flag defaults the other to its complement", {
+  # TRUE selects only that document type.
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_decision_text = TRUE
+  )
+  expect_true(flags$search_decision_text)
+  expect_false(flags$search_legal_principles)
+
+  # FALSE selects only the other document type (no error).
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_decision_text = FALSE
+  )
+  expect_false(flags$search_decision_text)
+  expect_true(flags$search_legal_principles)
+
+  flags <- risAT:::ris_normalize_document_type_flags(
+    application_code = "Vwgh",
+    search_legal_principles = FALSE
+  )
+  expect_true(flags$search_decision_text)
+  expect_false(flags$search_legal_principles)
+
+  # Both explicitly FALSE is still an error.
+  expect_error(
+    risAT:::ris_normalize_document_type_flags(
+      application_code = "Vwgh",
+      search_decision_text = FALSE,
+      search_legal_principles = FALSE
+    ),
+    class = "risat_invalid_argument"
+  )
+})
+
+test_that("ignored document type flags warn with a classed condition", {
+  expect_warning(
+    risAT:::ris_normalize_document_type_flags(
+      application_code = "Gbk",
+      search_decision_text = TRUE
+    ),
+    class = "risat_ignored_argument"
+  )
+})
+
 test_that("case law page binding harmonizes mixed list/scalar columns", {
   page_1 <- tibble::tibble(
     vfgh_indices = "41/02",
@@ -523,7 +568,7 @@ test_that("ris_search_gbk forwards commission, senate, and discrimination_ground
   url <- req$url
   expect_match(url, "Applikation=Gbk")
   expect_match(url, "Kommission=Gleichbehandlungskommission")
-  expect_match(url, "Senat=Senat")
+  expect_match(url, "Senat=I")
   expect_match(url, "Diskriminierungsgrund=Geschlecht")
 })
 
@@ -831,7 +876,7 @@ test_that("ris_search_lvwg rejects invalid federal_state", {
 test_that("ris_normalize_gbk_commission accepts canonical German names", {
   expect_equal(
     risAT:::ris_normalize_gbk_commission("Bundes-Gleichbehandlungskommission"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("Gleichbehandlungskommission"),
@@ -842,11 +887,11 @@ test_that("ris_normalize_gbk_commission accepts canonical German names", {
 test_that("ris_normalize_gbk_commission accepts short aliases", {
   expect_equal(
     risAT:::ris_normalize_gbk_commission("bundesgbk"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("bgbk"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("gbk"),
@@ -857,7 +902,7 @@ test_that("ris_normalize_gbk_commission accepts short aliases", {
 test_that("ris_normalize_gbk_commission accepts English aliases", {
   expect_equal(
     risAT:::ris_normalize_gbk_commission("federal"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("private_sector"),
@@ -872,11 +917,11 @@ test_that("ris_normalize_gbk_commission is case-insensitive", {
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("BGBK"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_commission("Federal"),
-    "Bundes-Gleichbehandlungskommission"
+    "BundesGleichbehandlungskommission"
   )
 })
 
@@ -894,21 +939,21 @@ test_that("ris_normalize_gbk_commission errors on invalid value", {
 # ── GBK senate normalizer ────────────────────────────────────────────────────
 
 test_that("ris_normalize_gbk_senate accepts full canonical names", {
-  expect_equal(risAT:::ris_normalize_gbk_senate("Senat I"), "Senat I")
-  expect_equal(risAT:::ris_normalize_gbk_senate("Senat II"), "Senat II")
-  expect_equal(risAT:::ris_normalize_gbk_senate("Senat III"), "Senat III")
+  expect_equal(risAT:::ris_normalize_gbk_senate("Senat I"), "I")
+  expect_equal(risAT:::ris_normalize_gbk_senate("Senat II"), "II")
+  expect_equal(risAT:::ris_normalize_gbk_senate("Senat III"), "III")
 })
 
 test_that("ris_normalize_gbk_senate accepts Roman numeral aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_senate("I"), "Senat I")
-  expect_equal(risAT:::ris_normalize_gbk_senate("II"), "Senat II")
-  expect_equal(risAT:::ris_normalize_gbk_senate("III"), "Senat III")
+  expect_equal(risAT:::ris_normalize_gbk_senate("I"), "I")
+  expect_equal(risAT:::ris_normalize_gbk_senate("II"), "II")
+  expect_equal(risAT:::ris_normalize_gbk_senate("III"), "III")
 })
 
 test_that("ris_normalize_gbk_senate accepts digit aliases", {
-  expect_equal(risAT:::ris_normalize_gbk_senate("1"), "Senat I")
-  expect_equal(risAT:::ris_normalize_gbk_senate("2"), "Senat II")
-  expect_equal(risAT:::ris_normalize_gbk_senate("3"), "Senat III")
+  expect_equal(risAT:::ris_normalize_gbk_senate("1"), "I")
+  expect_equal(risAT:::ris_normalize_gbk_senate("2"), "II")
+  expect_equal(risAT:::ris_normalize_gbk_senate("3"), "III")
 })
 
 test_that("ris_normalize_gbk_senate returns NULL for NULL input", {
@@ -955,11 +1000,22 @@ test_that("ris_normalize_gbk_discrimination_ground accepts canonical German valu
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("Ethnische Zugehörigkeit"),
-    "Ethnische Zugehörigkeit"
+    "EthnischeZugehoerigkeit"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("Sexuelle Orientierung"),
-    "Sexuelle Orientierung"
+    "SexuelleOrientierung"
+  )
+})
+
+test_that("ris_normalize_gbk_discrimination_ground accepts API enum forms", {
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("EthnischeZugehoerigkeit"),
+    "EthnischeZugehoerigkeit"
+  )
+  expect_equal(
+    risAT:::ris_normalize_gbk_discrimination_ground("SexuelleOrientierung"),
+    "SexuelleOrientierung"
   )
 })
 
@@ -979,11 +1035,11 @@ test_that("ris_normalize_gbk_discrimination_ground accepts English aliases", {
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("ethnicity"),
-    "Ethnische Zugehörigkeit"
+    "EthnischeZugehoerigkeit"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("sexual_orientation"),
-    "Sexuelle Orientierung"
+    "SexuelleOrientierung"
   )
   expect_equal(
     risAT:::ris_normalize_gbk_discrimination_ground("worldview"),
@@ -1030,7 +1086,7 @@ test_that("ris_search_gbk normalizes and encodes GBK-specific params in URL", {
   )
   url <- req$url
   expect_match(url, "Kommission=Gleichbehandlungskommission")
-  expect_match(url, "Senat=Senat%20I")
+  expect_match(url, "Senat=I")
   expect_match(url, "Diskriminierungsgrund=Geschlecht")
 })
 

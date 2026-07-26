@@ -36,14 +36,28 @@ reference:
       - ris_search_pvak
       - ris_search_gbk
 
+  - title: "Search Functions — Bundesrecht"
+    desc: "Search consolidated federal law (Bundesrecht in konsolidierter Fassung, BrKons)."
+    contents:
+      - ris_search_federal
+
   - title: "Request Building"
     contents:
       - ris_req_case_law
       - ris_perform_case_law
+      - ris_req_federal
+      - ris_perform_federal
 
   - title: "Parsers"
     contents:
       - ris_parse_search
+      - ris_parse_federal
+
+  - title: "Utilities"
+    desc: "API base URL and RIS website URL accessors."
+    contents:
+      - ris_base_url
+      - ris_search_url
 
 build:
   exclude:

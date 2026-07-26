@@ -2,7 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
 docs
 inst/doc
 .claude/
 .playwright-mcp/
+.vscode/

@@ -9,7 +9,7 @@
 #' @param requested_per_page Optional requested page size for metadata fallback.
 #'
 #' @return A tibble parsed from one RIS response payload.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'   The `decision_date` column, when present, is parsed to `Date`.
 #' @importFrom rlang %||%
 #' @export
@@ -49,6 +49,40 @@ ris_parse_search <- function(
   requested_page = NULL,
   requested_per_page = NULL
 ) {
+  ris_parse_search_internal(
+    x,
+    requested_page = requested_page,
+    requested_per_page = requested_per_page
+  ) |>
+    ris_drop_app_metadata()
+}
+
+ris_parse_search_internal <- function(
+  x,
+  requested_page = NULL,
+  requested_per_page = NULL
+) {
+  out <- ris_parse_ris_response(
+    x,
+    requested_page = requested_page,
+    requested_per_page = requested_per_page,
+    row_builder = ris_reference_to_tibble_row
+  )
+  out <- ris_ensure_list_column(out, "norms")
+  out <- ris_split_delimited_column(out, "keywords")
+  ris_parse_date_columns(out, "decision_date")
+}
+
+# Shared parsing engine behind the Judikatur and Bundesrecht page parsers:
+# decode the payload, fail on API errors, and convert each document reference
+# into a row via `row_builder`.  The per-application parsers only differ in
+# their row builder and post-processing (date columns, list-column handling).
+ris_parse_ris_response <- function(
+  x,
+  requested_page,
+  requested_per_page,
+  row_builder
+) {
   payload <- ris_as_payload(x)
   root <- ris_extract_root(payload)
   ris_stop_on_api_error(root)
@@ -63,38 +97,15 @@ ris_parse_search <- function(
   )
 
   if (length(document_refs) == 0L) {
-    return(
-      tibble::tibble(
-        content_urls = list(),
-        app_metadata = list()
-      )
-    )
+    return(ris_empty_result())
   }
 
   rows <- purrr::map(
     document_refs,
-    \(doc) ris_reference_to_tibble_row(doc, response_meta)
+    \(doc) row_builder(doc, response_meta)
   )
 
-  out <- ris_bind_rows_harmonized(rows)
-  ris_parse_decision_date(out)
-}
-
-# Coerce the decision_date column to Date.  The API returns ISO 8601 strings
-# (YYYY-MM-DD); if parsing fails for any value, the column is left unchanged
-# rather than erroring (robust-parsing principle).
-ris_parse_decision_date <- function(tbl) {
-  if (!"decision_date" %in% names(tbl) || is.list(tbl$decision_date)) {
-    return(tbl)
-  }
-  parsed <- tryCatch(
-    as.Date(tbl$decision_date),
-    error = function(e) NULL
-  )
-  if (!is.null(parsed)) {
-    tbl$decision_date <- parsed
-  }
-  tbl
+  ris_bind_rows_harmonized(rows)
 }
 
 ris_as_payload <- function(x) {
@@ -104,7 +115,10 @@ ris_as_payload <- function(x) {
   if (is.list(x)) {
     return(x)
   }
-  rlang::abort("`x` must be an `httr2_response` or a list.")
+  rlang::abort(
+    "`x` must be an `httr2_response` or a list.",
+    class = "risat_invalid_argument"
+  )
 }
 
 ris_extract_root <- function(payload) {
@@ -122,7 +136,10 @@ ris_stop_on_api_error <- function(root) {
 
   application <- err$Applikation %||% "Unknown"
   message <- err$Message %||% "Unknown RIS API error."
-  rlang::abort(paste0("RIS API error [", application, "]: ", message))
+  rlang::abort(
+    paste0("RIS API error [", application, "]: ", message),
+    class = "risat_api_error"
+  )
 }
 
 ris_extract_document_references <- function(root) {
@@ -189,7 +206,7 @@ ris_extract_hits_count <- function(root) {
     hits$`#text` %||% NULL
   )
 
-  value <- purrr::detect(candidates, ~ !is.null(.x))
+  value <- purrr::detect(candidates, \(x) !is.null(x))
   if (is.null(value)) {
     return(NA_integer_)
   }
@@ -198,10 +215,27 @@ ris_extract_hits_count <- function(root) {
 }
 
 ris_reference_to_tibble_row <- function(reference, response_meta) {
+  ris_reference_to_row(
+    reference,
+    response_meta,
+    translate_names = ris_translate_column_names
+  )
+}
+
+# Convert a single OgdDocumentReference into a one-row tibble.  Shared by the
+# Judikatur and Bundesrecht row builders, which differ only in their
+# column-name translation and in which extra metadata blocks (e.g.
+# "Bundesrecht") are carried in the internal app metadata.
+ris_reference_to_row <- function(
+  reference,
+  response_meta,
+  translate_names,
+  extra_meta_blocks = character()
+) {
   data <- reference$Data %||% list()
   metadata <- data$Metadaten %||% list()
   metadata_flat <- ris_flatten_named_list(metadata)
-  metadata_flat <- purrr::modify(metadata_flat, ~ if (is.null(.x)) NA else .x)
+  metadata_flat <- purrr::modify(metadata_flat, \(x) if (is.null(x)) NA else x)
 
   if (length(metadata_flat) == 0L) {
     metadata_flat <- list()
@@ -220,19 +254,20 @@ ris_reference_to_tibble_row <- function(reference, response_meta) {
   # Translate German snake_case names to English.  make.unique() guards
   # against two source fields translating to the same English name (e.g.
   # Entscheidungsdatum appearing under both Allgemein and Judikatur).
-  names(metadata_flat) <- make.unique(
-    ris_translate_column_names(names(metadata_flat))
+  names(metadata_flat) <- make.unique(translate_names(names(metadata_flat)))
+
+  app_metadata <- list(
+    response = response_meta,
+    technisch = metadata$Technisch %||% list(),
+    allgemein = metadata$Allgemein %||% list()
   )
+  for (block in extra_meta_blocks) {
+    app_metadata[[ris_to_snake_case(block)]] <- metadata[[block]] %||% list()
+  }
 
   row <- tibble::as_tibble_row(metadata_flat, .name_repair = "minimal")
   row$content_urls <- list(ris_extract_content_urls(data$Dokumentliste))
-  row$app_metadata <- list(
-    list(
-      response = response_meta,
-      technisch = metadata$Technisch %||% list(),
-      allgemein = metadata$Allgemein %||% list()
-    )
-  )
+  row$app_metadata <- list(app_metadata)
   row
 }
 
@@ -243,7 +278,7 @@ ris_bind_rows_harmonized <- function(rows) {
 
   all_cols <- unique(unlist(purrr::map(rows, names), use.names = FALSE))
   list_cols <- all_cols[purrr::map_lgl(all_cols, function(col) {
-    any(purrr::map_lgl(rows, ~ col %in% names(.x) && is.list(.x[[col]])))
+    any(purrr::map_lgl(rows, \(row) col %in% names(row) && is.list(row[[col]])))
   })]
 
   rows <- purrr::map(rows, function(row) {
@@ -293,7 +328,7 @@ ris_extract_content_urls <- function(dokumentliste) {
     if (length(entries) == 0L && is.list(content) && !is.null(content$Url)) {
       entries <- list(content)
     }
-    purrr::map_chr(entries, ~ as.character(.x$Url %||% NA_character_))
+    purrr::map_chr(entries, \(entry) as.character(entry$Url %||% NA_character_))
   }) |>
     unlist(use.names = FALSE)
 
@@ -343,11 +378,46 @@ ris_flatten_named_list <- function(x, prefix = NULL) {
   out
 }
 
+# Split a comma-separated string column into a list-column of trimmed terms.
+# Unlike Normen/Indizes, the RIS API serializes Schlagworte (keywords) as a
+# single delimited string rather than as repeated XML elements, so it needs
+# an explicit split rather than the generic item-flattening logic below.
+ris_split_delimited_column <- function(tbl, col, delim = "\\s*,\\s*") {
+  if (!col %in% names(tbl) || is.list(tbl[[col]])) {
+    return(tbl)
+  }
+  tbl[[col]] <- purrr::map(tbl[[col]], function(x) {
+    if (is.na(x)) {
+      return(NA_character_)
+    }
+    stringr::str_split(x, delim)[[1]]
+  })
+  tbl
+}
+
+# Ensure a column derived from a repeated XML element (e.g. Normen/Item) is
+# always a list-column. When every row in a page happens to carry exactly one
+# value, the API collapses the single-item array to a bare scalar, which
+# would otherwise leave the column as plain character instead of consistently
+# list-typed.
+ris_ensure_list_column <- function(tbl, col) {
+  if (!col %in% names(tbl) || is.list(tbl[[col]])) {
+    return(tbl)
+  }
+  tbl[[col]] <- as.list(tbl[[col]])
+  tbl
+}
+
 ris_to_scalar_or_list <- function(x) {
   if (is.null(x)) {
     return(NA)
   }
-  if (is.atomic(x) && length(x) <= 1L) {
+  if (is.atomic(x) && length(x) == 0L) {
+    # A zero-length value would break tibble::as_tibble_row(), which
+    # requires every cell to have length 1.
+    return(NA)
+  }
+  if (is.atomic(x) && length(x) == 1L) {
     return(x)
   }
   list(x)

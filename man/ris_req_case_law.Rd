@@ -36,7 +36,9 @@ ris_req_case_law(
   in_ris_since = NULL,
   search_decision_text = NULL,
   search_legal_principles = NULL,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  sort_by = NULL,
+  sort_direction = NULL,
+  base_url = ris_base_url()
 )
 }
 \arguments{
@@ -61,11 +63,15 @@ ris_req_case_law(
    \code{"Verg"} \tab \code{"procurement_review_bodies"} \tab Procurement Review Bodies (until 2013) \cr
 }}
 
-\item{query}{Optional full-text query (\code{Suchworte}).}
+\item{query}{Optional full-text query (\code{Suchworte}). Supports the RIS
+full-text operators (space/\code{und} = AND, \code{OR}/\code{ODER} = OR, \code{nicht} = NOT,
+\code{*} = wildcard, \code{'phrase'} for exact phrase).}
 
 \item{business_number}{Optional business number (\code{Geschaeftszahl}).}
 
-\item{norm}{Optional legal norm query (\code{Norm}).}
+\item{norm}{Optional legal norm query (\code{Norm}). Multiple norms can be
+combined with \code{OR}/\code{ODER} (wrap each norm in single quotes, e.g.
+\code{"'AsylG 2005 §3' ODER 'BFA-VG §21 Abs7'"}).}
 
 \item{decision_date_from}{Optional lower date bound (\code{YYYY-MM-DD},
 \code{EntscheidungsdatumVon}).}
@@ -151,7 +157,17 @@ and \code{Uvs}.}
 \item{senate}{Optional senate (\code{Senat}), used for \code{Gbk}.}
 
 \item{discrimination_ground}{Optional discrimination ground
-(\code{Diskriminierungsgrund}), used for \code{Gbk}.}
+(\code{Diskriminierungsgrund}), used for \code{Gbk}. Accepted German values:
+\code{"Geschlecht"}, \code{"Ethnische Zugehörigkeit"}, \code{"Religion"},
+\code{"Weltanschauung"}, \code{"Alter"}, \code{"Sexuelle Orientierung"},
+\code{"Behinderung"}, and \code{"Mehrfachdiskriminierung"}. English aliases:
+\code{"gender"}/\code{"sex"} -> \code{"Geschlecht"}, \code{"ethnicity"}/
+\code{"ethnic_origin"} -> \code{"EthnischeZugehoerigkeit"}, \code{"religion"} ->
+\code{"Religion"}, \code{"worldview"} -> \code{"Weltanschauung"}, \code{"age"} ->
+\code{"Alter"}, \code{"sexual_orientation"} -> \code{"SexuelleOrientierung"},
+\code{"disability"} -> \code{"Behinderung"}, and \code{"multiple"}/
+\code{"multiple_discrimination"} -> \code{"Mehrfachdiskriminierung"}.
+Matching is case-insensitive and ignores spaces, underscores, and hyphens.}
 
 \item{author}{Optional author (\code{Verfasser}), used for \code{Ubas}.}
 
@@ -169,9 +185,29 @@ English aliases (\code{"one_week"}, \code{"two_weeks"}, \code{"one_month"},
 (\code{SucheInEntscheidungstexten}).}
 
 \item{search_legal_principles}{Optional flag for legal principles search
-(\code{SucheInRechtssaetzen}).}
+(\code{SucheInRechtssaetzen}). When both flags are omitted, both document
+types are searched. When only one flag is given, the other defaults to
+its complement, so a single flag selects exactly one document type
+(e.g. \code{search_decision_text = FALSE} searches legal principles only).
+Setting both to \code{FALSE} is an error.}
 
-\item{base_url}{API base URL.}
+\item{sort_by}{Sort column (\code{SortierungSortedByColumn}). When omitted,
+defaults to \code{"Datum"} (decision date) for all applications except
+\code{Normenliste}, whose only sortable column is \code{"Kurzinformation"} — there
+the sort parameters are omitted and the API default order applies. For
+VfGH and VwGH the value is validated client-side against
+\code{"Geschaeftszahl"}, \code{"Datum"}, \code{"Art"}, \code{"Typ"} (English aliases
+\code{"business_number"}/\code{"case_number"}, \code{"decision_date"},
+\code{"decision_type"}, \code{"document_type"}); for \code{Normenliste} against
+\code{"Kurzinformation"} (alias \code{"brief_info"}); other applications pass the
+value to the API as-is.}
+
+\item{sort_direction}{Sort direction (\code{SortierungSortDirection}):
+\code{"Ascending"} or \code{"Descending"}. Defaults to \code{"Descending"} whenever a
+sort column is in effect.}
+
+\item{base_url}{API base URL. Defaults to \code{\link[=ris_base_url]{ris_base_url()}}, which can be
+overridden for a session via \code{options(risAT.base_url = ...)}.}
 }
 \value{
 An \code{httr2_request} object with an additional \code{"ris_meta"} attribute
@@ -185,7 +221,7 @@ Construct an \code{httr2_request} object for the Austrian RIS OGD REST API v2.6
 \code{\link[httr2:req_dry_run]{httr2::req_dry_run()}} to inspect the URL.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Build request, then inspect the URL without hitting the network
 req <- ris_req_case_law(
   application = "constitutional_court",
@@ -195,5 +231,5 @@ httr2::req_dry_run(req)
 
 # Execute
 results <- ris_perform_case_law(req)
-}
+\dontshow{\}) # examplesIf}
 }

@@ -50,18 +50,22 @@
 #'   `"Senat I"`, `"Senat II"`, `"Senat III"`. Roman numerals (`"I"`,
 #'   `"II"`, `"III"`) and digits (`"1"`, `"2"`, `"3"`) are also accepted.
 #' @param discrimination_ground Optional discrimination ground
-#'   (`Diskriminierungsgrund`). Accepted values: `"Geschlecht"`,
+#'   (`Diskriminierungsgrund`). Accepted German values: `"Geschlecht"`,
 #'   `"Ethnische Zugehörigkeit"`, `"Religion"`, `"Weltanschauung"`,
-#'   `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`,
-#'   `"Mehrfachdiskriminierung"`. English aliases (`"gender"`, `"age"`,
-#'   `"disability"`, `"ethnicity"`, `"sexual_orientation"`, etc.) are
-#'   also accepted (case-insensitive).
+#'   `"Alter"`, `"Sexuelle Orientierung"`, `"Behinderung"`, and
+#'   `"Mehrfachdiskriminierung"`. English aliases: `"gender"`/`"sex"` ->
+#'   `"Geschlecht"`, `"ethnicity"`/`"ethnic_origin"` ->
+#'   `"EthnischeZugehoerigkeit"`, `"religion"` -> `"Religion"`,
+#'   `"worldview"` -> `"Weltanschauung"`, `"age"` -> `"Alter"`,
+#'   `"sexual_orientation"` -> `"SexuelleOrientierung"`, `"disability"` ->
+#'   `"Behinderung"`, and `"multiple"`/`"multiple_discrimination"` ->
+#'   `"Mehrfachdiskriminierung"`. Matching is case-insensitive and ignores
+#'   spaces, underscores, and hyphens.
 #'
 #' @return A tidy tibble with parsed search results.
-#'   Includes list-columns `content_urls` and `app_metadata`.
+#'   Includes list-column `content_urls`.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Search all equal treatment commission decisions
 #' ris_search_gbk(query = "Diskriminierung")
 #'
@@ -82,7 +86,6 @@
 #'   norm = "GlBG §17",
 #'   senate = "Senat I"
 #' )
-#' }
 #' @export
 ris_search_gbk <- function(
   query = NULL,
@@ -96,7 +99,7 @@ ris_search_gbk <- function(
   discrimination_ground = NULL,
   in_ris_since = NULL,
   echo = FALSE,
-  base_url = "https://data.bka.gv.at/ris/api/v2.6"
+  base_url = ris_base_url()
 ) {
   commission <- ris_normalize_gbk_commission(commission)
   senate <- ris_normalize_gbk_senate(senate)
