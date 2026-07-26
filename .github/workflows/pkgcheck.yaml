@@ -9,6 +9,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "_pkgdown.yml"
+      - "pkgdown/**"
 
 jobs:
   pkgcheck:
