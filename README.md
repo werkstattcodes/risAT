@@ -1,7 +1,6 @@
 # risAT
 
 <!-- badges: start -->
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![R-CMD-check](https://github.com/werkstattcodes/risAT/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/werkstattcodes/risAT/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
@@ -13,9 +12,8 @@ jurisprudence) across all supported court applications and the `/Bundesrecht`
 endpoint for consolidated federal law (`BrKons`), and is designed for
 reproducible legal research.
 
-Please note that the package is **in a development stage**. Upcoming changes
-may break existing code. If you encounter any bug, you are welcome to file an
-issue at the package's
+Version 0.1.0 is **experimental**, and breaking changes may occur before 1.0.
+If you encounter any bug, you are welcome to file an issue at the package's
 [GitHub repo](https://github.com/werkstattcodes/risAT/issues).
 
 ## Data source
