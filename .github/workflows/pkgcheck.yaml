@@ -20,4 +20,17 @@ jobs:
       contents: read
       issues: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Match workspace ownership to the pkgcheck container
+        run: sudo chown -R 0:0 "$GITHUB_WORKSPACE"
+
       - uses: ropensci-review-tools/pkgcheck-action@main
+        with:
+          ref: ""
+
+      - name: Restore workspace ownership
+        if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
