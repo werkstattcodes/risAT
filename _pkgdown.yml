@@ -16,6 +16,13 @@ articles:
     navbar: ~
     contents:
       - articles/getting-started
+      - risat-intro
+
+external-articles:
+  - name: risat-intro
+    title: "Introducing risAT"
+    description: "An introduction to risAT and working with Austrian legal information in R."
+    href: https://werk.statt.codes/posts/2026-06-30-risat-intro/
 
 reference:
   - title: "Search Functions — Generic"
