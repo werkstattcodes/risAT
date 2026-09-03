@@ -130,10 +130,18 @@ Endpoint-agnostic helpers used by both the Judikatur and Bundesrecht sides:
 
 - `ris_base_url()` (exported) — single source of truth for the API base URL;
   overridable per session via `options(risAT.base_url = ...)`
+- `ris_throttle_params()` — resolves the client-side pacing from
+  `options(risAT.throttle_capacity = )` / `options(risAT.throttle_fill_time_s = )`,
+  defaulting to `capacity = 1, fill_time_s = 2` (one request every 2 seconds).
+  `capacity = 1` is load-bearing: httr2's token bucket starts *full*, so any
+  larger capacity lets that many requests fire back-to-back completely unpaced
+  before spacing begins. Setting `fill_time_s = 0` drops the throttle policy
+  altogether (for local mock servers). Pacing faster than 1 request/second
+  raises a `risat_throttle_override` warning once per session
 - `ris_base_request()` — request skeleton applied to every RIS request:
   package-identifying User-Agent, `req_retry(max_tries = 3)`, and client-side
-  throttling via `req_throttle(capacity = 30, fill_time_s = 60)` (30 requests
-  per minute shared across the session)
+  throttling using the settings from `ris_throttle_params()` (a token bucket
+  per host, shared across the session)
 - `ris_empty_result()` — type-stable zero-row result tibble
 - `ris_parse_date_columns()` — coerce known date columns to `Date`
 - `ris_app_url()` / `ris_search_url()` (exported) — accessors for the RIS
@@ -255,7 +263,7 @@ All exported functions must have complete roxygen2 documentation:
 
 ## API constraints
 
-- **Respect rate limits** — the RIS OGD API is a public service; every request goes through `ris_base_request()`, which applies client-side throttling (30 requests/minute, i.e. ~2s/request) and retries — do not bypass it or add parallel/rapid sequential requests. This matches the officially documented pacing: the RIS OGD FAQ (`background_docs/ris-ogd-faq.pdf`, "Technische Rahmenbedingungen") asks clients to insert "kurze Pausen von etwa 1–2 Sekunden" between paginated page fetches — sequential, not parallel. There is no documented allowance for concurrent requests, so `httr2::req_perform_parallel()` is not an option here even though the throttle bucket would still cap it (see `background_docs/ris-ogd-faq.pdf` before ever proposing to loosen or parallelize this).
+- **Respect rate limits** — the RIS OGD API is a public service; every request goes through `ris_base_request()`, which applies client-side throttling (one request every 2 seconds, genuinely spaced from the first request onward) and retries — do not bypass it or add parallel/rapid sequential requests. Pacing is user-configurable via `options(risAT.throttle_capacity = )` / `options(risAT.throttle_fill_time_s = )`; that is the sanctioned way to adjust it, and going faster than 1 request/second warns via `risat_throttle_override`. Do not raise the capacity to re-introduce burst behaviour: httr2's bucket starts full, so `capacity = n` means the first `n` requests are sent with no pause at all. This matches the officially documented pacing: the RIS OGD FAQ (`background_docs/ris-ogd-faq.pdf`, "Technische Rahmenbedingungen") asks clients to insert "kurze Pausen von etwa 1–2 Sekunden" between paginated page fetches — sequential, not parallel. There is no documented allowance for concurrent requests, so `httr2::req_perform_parallel()` is not an option here even though the throttle bucket would still cap it (see `background_docs/ris-ogd-faq.pdf` before ever proposing to loosen or parallelize this).
 - **OGD netiquette** — follow the terms of the RIS OGD API; do not attempt to bulk-download the entire database. The FAQ also asks that large/bulk fetches happen outside business hours (18:00–06:00) or on weekends, and that a genuine bulk-download need be announced in advance to `ris.it@bka.gv.at` so it isn't mistaken for a DDoS attack — flag this to the user rather than acting on it, since it requires contacting a third party.
 - **Pagination** — the package handles multi-page results automatically via `httr2::req_perform_iterative()`; all search/perform functions always fetch every page in scope, with no user-facing cap. Narrow searches (e.g. with date ranges or specific filters) during development and testing to keep the number of requests small. Slowness on broad full-text queries (e.g. `search_decision_text`/`search_legal_principles` over a wide date range) is expected — it comes from the mandated per-page pacing across many pages, not a client bug; narrowing the query is the way to speed it up.
 

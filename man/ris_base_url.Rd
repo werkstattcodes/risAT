@@ -15,6 +15,34 @@ request builders. Defaults to the v2.6 API; can be overridden for a whole
 session via \code{options(risAT.base_url = ...)} (e.g. when the API version
 changes or for testing against a mock server).
 }
+\section{Package options}{
+
+
+\code{risAT.base_url}
+: The API base URL. Defaults to \code{"https://data.bka.gv.at/ris/api/v2.6"}.
+
+\code{risAT.throttle_capacity}
+: Number of requests that may be sent back-to-back before pacing begins.
+Defaults to \code{1}, so \emph{every} request is spaced. Raising it re-introduces an
+initial burst and is rarely what you want.
+
+\code{risAT.throttle_fill_time_s}
+: Seconds it takes to refill \code{risAT.throttle_capacity} requests, i.e. the
+pause between requests at the default capacity. Defaults to \code{2}.
+Set \code{0} to disable client-side pacing entirely (intended for local mock
+servers, not for the live API).
+
+The RIS OGD FAQ asks clients to pause roughly 1--2 seconds between
+paginated page fetches, so the defaults sit at the cautious end of that
+range. Configuring risAT to request faster than one per second is allowed
+but raises a \code{risat_throttle_override} warning once per session.
+}
+
 \examples{
 ris_base_url()
+
+# Pace requests more gently for a long bulk run
+\dontrun{
+options(risAT.throttle_fill_time_s = 5)
+}
 }

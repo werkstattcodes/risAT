@@ -131,6 +131,10 @@ results_mrg <- ris_search_federal(query = "Mietzins", version_date = "2020-01-01
 Search functions automatically iterate through all RIS pages and return results
 as a tidy tibble with columns including `id`, `court`, `decision_date`,
 `case_number`, and `content_urls` (a list-column of download links).
+
+Pages hold 100 results each and risAT pauses about two seconds between them,
+as the RIS OGD FAQ asks of API clients — so budget roughly 20 seconds per
+1,000 hits and narrow broad searches with a date range or filter.
 See the [reference documentation](https://werkstattcodes.github.io/risAT/reference/)
 for full details.
 

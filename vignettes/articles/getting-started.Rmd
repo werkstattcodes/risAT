@@ -440,3 +440,9 @@ nrow(results)
 req <- ris_req_case_law(application = "Vwgh", query = "Baurecht")
 cat(req$url, "\n")
 ```
+
+Note that `ris_perform_case_law()` fetches *every* page in scope, pausing about
+two seconds between them as the RIS OGD FAQ asks of API clients. At 100 results
+per page that is roughly 20 seconds per 1,000 hits, so a broad query can take
+several minutes. Narrowing the search — a date range, a more specific filter —
+is the way to speed it up.

@@ -5,13 +5,14 @@
 # Shared infrastructure used by both the Judikatur and Bundesrecht sides:
 #
 #   1. ris_base_url()        — single source of truth for the API base URL
-#   2. ris_base_request()    — httr2 request skeleton (user agent, retry,
+#   2. ris_throttle_params() — client-side pacing resolved from package options
+#   3. ris_base_request()    — httr2 request skeleton (user agent, retry,
 #                              throttling) applied to every RIS request
-#   3. ris_empty_result()    — type-stable zero-row result tibble
-#   4. ris_app_url() /
+#   4. ris_empty_result()    — type-stable zero-row result tibble
+#   5. ris_app_url() /
 #      ris_search_url()      — accessors for the RIS website URL attributes
-#   5. ris_parse_date_columns() — coerce known date columns to Date
-#   6. ris_normalize_or_operator() — translate OR/ODER to the RIS-native
+#   6. ris_parse_date_columns() — coerce known date columns to Date
+#   7. ris_normalize_or_operator() — translate OR/ODER to the RIS-native
 #      full-text OR operator
 # ============================================================================
 
@@ -22,27 +23,138 @@
 #' session via `options(risAT.base_url = ...)` (e.g. when the API version
 #' changes or for testing against a mock server).
 #'
+#' @section Package options:
+#'
+#' `risAT.base_url`
+#' : The API base URL. Defaults to `"https://data.bka.gv.at/ris/api/v2.6"`.
+#'
+#' `risAT.throttle_capacity`
+#' : Number of requests that may be sent back-to-back before pacing begins.
+#'   Defaults to `1`, so *every* request is spaced. Raising it re-introduces an
+#'   initial burst and is rarely what you want.
+#'
+#' `risAT.throttle_fill_time_s`
+#' : Seconds it takes to refill `risAT.throttle_capacity` requests, i.e. the
+#'   pause between requests at the default capacity. Defaults to `2`.
+#'   Set `0` to disable client-side pacing entirely (intended for local mock
+#'   servers, not for the live API).
+#'
+#' The RIS OGD FAQ asks clients to pause roughly 1--2 seconds between
+#' paginated page fetches, so the defaults sit at the cautious end of that
+#' range. Configuring risAT to request faster than one per second is allowed
+#' but raises a `risat_throttle_override` warning once per session.
+#'
 #' @return A single string with the API base URL.
 #' @export
 #'
 #' @examples
 #' ris_base_url()
+#'
+#' # Pace requests more gently for a long bulk run
+#' \dontrun{
+#' options(risAT.throttle_fill_time_s = 5)
+#' }
 ris_base_url <- function() {
   getOption("risAT.base_url", "https://data.bka.gv.at/ris/api/v2.6")
 }
 
+# Default request pacing: one request every 2 seconds.  This is the
+# conservative end of the "kurze Pausen von etwa 1-2 Sekunden" that the RIS OGD
+# FAQ asks clients to insert between paginated page fetches
+# (background_docs/ris-ogd-faq.pdf, "Technische Rahmenbedingungen").
+ris_throttle_default_capacity <- 1L
+ris_throttle_default_fill_time_s <- 2
+
+# Resolve the client-side throttle settings from package options.
+#
+# capacity = 1 is deliberate, not arbitrary.  httr2's token bucket starts
+# *full*, so a capacity of n lets the first n requests fire back-to-back with
+# no pause at all before any spacing kicks in.  Only capacity = 1 produces a
+# genuine gap between every request, which is what the FAQ asks for.
+#
+# Both settings are user-overridable so callers can slow risAT down further for
+# a long bulk run, or switch pacing off entirely (fill_time_s = 0) when
+# pointing `risAT.base_url` at a local mock server.  Requesting faster than the
+# FAQ's one-second floor is permitted but warned about once per session.
+ris_throttle_params <- function(call = rlang::caller_env()) {
+  capacity <- getOption(
+    "risAT.throttle_capacity",
+    ris_throttle_default_capacity
+  )
+  fill_time_s <- getOption(
+    "risAT.throttle_fill_time_s",
+    ris_throttle_default_fill_time_s
+  )
+
+  # checkmate supplies the predicates; rlang::abort() supplies the condition
+  # class, so callers can catch these structurally like every other risAT error.
+  if (!checkmate::test_count(capacity, positive = TRUE)) {
+    rlang::abort(
+      "Option `risAT.throttle_capacity` must be a single positive whole number.",
+      class = "risat_invalid_argument",
+      call = call
+    )
+  }
+  if (!checkmate::test_number(fill_time_s, lower = 0, finite = TRUE)) {
+    rlang::abort(
+      "Option `risAT.throttle_fill_time_s` must be a single non-negative number.",
+      class = "risat_invalid_argument",
+      call = call
+    )
+  }
+
+  # Sustained pacing once the bucket has drained.
+  seconds_per_request <- fill_time_s / capacity
+  if (seconds_per_request < 1) {
+    rlang::warn(
+      c(
+        "risAT is configured to request faster than the RIS OGD FAQ asks for.",
+        i = paste0(
+          "Current pacing: ~",
+          signif(seconds_per_request, 3),
+          "s between requests."
+        ),
+        i = "The FAQ asks for pauses of about 1-2 seconds between paginated fetches.",
+        i = paste0(
+          "Restore the default with `options(risAT.throttle_capacity = 1, ",
+          "risAT.throttle_fill_time_s = 2)`."
+        )
+      ),
+      class = "risat_throttle_override",
+      .frequency = "once",
+      .frequency_id = "risat_throttle_override"
+    )
+  }
+
+  list(capacity = capacity, fill_time_s = fill_time_s)
+}
+
 # Build the request skeleton shared by all RIS endpoints: a package-identifying
 # user agent (courtesy to the public OGD service), retries against transient
-# network errors, and client-side throttling so iterative pagination cannot
-# hammer the API (30 requests per minute across all risAT requests to the same
-# host).
+# network errors, and client-side throttling so iterative pagination paces
+# itself the way the RIS OGD FAQ asks — by default one request every 2 seconds,
+# shared across all risAT requests to the same host.  See ris_throttle_params()
+# for the pacing settings and how to override them.
 ris_base_request <- function(base_url, endpoint) {
-  httr2::request(paste0(base_url, endpoint)) |>
+  throttle <- ris_throttle_params()
+
+  req <- httr2::request(paste0(base_url, endpoint)) |>
     httr2::req_user_agent(
       "risAT R package (https://github.com/werkstattcodes/risAT)"
     ) |>
-    httr2::req_retry(max_tries = 3) |>
-    httr2::req_throttle(capacity = 30, fill_time_s = 60)
+    httr2::req_retry(max_tries = 3)
+
+  # fill_time_s = 0 means "no pacing at all", which httr2 has no way to
+  # express, so drop the policy rather than handing it an infinite fill rate.
+  if (throttle$fill_time_s == 0) {
+    return(req)
+  }
+
+  httr2::req_throttle(
+    req,
+    capacity = throttle$capacity,
+    fill_time_s = throttle$fill_time_s
+  )
 }
 
 # Type-stable zero-row result: guarantees the columns that every public RIS

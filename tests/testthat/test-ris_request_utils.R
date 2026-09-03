@@ -26,8 +26,69 @@ test_that("case law and federal requests share user agent and throttling", {
   for (req in list(case_law_req, federal_req)) {
     expect_match(req$options$useragent, "risAT")
     expect_false(is.null(req$policies$retry_max_tries))
-    expect_false(is.null(req$policies$throttle))
+    # httr2 stores only the realm on the request; assert it exactly rather
+    # than relying on `$` partial matching against `throttle_realm`.
+    expect_equal(req$policies$throttle_realm, "data.bka.gv.at")
   }
+})
+
+# ── Throttle pacing ─────────────────────────────────────────────────────────
+
+test_that("throttle defaults to one request every 2 seconds", {
+  # capacity = 1 is the point: httr2's token bucket starts full, so any
+  # larger capacity would let that many requests fire back-to-back unpaced.
+  expect_equal(
+    ris_throttle_params(),
+    list(capacity = 1L, fill_time_s = 2)
+  )
+})
+
+test_that("throttle pacing can be slowed down via options", {
+  rlang::local_options(risAT.throttle_fill_time_s = 5)
+  expect_equal(ris_throttle_params()$fill_time_s, 5)
+})
+
+test_that("throttle pacing faster than the FAQ is allowed but warned about", {
+  # The warning is once-per-session; force it so the test is order-independent.
+  rlang::local_options(
+    risAT.throttle_fill_time_s = 0.1,
+    rlang_warning_verbosity = "verbose"
+  )
+
+  expect_warning(
+    params <- ris_throttle_params(),
+    class = "risat_throttle_override"
+  )
+  # Warned, not clamped.
+  expect_equal(params$fill_time_s, 0.1)
+})
+
+test_that("fill_time_s of 0 disables the throttle policy entirely", {
+  rlang::local_options(
+    risAT.throttle_fill_time_s = 0,
+    rlang_warning_verbosity = "quiet"
+  )
+
+  req <- ris_req_case_law(application = "Vwgh")
+  expect_null(req$policies$throttle_realm)
+  expect_false(is.null(req$policies$retry_max_tries))
+})
+
+test_that("invalid throttle options raise risat_invalid_argument", {
+  rlang::local_options(risAT.throttle_capacity = 0)
+  expect_error(ris_throttle_params(), class = "risat_invalid_argument")
+
+  rlang::local_options(risAT.throttle_capacity = 2.5)
+  expect_error(ris_throttle_params(), class = "risat_invalid_argument")
+
+  rlang::local_options(
+    risAT.throttle_capacity = 1L,
+    risAT.throttle_fill_time_s = -1
+  )
+  expect_error(ris_throttle_params(), class = "risat_invalid_argument")
+
+  rlang::local_options(risAT.throttle_fill_time_s = "fast")
+  expect_error(ris_throttle_params(), class = "risat_invalid_argument")
 })
 
 # ── Pagination against mocked httr2 responses ────────────────────────────────

@@ -120,8 +120,21 @@ results <- ris_perform_case_law(req)
 ## Pagination
 
 The RIS API returns results in pages. risAT handles pagination automatically
-and fetches all available pages in scope. The equivalent RIS website URLs are
-attached to the result and can be retrieved with helper functions:
+and fetches all available pages in scope.
+
+Each page holds 100 results, and risAT deliberately pauses about two seconds
+between page requests — the RIS OGD FAQ asks API clients to insert short
+pauses of 1--2 seconds between paginated fetches. Expect roughly 20 seconds
+per 1,000 hits: a query matching 5,000 documents takes a couple of minutes,
+and one matching 20,000 takes several. There is no option to cap the number
+of pages, so the way to make a broad search faster is to narrow it — add a
+date range or a more specific filter.
+
+If you need to be gentler still (for instance during a long unattended run),
+raise the pause with `options(risAT.throttle_fill_time_s = 5)`.
+
+The equivalent RIS website URLs are attached to the result and can be
+retrieved with helper functions:
 
 ```{r hits}
 ris_app_url(results)

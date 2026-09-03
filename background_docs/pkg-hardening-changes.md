@@ -48,6 +48,18 @@ bursting. Thirty requests per minute at 100 documents per page still fetches
 3,000 documents a minute — generous for legitimate research use, but no
 longer capable of accidentally flooding the API.
 
+> **Correction (2026-09-03).** The paragraph above is wrong, and the settings
+> it describes have since been changed. httr2's token bucket is initialised
+> *full* (`TokenBucket$initialize()` sets `self$tokens <- capacity`), so
+> `capacity = 30` did **not** drain gradually — it allowed the first 30
+> requests of a session to fire back-to-back with zero delay, and only then
+> settled to one every two seconds. Since a page holds 100 documents, any
+> search returning fewer than ~3,000 hits never engaged the throttle at all.
+> The settings are now `capacity = 1, fill_time_s = 2`, which spaces every
+> request including the first, and are user-overridable via
+> `options(risAT.throttle_capacity = )` / `options(risAT.throttle_fill_time_s = )`.
+> See `ris_throttle_params()` in `R/ris_request_utils.R`.
+
 This required a versioned dependency: `httr2 (>= 1.1.0)` in `DESCRIPTION`,
 because the `capacity`/`fill_time_s` interface of `req_throttle()` was
 introduced there.
@@ -338,5 +350,7 @@ code could notice:
    character.
 2. Empty results have four columns (`id`, `application`, `content_urls`,
    `app_metadata`) instead of two.
-3. Long multi-page fetches are slower by design once they exceed the 30
-   requests/minute throttle — that is the point of the branch.
+3. Long multi-page fetches are slower by design because of the throttle — that
+   is the point of the branch. (As of the 2026-09-03 correction above, pacing
+   applies from the very first request, at one every two seconds, rather than
+   only after an initial burst of 30.)

@@ -12,8 +12,17 @@
   (`I`/`II`/`III`, `BundesGleichbehandlungskommission`,
   `EthnischeZugehoerigkeit`, `SexuelleOrientierung`). Accepted user inputs
   are unchanged, and the API enum spellings are now accepted as input too.
-- All requests are now throttled client-side (30 requests per minute) as a
-  courtesy to the public RIS OGD API.
+- All requests are now throttled client-side as a courtesy to the public RIS
+  OGD API: one request every 2 seconds, spaced from the very first request.
+  The previous setting (a burst capacity of 30) let the first 30 requests of a
+  session fire back-to-back without any pause, so most searches were never
+  actually paced.
+- Request pacing is now configurable via `options(risAT.throttle_capacity = )`
+  and `options(risAT.throttle_fill_time_s = )` — raise the latter to be gentler
+  during a long bulk run, or set it to `0` to switch pacing off entirely when
+  testing against a local mock server. Configuring risAT to request faster than
+  once per second raises a `risat_throttle_override` warning, since the RIS OGD
+  FAQ asks for pauses of about 1-2 seconds between paginated page fetches.
 - All search and perform functions always fetch every page in scope; there is
   no `max_pages` argument to cap or truncate a result set.
 - `ris_req_case_law()` and `ris_search_case_law()` gained `sort_by` and
