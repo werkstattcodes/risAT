@@ -4,7 +4,7 @@
 \name{risAT-package}
 \alias{risAT}
 \alias{risAT-package}
-\title{risAT: Interface to the Austrian RIS OGD REST API}
+\title{risAT: An R Package Wrapping the API of the Austrian Legal Information System (RIS)}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
